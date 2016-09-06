@@ -1823,7 +1823,7 @@ truncate_stmt:
 
 // CREATE VIEW relname
 create_view_stmt:
-  CREATE VIEW any_name opt_column_list AS select_stmt
+  CREATE VIEW any_name opt_column_list AS simple_select
   {
     $$.val = &CreateView{
       Name: $3.normalizableTableName(),
@@ -1835,7 +1835,7 @@ create_view_stmt:
 
 // CREATE OR REPLACE VIEW relname
 create_or_replace_view_stmt:
-  CREATE OR REPLACE VIEW any_name opt_column_list AS select_stmt
+  CREATE OR REPLACE VIEW any_name opt_column_list AS simple_select
   {
     $$.val = &CreateView{
       Name: $5.normalizableTableName(),

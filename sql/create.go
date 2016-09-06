@@ -270,7 +270,9 @@ func (p *planner) CreateView(n *parser.CreateView) (planNode, error) {
 		return nil, err
 	}
 
+	// TODO: What do we have to do with the explicit column name list?
 	// TODO: Also handle value list? If not, get rid of nil check
+	// TODO: Need to make sure to not only ORDER BY and LIMIT
 	var selectPlan planNode
 	if n.AsSource != nil {
 		selectPlan, err = p.getSelectPlan(n.AsSource)
@@ -287,7 +289,20 @@ func (n *createViewNode) expandPlan() error {
 }
 
 func (n *createViewNode) Start() error {
-	log.Infof(context.TODO(), "Starting creation of VIEW %q!", n.n.Name)
+	log.Infof(context.TODO(), "TODO: Starting creation of VIEW %q!", n.n.Name)
+	/*
+		var desc sqlbase.TableDescriptor
+		var err error
+		if n.n.As() {
+			desc, err = makeTableDescIfAs(n.n, n.dbDesc.ID, n.selectPlan.Columns())
+		} else {
+			desc, err = MakeTableDesc(n.n, n.dbDesc.ID)
+		}
+		if err != nil {
+			return err
+		}
+	*/
+
 	return nil
 }
 
@@ -927,6 +942,30 @@ func CreateTableDescriptor(
 	}
 
 	return desc
+}
+
+// makeViewTableDesc returns the table descriptor for a new view.
+func makeViewTableDesc(
+	p *parser.CreateView, parentID sqlbase.ID, resultColumns []ResultColumn,
+) (sqlbase.TableDescriptor, error) {
+	desc := sqlbase.TableDescriptor{ParentID: parentID,
+		FormatVersion: sqlbase.FamilyFormatVersion, Version: 1}
+	viewName, err := p.Name.Normalize()
+	if err != nil {
+		return desc, err
+	}
+	desc.Name = viewName.String()
+	// TODO: Do we have result types here?
+	for _, colRes := range resultColumns {
+		colType, _ := parser.DatumTypeToColumnType(colRes.Typ)
+		columnTableDef := parser.ColumnTableDef{Name: parser.Name(colRes.Name), Type: colType}
+		col, _, err := sqlbase.MakeColumnDefDescs(&columnTableDef)
+		if err != nil {
+			return desc, err
+		}
+		desc.AddColumn(*col)
+	}
+	return desc, nil
 }
 
 // makeTableDescIfAs is the MakeTableDesc method for when we have a table
