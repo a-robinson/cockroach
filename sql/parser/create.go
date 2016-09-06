@@ -585,3 +585,31 @@ func (node *CreateTable) Format(buf *bytes.Buffer, f FmtFlags) {
 		}
 	}
 }
+
+// CreateView represents a CREATE VIEW statement.
+type CreateView struct {
+	Name            NormalizableTableName
+	ReplaceIfExists bool
+	ToCols          NameList
+	AsSource        *Select
+}
+
+// Format implements the NodeFormatter interface.
+func (node *CreateView) Format(buf *bytes.Buffer, f FmtFlags) {
+	buf.WriteString("CREATE ")
+	if node.ReplaceIfExists {
+		buf.WriteString("OR REPLACE ")
+	}
+	buf.WriteString("VIEW ")
+	FormatNode(buf, f, node.Name)
+
+	if len(node.ToCols) > 0 {
+		buf.WriteByte('(')
+		FormatNode(buf, f, node.ToCols)
+		buf.WriteByte(')')
+		buf.WriteByte(' ')
+	}
+
+	buf.WriteString("AS ")
+	FormatNode(buf, f, node.AsSource)
+}

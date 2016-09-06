@@ -325,6 +325,7 @@ func (u *sqlSymUnion) interleave() *InterleaveDef {
 %type <Statement> create_index_stmt
 %type <Statement> create_table_stmt
 %type <Statement> create_table_as_stmt
+// TODO: ALTER and DROP VIEW
 %type <Statement> create_view_stmt
 %type <Statement> create_or_replace_view_stmt
 %type <Statement> delete_stmt
@@ -1822,17 +1823,29 @@ truncate_stmt:
 
 // CREATE VIEW relname
 create_view_stmt:
-  CREATE VIEW any_name '(' opt_table_elem_list ')'
+  CREATE VIEW any_name opt_column_list AS select_stmt
   {
-    $$.val = &CreateView{Table: $3.normalizableTableName(), OrReplace: false, TODO: TODO}
+    $$.val = &CreateView{
+      Table: $3.normalizableTableName(),
+      ReplaceIfExists: false,
+      ToCols: $4.nameList(),
+      AsSource: $6.slct(),
+    }
   }
 
 // CREATE OR REPLACE VIEW relname
 create_or_replace_view_stmt:
-  CREATE OR REPLACE VIEW any_name '(' opt_table_elem_list ')'
+  CREATE OR REPLACE VIEW any_name opt_column_list AS select_stmt
   {
-    $$.val = &CreateTable{Table: $6.normalizableTableName(), IfNotExists: true, Interleave: $10.interleave(), Defs: $8.tblDefs(), AsSource: nil}
+    $$.val = &CreateView{
+      Table: $5.normalizableTableName(),
+      ReplaceIfExists: true,
+      ToCols: $6.nameList(),
+      AsSource: $8.slct(),
+    }
   }
+
+// TODO: ALTER VIEW and DROP VIEW
 
 // CREATE INDEX
 create_index_stmt:

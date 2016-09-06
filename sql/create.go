@@ -227,6 +227,147 @@ func (n *createIndexNode) ExplainPlan(v bool) (string, string, []planNode) {
 	return "create index", "", nil
 }
 
+type createViewNode struct {
+	p          *planner
+	n          *parser.CreateView
+	dbDesc     *sqlbase.DatabaseDescriptor
+	selectPlan planNode
+}
+
+// CreateView creates a view.
+// Privileges: CREATE on underlying table(s).
+//   TODO: Verify privilege requirements of postgres/mysql for creating views.
+func (p *planner) CreateView(n *parser.CreateView) (planNode, error) {
+	/*
+		tableDesc, err := p.getTableDesc(name)
+		if err != nil {
+			return nil, err
+		}
+		if tableDesc != nil && !n.ReplaceIfExists {
+			return nil, TODO
+		}
+
+		if err := p.checkPrivilege(tableDesc, privilege.CREATE); err != nil {
+			return nil, err
+		}
+	*/
+
+	name, err := n.Name.NormalizeWithDatabaseName(p.session.Database)
+	if err != nil {
+		return nil, err
+	}
+
+	dbDesc, err := p.mustGetDatabaseDesc(name.Database())
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.checkPrivilege(dbDesc, privilege.CREATE); err != nil {
+		return nil, err
+	}
+
+	// TODO: Also handle value list? If not, get rid of nil check
+	var selectPlan planNode
+	if n.AsSource != nil {
+		selectPlan, err = p.getSelectPlan(n)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &createViewNode{p: p, n: n, dbDesc: dbDesc, selectPlan: selectPlan}, nil
+}
+
+func (n *createViewNode) expandPlan() error {
+	return nil
+}
+
+func (n *createViewNode) Start() error {
+	status, i, err := n.tableDesc.FindIndexByName(n.n.Name)
+	if err == nil {
+		if status == sqlbase.DescriptorIncomplete {
+			switch n.tableDesc.Mutations[i].Direction {
+			case sqlbase.DescriptorMutation_DROP:
+				return fmt.Errorf("index %q being dropped, try again later", string(n.n.Name))
+
+			case sqlbase.DescriptorMutation_ADD:
+				// Noop, will fail in AllocateIDs below.
+			}
+		}
+		if n.n.IfNotExists {
+			return nil
+		}
+	}
+
+	indexDesc := sqlbase.IndexDescriptor{
+		Name:             string(n.n.Name),
+		Unique:           n.n.Unique,
+		StoreColumnNames: n.n.Storing.ToStrings(),
+	}
+	if err := indexDesc.FillColumns(n.n.Columns); err != nil {
+		return err
+	}
+
+	mutationIdx := len(n.tableDesc.Mutations)
+	n.tableDesc.AddIndexMutation(indexDesc, sqlbase.DescriptorMutation_ADD)
+	mutationID, err := n.tableDesc.FinalizeMutation()
+	if err != nil {
+		return err
+	}
+	if err := n.tableDesc.AllocateIDs(); err != nil {
+		return err
+	}
+
+	if n.n.Interleave != nil {
+		index := n.tableDesc.Mutations[mutationIdx].GetIndex()
+		if err := n.p.addInterleave(n.tableDesc, index, n.n.Interleave); err != nil {
+			return err
+		}
+		if err := n.p.finalizeInterleave(n.tableDesc, *index); err != nil {
+			return err
+		}
+	}
+
+	if err := n.p.txn.Put(
+		sqlbase.MakeDescMetadataKey(n.tableDesc.GetID()),
+		sqlbase.WrapDescriptor(n.tableDesc)); err != nil {
+		return err
+	}
+
+	// Record index creation in the event log. This is an auditable log
+	// event and is recorded in the same transaction as the table descriptor
+	// update.
+	if err := MakeEventLogger(n.p.leaseMgr).InsertEventRecord(n.p.txn,
+		EventLogCreateIndex,
+		int32(n.tableDesc.ID),
+		int32(n.p.evalCtx.NodeID),
+		struct {
+			TableName  string
+			IndexName  string
+			Statement  string
+			User       string
+			MutationID uint32
+		}{n.tableDesc.Name, n.n.Name.String(), n.n.String(), n.p.session.User, uint32(mutationID)},
+	); err != nil {
+		return err
+	}
+	n.p.notifySchemaChange(n.tableDesc.ID, mutationID)
+
+	return nil
+}
+
+func (n *createViewNode) Next() (bool, error)                 { return false, nil }
+func (n *createViewNode) Columns() []ResultColumn             { return make([]ResultColumn, 0) }
+func (n *createViewNode) Ordering() orderingInfo              { return orderingInfo{} }
+func (n *createViewNode) Values() parser.DTuple               { return parser.DTuple{} }
+func (n *createViewNode) DebugValues() debugValues            { return debugValues{} }
+func (n *createViewNode) ExplainTypes(_ func(string, string)) {}
+func (n *createViewNode) SetLimitHint(_ int64, _ bool)        {}
+func (n *createViewNode) MarkDebug(mode explainMode)          {}
+func (n *createViewNode) ExplainPlan(v bool) (string, string, []planNode) {
+	return "create index", "", nil
+}
+
 type createTableNode struct {
 	p          *planner
 	n          *parser.CreateTable
