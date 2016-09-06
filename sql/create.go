@@ -227,6 +227,7 @@ func (n *createIndexNode) ExplainPlan(v bool) (string, string, []planNode) {
 	return "create index", "", nil
 }
 
+// TODO: Split out CREATE OR REPLACE from CREATE?
 type createViewNode struct {
 	p          *planner
 	n          *parser.CreateView
@@ -236,7 +237,10 @@ type createViewNode struct {
 
 // CreateView creates a view.
 // Privileges: CREATE on underlying table(s).
-//   TODO: Verify privilege requirements of postgres/mysql for creating views.
+//   notes: postgres requires CREATE on database plus SELECT on all the
+//						selected columns.
+//          mysql requires CREATE VIEW plus SELECT on all the selected columns.
+// TODO: Incorporate the fact that CREATE OR REPLACE requires DROP permission
 func (p *planner) CreateView(n *parser.CreateView) (planNode, error) {
 	/*
 		tableDesc, err := p.getTableDesc(name)
@@ -269,7 +273,7 @@ func (p *planner) CreateView(n *parser.CreateView) (planNode, error) {
 	// TODO: Also handle value list? If not, get rid of nil check
 	var selectPlan planNode
 	if n.AsSource != nil {
-		selectPlan, err = p.getSelectPlan(n)
+		selectPlan, err = p.getSelectPlan(n.AsSource)
 		if err != nil {
 			return nil, err
 		}
@@ -283,76 +287,7 @@ func (n *createViewNode) expandPlan() error {
 }
 
 func (n *createViewNode) Start() error {
-	status, i, err := n.tableDesc.FindIndexByName(n.n.Name)
-	if err == nil {
-		if status == sqlbase.DescriptorIncomplete {
-			switch n.tableDesc.Mutations[i].Direction {
-			case sqlbase.DescriptorMutation_DROP:
-				return fmt.Errorf("index %q being dropped, try again later", string(n.n.Name))
-
-			case sqlbase.DescriptorMutation_ADD:
-				// Noop, will fail in AllocateIDs below.
-			}
-		}
-		if n.n.IfNotExists {
-			return nil
-		}
-	}
-
-	indexDesc := sqlbase.IndexDescriptor{
-		Name:             string(n.n.Name),
-		Unique:           n.n.Unique,
-		StoreColumnNames: n.n.Storing.ToStrings(),
-	}
-	if err := indexDesc.FillColumns(n.n.Columns); err != nil {
-		return err
-	}
-
-	mutationIdx := len(n.tableDesc.Mutations)
-	n.tableDesc.AddIndexMutation(indexDesc, sqlbase.DescriptorMutation_ADD)
-	mutationID, err := n.tableDesc.FinalizeMutation()
-	if err != nil {
-		return err
-	}
-	if err := n.tableDesc.AllocateIDs(); err != nil {
-		return err
-	}
-
-	if n.n.Interleave != nil {
-		index := n.tableDesc.Mutations[mutationIdx].GetIndex()
-		if err := n.p.addInterleave(n.tableDesc, index, n.n.Interleave); err != nil {
-			return err
-		}
-		if err := n.p.finalizeInterleave(n.tableDesc, *index); err != nil {
-			return err
-		}
-	}
-
-	if err := n.p.txn.Put(
-		sqlbase.MakeDescMetadataKey(n.tableDesc.GetID()),
-		sqlbase.WrapDescriptor(n.tableDesc)); err != nil {
-		return err
-	}
-
-	// Record index creation in the event log. This is an auditable log
-	// event and is recorded in the same transaction as the table descriptor
-	// update.
-	if err := MakeEventLogger(n.p.leaseMgr).InsertEventRecord(n.p.txn,
-		EventLogCreateIndex,
-		int32(n.tableDesc.ID),
-		int32(n.p.evalCtx.NodeID),
-		struct {
-			TableName  string
-			IndexName  string
-			Statement  string
-			User       string
-			MutationID uint32
-		}{n.tableDesc.Name, n.n.Name.String(), n.n.String(), n.p.session.User, uint32(mutationID)},
-	); err != nil {
-		return err
-	}
-	n.p.notifySchemaChange(n.tableDesc.ID, mutationID)
-
+	log.Infof(context.TODO(), "Starting creation of VIEW %q!", n.n.Name)
 	return nil
 }
 
@@ -365,7 +300,10 @@ func (n *createViewNode) ExplainTypes(_ func(string, string)) {}
 func (n *createViewNode) SetLimitHint(_ int64, _ bool)        {}
 func (n *createViewNode) MarkDebug(mode explainMode)          {}
 func (n *createViewNode) ExplainPlan(v bool) (string, string, []planNode) {
-	return "create index", "", nil
+	if n.n.ReplaceIfExists {
+		return "create or replace view", "", nil
+	}
+	return "create view", "", nil
 }
 
 type createTableNode struct {
@@ -411,7 +349,7 @@ func (p *planner) CreateTable(n *parser.CreateTable) (planNode, error) {
 
 	var selectPlan planNode
 	if n.As() {
-		selectPlan, err = p.getSelectPlan(n)
+		selectPlan, err = p.getSelectPlan(n.AsSource)
 		if err != nil {
 			return nil, err
 		}
@@ -430,16 +368,16 @@ func removeParens(sel parser.SelectStatement) (parser.SelectStatement, error) {
 	}
 }
 
-func (p *planner) getSelectPlan(n *parser.CreateTable) (planNode, error) {
-	selNoParens, err := removeParens(n.AsSource.Select)
+func (p *planner) getSelectPlan(s *parser.Select) (planNode, error) {
+	selNoParens, err := removeParens(s.Select)
 	if err != nil {
 		return nil, errors.Errorf("Invalid Select type.")
 	}
-	s, err := p.SelectClause(selNoParens.(*parser.SelectClause), n.AsSource.OrderBy, n.AsSource.Limit, []parser.Datum{}, 0)
+	selPlan, err := p.SelectClause(selNoParens.(*parser.SelectClause), s.OrderBy, s.Limit, []parser.Datum{}, 0)
 	if err != nil {
 		return nil, err
 	}
-	return s, nil
+	return selPlan, nil
 }
 
 func hoistConstraints(n *parser.CreateTable) {

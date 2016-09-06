@@ -613,7 +613,7 @@ func (u *sqlSymUnion) interleave() *InterleaveDef {
 %token <str>   PRECEDING PRECISION PREPARE PRIMARY PRIORITY
 
 %token <str>   RANGE READ REAL RECURSIVE REF REFERENCES
-%token <str>   RENAME REPEATABLE
+%token <str>   RENAME REPEATABLE REPLACE
 %token <str>   RELEASE RESTRICT RETURNING REVOKE RIGHT ROLLBACK ROLLUP
 %token <str>   ROW ROWS RSHIFT
 
@@ -630,7 +630,7 @@ func (u *sqlSymUnion) interleave() *InterleaveDef {
 %token <str>   UNBOUNDED UNCOMMITTED UNION UNIQUE UNKNOWN
 %token <str>   UPDATE UPSERT USER USING
 
-%token <str>   VALID VALIDATE VALUE VALUES VARCHAR VARIADIC VARYING
+%token <str>   VALID VALIDATE VALUE VALUES VARCHAR VARIADIC VIEW VARYING
 
 %token <str>   WHEN WHERE WINDOW WITH WITHIN WITHOUT
 
@@ -1826,7 +1826,7 @@ create_view_stmt:
   CREATE VIEW any_name opt_column_list AS select_stmt
   {
     $$.val = &CreateView{
-      Table: $3.normalizableTableName(),
+      Name: $3.normalizableTableName(),
       ReplaceIfExists: false,
       ToCols: $4.nameList(),
       AsSource: $6.slct(),
@@ -1838,7 +1838,7 @@ create_or_replace_view_stmt:
   CREATE OR REPLACE VIEW any_name opt_column_list AS select_stmt
   {
     $$.val = &CreateView{
-      Table: $5.normalizableTableName(),
+      Name: $5.normalizableTableName(),
       ReplaceIfExists: true,
       ToCols: $6.nameList(),
       AsSource: $8.slct(),
