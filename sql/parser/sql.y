@@ -325,6 +325,8 @@ func (u *sqlSymUnion) interleave() *InterleaveDef {
 %type <Statement> create_index_stmt
 %type <Statement> create_table_stmt
 %type <Statement> create_table_as_stmt
+%type <Statement> create_view_stmt
+%type <Statement> create_or_replace_view_stmt
 %type <Statement> delete_stmt
 %type <Statement> drop_stmt
 %type <Statement> explain_stmt
@@ -907,12 +909,14 @@ copy_from_stmt:
     $$.val = &CopyFrom{Table: $2.normalizableTableName(), Columns: $4.unresolvedNames(), Stdin: true}
   }
 
-// CREATE [DATABASE|INDEX|TABLE|TABLE AS]
+// CREATE [DATABASE|INDEX|TABLE|TABLE AS|VIEW|OR REPLACE VIEW]
 create_stmt:
   create_database_stmt
 | create_index_stmt
 | create_table_stmt
 | create_table_as_stmt
+| create_view_stmt
+| create_or_replace_view_stmt
 
 // DELETE FROM query
 delete_stmt:
@@ -1814,6 +1818,20 @@ truncate_stmt:
   TRUNCATE opt_table relation_expr_list opt_drop_behavior
   {
     $$.val = &Truncate{Tables: $3.tableNameReferences(), DropBehavior: $4.dropBehavior()}
+  }
+
+// CREATE VIEW relname
+create_view_stmt:
+  CREATE VIEW any_name '(' opt_table_elem_list ')'
+  {
+    $$.val = &CreateView{Table: $3.normalizableTableName(), OrReplace: false, TODO: TODO}
+  }
+
+// CREATE OR REPLACE VIEW relname
+create_or_replace_view_stmt:
+  CREATE OR REPLACE VIEW any_name '(' opt_table_elem_list ')'
+  {
+    $$.val = &CreateTable{Table: $6.normalizableTableName(), IfNotExists: true, Interleave: $10.interleave(), Defs: $8.tblDefs(), AsSource: nil}
   }
 
 // CREATE INDEX
@@ -4508,6 +4526,7 @@ unreserved_keyword:
 | RELEASE
 | RENAME
 | REPEATABLE
+| REPLACE
 | RESTRICT
 | REVOKE
 | ROLLBACK
@@ -4713,6 +4732,7 @@ reserved_keyword:
 | USER
 | USING
 | VARIADIC
+| VIEW
 | WHEN
 | WHERE
 | WINDOW
