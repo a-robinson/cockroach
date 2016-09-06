@@ -120,12 +120,7 @@ func (*CreateTable) StatementTag() string { return "CREATE TABLE" }
 func (*CreateView) StatementType() StatementType { return DDL }
 
 // StatementTag returns a short string identifying the type of statement.
-func (n *CreateView) StatementTag() string {
-	if n.ReplaceIfExists {
-		return "CREATE OR REPLACE VIEW"
-	}
-	return "CREATE VIEW"
-}
+func (*CreateView) StatementTag() string { return "CREATE VIEW" }
 
 // StatementType implements the Statement interface.
 func (*Deallocate) StatementType() StatementType { return Ack }

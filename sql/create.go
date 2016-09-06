@@ -227,7 +227,6 @@ func (n *createIndexNode) ExplainPlan(v bool) (string, string, []planNode) {
 	return "create index", "", nil
 }
 
-// TODO: Split out CREATE OR REPLACE from CREATE?
 type createViewNode struct {
 	p          *planner
 	n          *parser.CreateView
@@ -240,7 +239,6 @@ type createViewNode struct {
 //   notes: postgres requires CREATE on database plus SELECT on all the
 //						selected columns.
 //          mysql requires CREATE VIEW plus SELECT on all the selected columns.
-// TODO: Incorporate the fact that CREATE OR REPLACE requires DROP permission
 func (p *planner) CreateView(n *parser.CreateView) (planNode, error) {
 	/*
 		tableDesc, err := p.getTableDesc(name)
@@ -315,9 +313,6 @@ func (n *createViewNode) ExplainTypes(_ func(string, string)) {}
 func (n *createViewNode) SetLimitHint(_ int64, _ bool)        {}
 func (n *createViewNode) MarkDebug(mode explainMode)          {}
 func (n *createViewNode) ExplainPlan(v bool) (string, string, []planNode) {
-	if n.n.ReplaceIfExists {
-		return "create or replace view", "", nil
-	}
 	return "create view", "", nil
 }
 

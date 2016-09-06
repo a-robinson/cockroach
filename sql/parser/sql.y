@@ -327,7 +327,6 @@ func (u *sqlSymUnion) interleave() *InterleaveDef {
 %type <Statement> create_table_as_stmt
 // TODO: ALTER and DROP VIEW
 %type <Statement> create_view_stmt
-%type <Statement> create_or_replace_view_stmt
 %type <Statement> delete_stmt
 %type <Statement> drop_stmt
 %type <Statement> explain_stmt
@@ -613,7 +612,7 @@ func (u *sqlSymUnion) interleave() *InterleaveDef {
 %token <str>   PRECEDING PRECISION PREPARE PRIMARY PRIORITY
 
 %token <str>   RANGE READ REAL RECURSIVE REF REFERENCES
-%token <str>   RENAME REPEATABLE REPLACE
+%token <str>   RENAME REPEATABLE
 %token <str>   RELEASE RESTRICT RETURNING REVOKE RIGHT ROLLBACK ROLLUP
 %token <str>   ROW ROWS RSHIFT
 
@@ -910,14 +909,13 @@ copy_from_stmt:
     $$.val = &CopyFrom{Table: $2.normalizableTableName(), Columns: $4.unresolvedNames(), Stdin: true}
   }
 
-// CREATE [DATABASE|INDEX|TABLE|TABLE AS|VIEW|OR REPLACE VIEW]
+// CREATE [DATABASE|INDEX|TABLE|TABLE AS|VIEW]
 create_stmt:
   create_database_stmt
 | create_index_stmt
 | create_table_stmt
 | create_table_as_stmt
 | create_view_stmt
-| create_or_replace_view_stmt
 
 // DELETE FROM query
 delete_stmt:
@@ -1827,25 +1825,12 @@ create_view_stmt:
   {
     $$.val = &CreateView{
       Name: $3.normalizableTableName(),
-      ReplaceIfExists: false,
       ToCols: $4.nameList(),
       AsSource: $6.slct(),
     }
   }
 
-// CREATE OR REPLACE VIEW relname
-create_or_replace_view_stmt:
-  CREATE OR REPLACE VIEW any_name opt_column_list AS simple_select
-  {
-    $$.val = &CreateView{
-      Name: $5.normalizableTableName(),
-      ReplaceIfExists: true,
-      ToCols: $6.nameList(),
-      AsSource: $8.slct(),
-    }
-  }
-
-// TODO: ALTER VIEW and DROP VIEW
+// TODO(a-robinson): CREATE OR REPLACE, ALTER, and DROP VIEW support (#2971).
 
 // CREATE INDEX
 create_index_stmt:
@@ -4539,7 +4524,6 @@ unreserved_keyword:
 | RELEASE
 | RENAME
 | REPEATABLE
-| REPLACE
 | RESTRICT
 | REVOKE
 | ROLLBACK

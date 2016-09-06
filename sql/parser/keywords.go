@@ -184,7 +184,6 @@ var keywords = map[string]int{
 	"RELEASE":           RELEASE,
 	"RENAME":            RENAME,
 	"REPEATABLE":        REPEATABLE,
-	"REPLACE":           REPLACE,
 	"RESTRICT":          RESTRICT,
 	"RETURNING":         RETURNING,
 	"REVOKE":            REVOKE,
