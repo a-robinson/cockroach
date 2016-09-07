@@ -254,7 +254,7 @@ func (p *planner) CreateView(n *parser.CreateView) (planNode, error) {
 		return nil, err
 	}
 
-	// TODO: Do we have to do anything with the explicit column name list?
+	// TODO: What do we do with the explicit column name list?
 	selectPlan, err := p.getSelectPlan(n.AsSource)
 	if err != nil {
 		return nil, err
@@ -274,8 +274,81 @@ func (n *createViewNode) Start() error {
 		return err
 	}
 
-	// TODO: Implement this :)
-	_ = desc
+	// TODO: Need to handle the explicit column name list!
+	tKey := tableKey{parentID: n.dbDesc.ID, name: n.n.Name.TableName().Table()}
+	key := tKey.Key()
+	if exists, err := n.p.descExists(key); err == nil && exists {
+		// TODO(a-robinson): Support CREATE OR REPLACE commands.
+		return descriptorAlreadyExistsErr{&desc, tKey.Name()}
+	} else if err != nil {
+		return err
+	}
+
+	// Inherit permissions from the database descriptor.
+	desc.Privileges = n.dbDesc.GetPrivileges()
+
+	id, err := generateUniqueDescID(n.p.txn)
+	if err != nil {
+		return nil
+	}
+	desc.SetID(id)
+
+	// TODO: Is this needed or is it only for stored columns?
+	if err := desc.AllocateIDs(); err != nil {
+		return err
+	}
+
+	// Bookkeeping references are made after the descriptor is otherwise
+	// complete and IDs have been allocated since the IDs are needed in the
+	// references.
+	affected := make(map[sqlbase.ID]*sqlbase.TableDescriptor)
+	// TODO: Populate affected
+
+	// TODO: Should this just call Validate() instead or will the references
+	// not be updated yet?
+	err = desc.ValidateTable()
+	if err != nil {
+		return err
+	}
+
+	created, err := n.p.createDescriptorWithID(key, id, &desc)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Will created ever not be true? Views don't support "IF NOT EXISTS"
+	if created {
+		// TODO: What's this doing?
+		for _, updated := range affected {
+			if err := n.p.saveNonmutationAndNotify(updated); err != nil {
+				return err
+			}
+		}
+		// TODO: Keep this?
+		if desc.Adding() {
+			n.p.notifySchemaChange(desc.ID, sqlbase.InvalidMutationID)
+		}
+
+		// TODO: Keep this?
+		if err := desc.Validate(n.p.txn); err != nil {
+			return err
+		}
+
+		// Log Create View event. This is an auditable log event and is
+		// recorded in the same transaction as the table descriptor update.
+		if err := MakeEventLogger(n.p.leaseMgr).InsertEventRecord(n.p.txn,
+			EventLogCreateView,
+			int32(desc.ID),
+			int32(n.p.evalCtx.NodeID),
+			struct {
+				ViewName  string
+				Statement string
+				User      string
+			}{n.n.Name.String(), n.n.String(), n.p.session.User},
+		); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
@@ -470,7 +543,7 @@ func (n *createTableNode) Start() error {
 
 	// FKs are resolved after the descriptor is otherwise complete and IDs have
 	// been allocated since the FKs will reference those IDs. Resolution also
-	// accumulated updates to other tables (adding backreferences) in the passed
+	// accumulates updates to other tables (adding backreferences) in the passed
 	// map -- anything in that map should be saved when the table is created.
 	affected := make(map[sqlbase.ID]*sqlbase.TableDescriptor)
 	for _, def := range n.n.Defs {
@@ -926,7 +999,6 @@ func makeViewTableDesc(
 		return desc, err
 	}
 	desc.Name = viewName.String()
-	// TODO: Do we have result types here?
 	for _, colRes := range resultColumns {
 		colType, _ := parser.DatumTypeToColumnType(colRes.Typ)
 		columnTableDef := parser.ColumnTableDef{Name: parser.Name(colRes.Name), Type: colType}
@@ -936,6 +1008,14 @@ func makeViewTableDesc(
 		}
 		desc.AddColumn(*col)
 	}
+
+	// TODO(a-robinson): Is this sufficient to retain the correctness of the
+	// query, or do we need to parse the query as a raw string initially and
+	// save it verbatim?
+	var buf bytes.Buffer
+	parser.FormatNode(&buf, parser.FmtSimple, p.AsSource)
+	desc.ViewQuery = buf.String()
+
 	return desc, nil
 }
 

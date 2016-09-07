@@ -18,6 +18,7 @@ package sqlbase
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"strings"
 	"unicode/utf8"
@@ -26,6 +27,7 @@ import (
 	"github.com/cockroachdb/cockroach/keys"
 	"github.com/cockroachdb/cockroach/sql/parser"
 	"github.com/cockroachdb/cockroach/util/encoding"
+	"github.com/cockroachdb/cockroach/util/log"
 	"github.com/pkg/errors"
 )
 
@@ -701,6 +703,8 @@ func (desc *TableDescriptor) validateCrossReferences(txn *client.Txn) error {
 // are consistent. Use Validate to validate that cross-table references are
 // correct.
 func (desc *TableDescriptor) ValidateTable() error {
+	// TODO: REMOVE LOG
+	log.Infof(context.TODO(), "DESCRIPTOR:\n%+v", desc)
 	if err := validateName(desc.Name, "table"); err != nil {
 		return err
 	}
@@ -848,6 +852,22 @@ func (desc *TableDescriptor) ValidateTable() error {
 		}
 	}
 
+	// Only validate the indexes if this is actually a table, not if it's
+	// just a view.
+	if desc.ViewQuery == "" {
+		err := desc.validateTableIndexes(columnNames, colIDToFamilyID)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Validate the privilege descriptor.
+	return desc.Privileges.Validate(desc.GetID())
+}
+
+func (desc *TableDescriptor) validateTableIndexes(
+	columnNames map[string]ColumnID, colIDToFamilyID map[ColumnID]FamilyID,
+) error {
 	// TODO(pmattis): Check that the indexes are unique. That is, no 2 indexes
 	// should contain identical sets of columns.
 	if len(desc.PrimaryIndex.ColumnIDs) == 0 {
@@ -913,8 +933,7 @@ func (desc *TableDescriptor) ValidateTable() error {
 		}
 	}
 
-	// Validate the privilege descriptor.
-	return desc.Privileges.Validate(desc.GetID())
+	return nil
 }
 
 // FamilyHeuristicTargetBytes is the target total byte size of columns that the
