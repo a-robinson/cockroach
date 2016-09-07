@@ -240,20 +240,6 @@ type createViewNode struct {
 //						selected columns.
 //          mysql requires CREATE VIEW plus SELECT on all the selected columns.
 func (p *planner) CreateView(n *parser.CreateView) (planNode, error) {
-	/*
-		tableDesc, err := p.getTableDesc(name)
-		if err != nil {
-			return nil, err
-		}
-		if tableDesc != nil && !n.ReplaceIfExists {
-			return nil, TODO
-		}
-
-		if err := p.checkPrivilege(tableDesc, privilege.CREATE); err != nil {
-			return nil, err
-		}
-	*/
-
 	name, err := n.Name.NormalizeWithDatabaseName(p.session.Database)
 	if err != nil {
 		return nil, err
@@ -268,17 +254,11 @@ func (p *planner) CreateView(n *parser.CreateView) (planNode, error) {
 		return nil, err
 	}
 
-	// TODO: What do we have to do with the explicit column name list?
-	// TODO: Also handle value list? If not, get rid of nil check
-	// TODO: Need to make sure to not only ORDER BY and LIMIT
-	var selectPlan planNode
-	if n.AsSource != nil {
-		selectPlan, err = p.getSelectPlan(n.AsSource)
-		if err != nil {
-			return nil, err
-		}
+	// TODO: Do we have to do anything with the explicit column name list?
+	selectPlan, err := p.getSelectPlan(n.AsSource)
+	if err != nil {
+		return nil, err
 	}
-
 	return &createViewNode{p: p, n: n, dbDesc: dbDesc, selectPlan: selectPlan}, nil
 }
 
@@ -288,18 +268,14 @@ func (n *createViewNode) expandPlan() error {
 
 func (n *createViewNode) Start() error {
 	log.Infof(context.TODO(), "TODO: Starting creation of VIEW %q!", n.n.Name)
-	/*
-		var desc sqlbase.TableDescriptor
-		var err error
-		if n.n.As() {
-			desc, err = makeTableDescIfAs(n.n, n.dbDesc.ID, n.selectPlan.Columns())
-		} else {
-			desc, err = MakeTableDesc(n.n, n.dbDesc.ID)
-		}
-		if err != nil {
-			return err
-		}
-	*/
+
+	desc, err := makeViewTableDesc(n.n, n.dbDesc.ID, n.selectPlan.Columns())
+	if err != nil {
+		return err
+	}
+
+	// TODO: Implement this :)
+	_ = desc
 
 	return nil
 }

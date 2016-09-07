@@ -325,7 +325,6 @@ func (u *sqlSymUnion) interleave() *InterleaveDef {
 %type <Statement> create_index_stmt
 %type <Statement> create_table_stmt
 %type <Statement> create_table_as_stmt
-// TODO: ALTER and DROP VIEW
 %type <Statement> create_view_stmt
 %type <Statement> delete_stmt
 %type <Statement> drop_stmt
@@ -1821,7 +1820,7 @@ truncate_stmt:
 
 // CREATE VIEW relname
 create_view_stmt:
-  CREATE VIEW any_name opt_column_list AS simple_select
+  CREATE VIEW any_name opt_column_list AS select_stmt
   {
     $$.val = &CreateView{
       Name: $3.normalizableTableName(),
