@@ -183,14 +183,20 @@ hostname; it must resolve from other nodes in the cluster.`,
 		Description: `The port to bind to.`,
 	}
 
+	ServerHTTPHost = FlagInfo{
+		Name:        "http-host",
+		Description: `The hostname or IP address to bind to for HTTP requests.`,
+	}
+
 	ServerHTTPPort = FlagInfo{
 		Name:        "http-port",
 		Description: `The port to bind to for HTTP requests.`,
 	}
 
+	// TODO(#9516): Remove this.
 	ServerHTTPAddr = FlagInfo{
 		Name:        "http-addr",
-		Description: `The hostname or IP address to bind to for HTTP requests.`,
+		Description: `DEPRECATED: Use http-host instead.`,
 	}
 
 	Socket = FlagInfo{
