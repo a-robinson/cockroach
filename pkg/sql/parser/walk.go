@@ -545,6 +545,67 @@ func walkOrderBy(v Visitor, order OrderBy) (OrderBy, bool) {
 	return order, copied
 }
 
+type TableExprVisitor interface {
+	// VisitTableExpr is called for each node before recursing into that subtree.
+	// Upon return, if recurse is false, the visit will not recurse into the
+	// subtree.
+	//
+	// The returned TableExpr replaces the visited TableExpr and can be used for
+	// rewriting expressions. The function should NOT modify nodes in-place; it
+	// should make copies of nodes. The Walk infrastructure will automatically
+	// make copies of parents as needed.
+	VisitTableExpr(expr Expr) (recurse bool, newExpr Expr)
+}
+
+func (expr *AliasedTableExpr) WalkTableExpr(v Visitor) TableExpr {
+	e, changed := WalkTableExpr(v, expr.Expr)
+	if changed {
+		exprCopy := *expr
+		exprCopy.Expr = e
+		return &exprCopy
+	}
+	return expr
+}
+
+func (expr *ParenTableExpr) WalkTableExpr(v Visitor) TableExpr {
+	e, changed := WalkTableExpr(v, expr.Expr)
+	if changed {
+		exprCopy := *expr
+		exprCopy.Expr = e
+		return &exprCopy
+	}
+	return expr
+}
+
+func (expr *JoinTableExpr) WalkTableExpr(v Visitor) TableExpr {
+	// TODO(DEALBREAKER!): Need to recurse into ON condition
+	left, changedL := WalkExpr(v, expr.Left)
+	right, changedR := WalkExpr(v, expr.Right)
+	if changedL || changedR {
+		exprCopy := *expr
+		exprCopy.Left = left
+		exprCopy.Right = right
+		return &exprCopy
+	}
+	return expr
+}
+
+// TODO: other tableExpr types
+
+func walkTableExpr(v Visitor, tableExpr TableExpr) (TableExpr, bool) {
+	tableExprVisitor, ok := v.(TableExprVisitor)
+	if !ok {
+		return tableExpr, false
+	}
+
+	recurse, newExpr := tableExprVisitor.VisitTableExpr(tableExpr)
+	if recurse {
+		newExpr = newExpr.WalkTableExpr(v)
+	}
+
+	return newExpr, (expr == newExpr)
+}
+
 // CopyNode makes a copy of this Expr without recursing in any child Exprs.
 func (stmt *Select) CopyNode() *Select {
 	stmtCopy := *stmt
