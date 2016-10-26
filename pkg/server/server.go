@@ -42,6 +42,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/gossip"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/kv"
+	"github.com/cockroachdb/cockroach/pkg/migrations"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/rpc"
 	"github.com/cockroachdb/cockroach/pkg/server/serverpb"
@@ -600,6 +601,23 @@ func (s *Server) Start(ctx context.Context) error {
 		return err
 	}
 	log.Event(ctx, "started node")
+
+	// Before accepting incoming connections, we have to make sure the database is
+	// in an acceptable form for this version of the software. If this is the
+	// cluster's first time booting, we just want to mark all migrations as done
+	// so that they won't have to be run when new nodes start. Otherwise, we want
+	// to make sure that all required migrations have been run.
+	migMgr := migrations.NewManager(s.stopper, s.db, s.clock, fmt.Sprintf("%d", s.NodeID()))
+	if !(s.InitialBoot() && s.NodeID() == FirstNodeID) {
+		if err := migMgr.InitNewCluster(ctx); err != nil {
+			log.Fatal(ctx, err)
+		}
+	} else {
+		if err := migMgr.EnsureMigrations(ctx); err != nil {
+			log.Fatal(ctx, err)
+		}
+		log.Infof(ctx, "done ensuring all necessary migrations have run")
+	}
 
 	s.nodeLiveness.StartHeartbeat(ctx, s.stopper)
 
