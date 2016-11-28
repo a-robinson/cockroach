@@ -17,6 +17,7 @@
 package gossip_test
 
 import (
+	"context"
 	"reflect"
 	"sort"
 	"strings"
@@ -30,6 +31,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/gossip/simulation"
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/leaktest"
+	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/protoutil"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
@@ -246,22 +248,37 @@ func TestGossipStorageCleanup(t *testing.T) {
 	}
 
 	// Wait for the gossip network to connect.
+	log.Infof(context.Background(), "a")
 	network.RunUntilFullyConnected()
+	log.Infof(context.Background(), "b")
 
 	// Wait long enough for storage to get the expected number of
 	// addresses and no pending cleanups.
 	util.SucceedsSoon(t, func() error {
+		log.Infof(context.Background(), "c")
 		for i := range stores {
+			log.Infof(context.Background(), "d: %d", i)
 			p := &stores[i]
 			if expected, actual := len(network.Nodes)-1 /* -1 is ourself */, p.Len(); expected != actual {
+				log.Infof(context.Background(), "f")
+				log.Infof(context.Background(), "expected: %v", expected)
+				log.Infof(context.Background(), "actual: %v", actual)
+				log.Infof(context.Background(), "address: %#v", p.Info().Addresses)
 				return errors.Errorf("expected %v, got %v (info: %#v)", expected, actual, p.Info().Addresses)
 			}
+			log.Infof(context.Background(), "g")
 			for _, addr := range p.Info().Addresses {
+				log.Infof(context.Background(), "h")
 				if addr.String() == invalidAddr {
+					log.Infof(context.Background(), "i: %s", addr.String())
 					return errors.Errorf("node %d still needs bootstrap cleanup", i)
 				}
+				log.Infof(context.Background(), "j")
 			}
+			log.Infof(context.Background(), "k")
 		}
+		log.Infof(context.Background(), "l")
 		return nil
 	})
+	log.Infof(context.Background(), "m")
 }
