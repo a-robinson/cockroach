@@ -496,7 +496,10 @@ func (s *Server) Start(ctx context.Context) error {
 		netutil.FatalIfUnexpected(s.grpc.Serve(anyL))
 	})
 
+	serveSQL := make(chan bool)
+
 	s.stopper.RunWorker(func() {
+		<-serveSQL
 		pgCtx := s.pgServer.AmbientCtx.AnnotateCtx(context.Background())
 		netutil.FatalIfUnexpected(httpServer.ServeWith(s.stopper, pgL, func(conn net.Conn) {
 			connCtx := log.WithLogTagStr(pgCtx, "client", conn.RemoteAddr().String())
@@ -524,6 +527,7 @@ func (s *Server) Start(ctx context.Context) error {
 		})
 
 		s.stopper.RunWorker(func() {
+			<-serveSQL
 			pgCtx := s.pgServer.AmbientCtx.AnnotateCtx(context.Background())
 			netutil.FatalIfUnexpected(httpServer.ServeWith(s.stopper, unixLn, func(conn net.Conn) {
 				connCtx := log.WithLogTagStr(pgCtx, "client", conn.RemoteAddr().String())
@@ -602,25 +606,6 @@ func (s *Server) Start(ctx context.Context) error {
 	}
 	log.Event(ctx, "started node")
 
-	// Before accepting incoming connections, we have to make sure the database is
-	// in an acceptable form for this version of the software. If this is the
-	// cluster's first time booting, we just want to mark all migrations as done
-	// so that they won't have to be run when new nodes start. Otherwise, we want
-	// to make sure that all required migrations have been run.
-	migMgr := migrations.NewManager(s.stopper, s.db, s.clock, fmt.Sprintf("%d", s.NodeID()))
-	if !(s.InitialBoot() && s.NodeID() == FirstNodeID) {
-		if err := migMgr.InitNewCluster(ctx); err != nil {
-			log.Fatal(ctx, err)
-		}
-	} else {
-		if err := migMgr.EnsureMigrations(ctx); err != nil {
-			log.Fatal(ctx, err)
-		}
-		log.Infof(ctx, "done ensuring all necessary migrations have run")
-	}
-
-	s.nodeLiveness.StartHeartbeat(ctx, s.stopper)
-
 	// We can now add the node registry.
 	s.recorder.AddNode(s.registry, s.node.Descriptor, s.node.startedAt)
 
@@ -657,6 +642,29 @@ func (s *Server) Start(ctx context.Context) error {
 	})
 
 	log.Event(ctx, "accepting connections")
+
+	s.nodeLiveness.StartHeartbeat(ctx, s.stopper)
+
+	// Before serving SQL requests, we have to make sure the database is
+	// in an acceptable form for this version of the software. If this is the
+	// cluster's first time booting, we just want to mark all migrations as done
+	// so that they won't have to be run when new nodes start. Otherwise, we want
+	// to make sure that all required migrations have been run.
+	// We have to do this after actually starting up the server to be able to
+	// seamlessly use the kv client against other nodes in the cluster.
+	migMgr := migrations.NewManager(s.stopper, s.db, s.clock, fmt.Sprintf("%d", s.NodeID()))
+	if !(s.InitialBoot() && s.NodeID() == FirstNodeID) {
+		if err := migMgr.InitNewCluster(ctx); err != nil {
+			log.Fatal(ctx, err)
+		}
+	} else {
+		if err := migMgr.EnsureMigrations(ctx); err != nil {
+			log.Fatal(ctx, err)
+		}
+		log.Infof(ctx, "done ensuring all necessary migrations have run")
+	}
+	close(serveSQL)
+	log.Info(ctx, "serving sql connections")
 
 	// Initialize grpc-gateway mux and context.
 	jsonpb := &protoutil.JSONPb{

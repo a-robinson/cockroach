@@ -119,10 +119,11 @@ func (m *Manager) migrations(ctx context.Context, runWorkFns bool) error {
 	var lease *client.Lease
 	var err error
 	retryOpts := retry.Options{
-		InitialBackoff: 1 * time.Second,
+		InitialBackoff: 100 * time.Millisecond,
 		MaxBackoff:     30 * time.Second,
 		MaxRetries:     10,
 	}
+	log.Infof(ctx, "trying to acquire lease")
 	for r := retry.StartWithCtx(ctx, retryOpts); r.Next(); {
 		lease, err = m.leaseManager.AcquireLease(ctx, keys.MigrationLease)
 		if err == nil {
@@ -136,9 +137,11 @@ func (m *Manager) migrations(ctx context.Context, runWorkFns bool) error {
 
 	// Ensure that we hold the lease throughout the migration process and release
 	// it when we're done.
+	log.Infof(ctx, "setting up ExtendLease and ReleaseLease")
 	done := make(chan interface{}, 1)
 	defer func() {
 		done <- nil
+		log.Infof(ctx, "trying to release the lease")
 		if err := m.leaseManager.ReleaseLease(ctx, lease); err != nil {
 			log.Errorf(ctx, "failed to release migration lease: %s", err)
 		}
@@ -148,6 +151,7 @@ func (m *Manager) migrations(ctx context.Context, runWorkFns bool) error {
 		case <-done:
 			return
 		case <-time.After(leaseRefreshInterval):
+			log.Infof(ctx, "trying to extend the lease")
 			if err := m.leaseManager.ExtendLease(ctx, lease); err != nil {
 				log.Warningf(ctx, "unable to extend ownership of expiration lease: %s", err)
 			}
@@ -163,6 +167,7 @@ func (m *Manager) migrations(ctx context.Context, runWorkFns bool) error {
 	// them up one-by-one, which could potentially add a noticeable delay to
 	// process startup if we eventually have a lot of migrations to check for.
 	var keyvals []client.KeyValue
+	log.Infof(ctx, "trying to get the list of completed migrations")
 	for r := retry.StartWithCtx(ctx, retry.Options{MaxRetries: 3}); r.Next(); {
 		keyvals, err = m.db.Scan(ctx, keys.MigrationPrefix, keys.MigrationKeyMax, 10000 /* maxRows */)
 		if err == nil {
@@ -183,7 +188,9 @@ func (m *Manager) migrations(ctx context.Context, runWorkFns bool) error {
 		ctx: ctx,
 		db:  m.db,
 	}
+	log.Infof(ctx, "trying to check/run all the migrations")
 	for _, migration := range backwardCompatibleMigrations {
+		log.Infof(ctx, "trying to check/run migration %s", migration.name)
 		key := migrationKey(migration)
 		if completedMigrations[string(key)] {
 			continue
@@ -195,6 +202,7 @@ func (m *Manager) migrations(ctx context.Context, runWorkFns bool) error {
 			}
 		}
 		var err error
+		log.Infof(ctx, "trying to persist record of completing migration %s", migration.name)
 		for r := retry.StartWithCtx(ctx, retry.Options{MaxRetries: 5}); r.Next(); {
 			err = m.db.Put(ctx, key, startTime)
 			if err == nil {
@@ -209,6 +217,7 @@ func (m *Manager) migrations(ctx context.Context, runWorkFns bool) error {
 		log.Infof(ctx, "successfully completed migration %q", migration.name)
 	}
 
+	log.Infof(ctx, "returning from migrations package")
 	return nil
 }
 
