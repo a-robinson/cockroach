@@ -24,6 +24,7 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/cockroachdb/cockroach/pkg/keys"
 	"github.com/cockroachdb/cockroach/pkg/security"
 	"github.com/cockroachdb/cockroach/pkg/sql/parser"
 	"github.com/cockroachdb/cockroach/pkg/sql/privilege"
@@ -1171,6 +1172,16 @@ func (p *planner) makeTableDesc(
 		return desc, err
 	}
 	desc.Name = tableName.Table()
+
+	// If a new system table is being created (which should only be doable by
+	// an internal user account), make sure it gets the correct ID and privileges.
+	if parentID == keys.SystemDatabaseID {
+		desc.ID, err = sqlbase.SystemTableID(desc.Name)
+		if err != nil {
+			return desc, err
+		}
+		desc.Privileges = sqlbase.NewDefaultPrivilegeDescriptor()
+	}
 
 	for _, def := range n.Defs {
 		if d, ok := def.(*parser.ColumnTableDef); ok {
