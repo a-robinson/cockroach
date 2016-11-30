@@ -493,7 +493,7 @@ func (g *Gossip) maybeAddResolver(addr util.UnresolvedAddr) bool {
 	}
 	g.resolvers = append(g.resolvers, r)
 	g.resolverAddrs[addr] = r
-	log.Eventf(ctx, "add resolver %s", r)
+	log.Infof(ctx, "add resolver %s", r)
 	return true
 }
 
@@ -510,7 +510,7 @@ func (g *Gossip) maybeAddBootstrapAddress(addr util.UnresolvedAddr, nodeID roach
 	g.bootstrapInfo.Addresses = append(g.bootstrapInfo.Addresses, addr)
 	g.bootstrapAddrs[addr] = nodeID
 	ctx := g.AnnotateCtx(context.TODO())
-	log.Eventf(ctx, "add bootstrap %s", addr)
+	log.Infof(ctx, "add bootstrap %s", addr)
 	return true
 }
 
@@ -967,7 +967,7 @@ func (g *Gossip) bootstrap() {
 				defer g.mu.Unlock()
 				haveClients := g.outgoing.len() > 0
 				haveSentinel := g.mu.is.getInfo(KeySentinel) != nil
-				log.Eventf(ctx, "have clients: %t, have sentinel: %t", haveClients, haveSentinel)
+				log.Infof(ctx, "have clients: %t, have sentinel: %t", haveClients, haveSentinel)
 				if !haveClients || !haveSentinel {
 					// Try to get another bootstrap address from the resolvers.
 					if addr := g.getNextBootstrapAddress(); addr != nil {
@@ -977,7 +977,7 @@ func (g *Gossip) bootstrap() {
 						for addr := range g.bootstrapping {
 							bootstrapAddrs = append(bootstrapAddrs, addr)
 						}
-						log.Eventf(ctx, "no next bootstrap address; currently bootstrapping: %v", bootstrapAddrs)
+						log.Infof(ctx, "no next bootstrap address; currently bootstrapping: %v", bootstrapAddrs)
 						// We couldn't start a client, signal that we're stalled so that
 						// we'll retry.
 						g.maybeSignalStatusChangeLocked()
@@ -989,7 +989,7 @@ func (g *Gossip) bootstrap() {
 
 			// Pause an interval before next possible bootstrap.
 			bootstrapTimer.Reset(g.bootstrapInterval)
-			log.Eventf(ctx, "sleeping %s until bootstrap", g.bootstrapInterval)
+			log.Infof(ctx, "sleeping %s until bootstrap", g.bootstrapInterval)
 			select {
 			case <-bootstrapTimer.C:
 				bootstrapTimer.Read = true
@@ -997,11 +997,11 @@ func (g *Gossip) bootstrap() {
 			case <-g.server.stopper.ShouldStop():
 				return
 			}
-			log.Eventf(ctx, "idling until bootstrap required")
+			log.Infof(ctx, "idling until bootstrap required")
 			// Block until we need bootstrapping again.
 			select {
 			case <-g.stalledCh:
-				log.Eventf(ctx, "detected stall; commencing bootstrap")
+				log.Infof(ctx, "detected stall; commencing bootstrap")
 				// break
 			case <-g.server.stopper.ShouldStop():
 				return
@@ -1047,7 +1047,7 @@ func (g *Gossip) manage() {
 							if log.V(1) {
 								log.Infof(ctx, "closing least useful client %+v to tighten network graph", c)
 							}
-							log.Eventf(ctx, "culling %s", c.addr)
+							log.Infof(ctx, "culling %s", c.addr)
 							c.close()
 
 							// After releasing the lock, block until the client disconnects.
@@ -1091,7 +1091,7 @@ func (g *Gossip) tightenNetwork(distantNodeID roachpb.NodeID) {
 			log.Errorf(ctx, "unable to get address for node %d: %s", distantNodeID, err)
 		} else {
 			log.Infof(ctx, "starting client to distant node %d to tighten network graph", distantNodeID)
-			log.Eventf(ctx, "tightening network with new client to %s", nodeAddr)
+			log.Infof(ctx, "tightening network with new client to %s", nodeAddr)
 			g.startClient(nodeAddr)
 		}
 	}
@@ -1100,7 +1100,7 @@ func (g *Gossip) tightenNetwork(distantNodeID roachpb.NodeID) {
 func (g *Gossip) doDisconnected(c *client) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
-	log.Infof(g.AnnotateCtx(context.TODO()), "removing client %+v", c)
+	log.Infof(g.AnnotateCtx(context.TODO()), "removing client to %s: %p", c.addr, c)
 	g.removeClient(c)
 
 	// If the client was disconnected with a forwarding address, connect now.
@@ -1119,7 +1119,7 @@ func (g *Gossip) maybeSignalStatusChangeLocked() {
 	if stalled {
 		// We employ the stalled boolean to avoid filling logs with warnings.
 		if !g.stalled {
-			log.Eventf(ctx, "now stalled")
+			log.Infof(ctx, "now stalled")
 			if orphaned {
 				if len(g.resolvers) == 0 {
 					log.Warningf(ctx, "no resolvers found; use --join to specify a connected node")
@@ -1137,7 +1137,7 @@ func (g *Gossip) maybeSignalStatusChangeLocked() {
 		}
 	} else {
 		if g.stalled {
-			log.Eventf(ctx, "connected")
+			log.Infof(ctx, "connected")
 			log.Infof(ctx, "node has connected to cluster via gossip")
 			g.signalConnectedLocked()
 		}
@@ -1183,7 +1183,7 @@ func (g *Gossip) startClient(addr net.Addr) {
 		g.clientsMu.breakers[addr.String()] = breaker
 	}
 	ctx := g.AnnotateCtx(context.TODO())
-	log.Eventf(ctx, "starting new client to %s", addr)
+	log.Infof(ctx, "starting new client to %s", addr)
 	c := newClient(g.server.AmbientContext, addr, g.serverMetrics)
 	g.clientsMu.clients = append(g.clientsMu.clients, c)
 	c.start(g, g.disconnected, g.rpcContext, g.server.stopper, breaker)
@@ -1196,12 +1196,12 @@ func (g *Gossip) removeClient(target *client) {
 	defer g.clientsMu.Unlock()
 	log.Infof(g.AnnotateCtx(context.TODO()), "clients: %+v", g.clientsMu.clients)
 	for i, c := range g.clientsMu.clients {
-		log.Infof(g.AnnotateCtx(context.TODO()), "client %d: %+v", i, c)
+		log.Infof(g.AnnotateCtx(context.TODO()), "client %d to %s: %p", i, c.addr, c)
 	}
 	for i, candidate := range g.clientsMu.clients {
 		if candidate == target {
 			ctx := g.AnnotateCtx(context.TODO())
-			log.Eventf(ctx, "client %s disconnected", candidate.addr)
+			log.Infof(ctx, "client %s disconnected", candidate.addr)
 			g.clientsMu.clients = append(g.clientsMu.clients[:i], g.clientsMu.clients[i+1:]...)
 			delete(g.bootstrapping, candidate.addr.String())
 			g.outgoing.removeNode(candidate.peerID)
