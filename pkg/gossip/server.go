@@ -139,9 +139,12 @@ func (s *server) Gossip(stream Gossip_GossipServer) error {
 	// node. This can happen when bootstrap connections are initiated through
 	// a load balancer.
 	s.mu.Lock()
-	_, ok := s.mu.nodeMap[args.Addr]
+	connInfo, ok := s.mu.nodeMap[args.Addr]
+	incomingStr := fmt.Sprintf("%+v", s.mu.incoming)
 	s.mu.Unlock()
 	if ok {
+		log.Infof(ctx, "duplicate connection info: %+v", connInfo)
+		log.Infof(ctx, "incoming connections info: %s", incomingStr)
 		return errors.Errorf("duplicate connection from node at %s", args.Addr)
 	}
 
@@ -236,12 +239,10 @@ func (s *server) gossipReceiver(
 					peerID:    args.NodeID,
 					createdAt: timeutil.Now(),
 				}
+				log.Infof(ctx, "added node %v to node map: %+v", args.Addr, s.mu.nodeMap)
 
 				defer func(nodeID roachpb.NodeID, addr util.UnresolvedAddr) {
-					if log.V(2) {
-						log.Infof(ctx, "removing node %d from incoming set", args.NodeID)
-					}
-
+					log.Infof(ctx, "removing node %d from incoming set", args.NodeID)
 					s.mu.incoming.removeNode(nodeID)
 					delete(s.mu.nodeMap, addr)
 				}(args.NodeID, args.Addr)

@@ -1100,6 +1100,7 @@ func (g *Gossip) tightenNetwork(distantNodeID roachpb.NodeID) {
 func (g *Gossip) doDisconnected(c *client) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
+	log.Infof(g.AnnotateCtx(context.TODO()), "removing client %+v", c)
 	g.removeClient(c)
 
 	// If the client was disconnected with a forwarding address, connect now.
@@ -1193,6 +1194,10 @@ func (g *Gossip) startClient(addr net.Addr) {
 func (g *Gossip) removeClient(target *client) {
 	g.clientsMu.Lock()
 	defer g.clientsMu.Unlock()
+	log.Infof(g.AnnotateCtx(context.TODO()), "clients: %+v", g.clientsMu.clients)
+	for i, c := range g.clientsMu.clients {
+		log.Infof(g.AnnotateCtx(context.TODO()), "client %d: %+v", i, c)
+	}
 	for i, candidate := range g.clientsMu.clients {
 		if candidate == target {
 			ctx := g.AnnotateCtx(context.TODO())
