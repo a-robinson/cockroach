@@ -23,6 +23,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/keys"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
+	"github.com/cockroachdb/cockroach/pkg/sql"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/retry"
@@ -59,8 +60,8 @@ type migrationDescriptor struct {
 }
 
 type runner struct {
-	ctx context.Context
-	db  db
+	db          db
+	sqlExecutor *sql.Executor
 }
 
 // leaseManager is defined just to allow us to use a fake client.LeaseManager
@@ -85,10 +86,13 @@ type Manager struct {
 	stopper      *stop.Stopper
 	leaseManager leaseManager
 	db           db
+	sqlExecutor  *sql.Executor
 }
 
 // NewManager initializes and returns a new Manager object.
-func NewManager(stopper *stop.Stopper, db *client.DB, clock *hlc.Clock, clientID string) *Manager {
+func NewManager(
+	stopper *stop.Stopper, db *client.DB, executor *sql.Executor, clock *hlc.Clock, clientID string,
+) *Manager {
 	opts := client.LeaseManagerOptions{
 		ClientID:      clientID,
 		LeaseDuration: leaseDuration,
@@ -97,6 +101,7 @@ func NewManager(stopper *stop.Stopper, db *client.DB, clock *hlc.Clock, clientID
 		stopper:      stopper,
 		leaseManager: client.NewLeaseManager(db, clock, opts),
 		db:           db,
+		sqlExecutor:  executor,
 	}
 }
 
@@ -189,8 +194,8 @@ func (m *Manager) migrations(ctx context.Context, runWorkFns bool) error {
 
 	startTime := timeutil.Now().String()
 	r := runner{
-		ctx: ctx,
-		db:  m.db,
+		db:          m.db,
+		sqlExecutor: m.sqlExecutor,
 	}
 	for _, migration := range backwardCompatibleMigrations {
 		key := migrationKey(migration)
@@ -214,6 +219,7 @@ func (m *Manager) migrations(ctx context.Context, runWorkFns bool) error {
 		for r := retry.StartWithCtx(ctx, retry.Options{MaxRetries: 5}); r.Next(); {
 			err = m.db.Put(ctx, key, startTime)
 			if err == nil {
+				log.Infof(ctx, "successfully completed migration %q", migration.name)
 				break
 			}
 			log.Errorf(ctx, "failed attempt to persist record of completing migration %q", migration.name)
@@ -222,7 +228,6 @@ func (m *Manager) migrations(ctx context.Context, runWorkFns bool) error {
 			return errors.Wrapf(err, "failed to persist record of completing migration %q",
 				migration.name)
 		}
-		log.Infof(ctx, "successfully completed migration %q", migration.name)
 	}
 
 	return nil

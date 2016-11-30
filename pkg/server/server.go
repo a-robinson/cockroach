@@ -655,8 +655,9 @@ func (s *Server) Start(ctx context.Context) error {
 	// to make sure that all required migrations have been run.
 	// We have to do this after actually starting up the server to be able to
 	// seamlessly use the kv client against other nodes in the cluster.
-	migMgr := migrations.NewManager(s.stopper, s.db, s.clock, fmt.Sprintf("%d", s.NodeID()))
-	if !(s.InitialBoot() && s.NodeID() == FirstNodeID) {
+	migMgr := migrations.NewManager(
+		s.stopper, s.db, s.sqlExecutor, s.clock, fmt.Sprintf("%d", s.NodeID()))
+	if s.InitialBoot() && s.NodeID() == FirstNodeID {
 		if err := migMgr.InitNewCluster(ctx); err != nil {
 			log.Fatal(ctx, err)
 		}
