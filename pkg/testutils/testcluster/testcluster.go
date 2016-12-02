@@ -186,11 +186,14 @@ func StartTestCluster(t testing.TB, nodes int, args base.TestClusterArgs) *TestC
 // AddServer creates a server with the specified arguments and appends it to
 // the TestCluster.
 func (tc *TestCluster) AddServer(t testing.TB, serverArgs base.TestServerArgs) {
+	log.Infof(context.TODO(), "starting AddServer")
 	serverArgs.Stopper = stop.NewStopper()
 	s, conn, _ := serverutils.StartServer(t, serverArgs)
+	log.Infof(context.TODO(), "started server")
 	tc.Servers = append(tc.Servers, s.(*server.TestServer))
 	tc.Conns = append(tc.Conns, conn)
 	tc.mu.Lock()
+	log.Infof(context.TODO(), "acquired lock in AddServer")
 	tc.mu.serverStoppers = append(tc.mu.serverStoppers, serverArgs.Stopper)
 	tc.mu.Unlock()
 }

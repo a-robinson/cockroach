@@ -25,6 +25,7 @@
 package serverutils
 
 import (
+	"context"
 	gosql "database/sql"
 	"net/http"
 	"net/url"
@@ -41,6 +42,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/testutils/sqlutils"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/httputil"
+	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
 )
 
@@ -115,7 +117,9 @@ func InitTestServerFactory(impl TestServerFactory) {
 func StartServer(
 	t testing.TB, params base.TestServerArgs,
 ) (TestServerInterface, *gosql.DB, *client.DB) {
+	log.Infof(context.TODO(), "In StartServer")
 	server, err := StartServerRaw(params)
+	log.Infof(context.TODO(), "Called StartServerRaw")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,6 +129,7 @@ func StartServer(
 		t, server.ServingAddr(), "StartServer", url.User(security.RootUser))
 	pgURL.Path = params.UseDatabase
 	goDB, err := gosql.Open("postgres", pgURL.String())
+	log.Infof(context.TODO(), "Opened postgres connection")
 	if err != nil {
 		t.Fatal(err)
 	}

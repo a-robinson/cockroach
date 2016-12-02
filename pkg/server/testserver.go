@@ -39,6 +39,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/ts"
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
+	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/metric"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
 )
@@ -238,6 +239,7 @@ func (ts *TestServer) DB() *client.DB {
 // Use TestServer.Stopper().Stop() to shutdown the server after the test
 // completes.
 func (ts *TestServer) Start(params base.TestServerArgs) error {
+	log.Infof(context.TODO(), "in TestServer.Start")
 	if ts.Cfg == nil {
 		panic("Cfg not set")
 	}
@@ -259,9 +261,11 @@ func (ts *TestServer) Start(params base.TestServerArgs) error {
 	if err := ts.Cfg.InitNode(); err != nil {
 		return err
 	}
+	log.Infof(context.TODO(), "Ran InitNode")
 
 	var err error
 	ts.Server, err = NewServer(*ts.Cfg, params.Stopper)
+	log.Infof(context.TODO(), "Ran NewServer")
 	if err != nil {
 		return err
 	}
@@ -270,20 +274,25 @@ func (ts *TestServer) Start(params base.TestServerArgs) error {
 	ts.Cfg = &ts.Server.cfg
 
 	if err := ts.Server.Start(context.Background()); err != nil {
+		log.Infof(context.TODO(), "Ran Server.Start (error)")
 		return err
 	}
+	log.Infof(context.TODO(), "Ran Server.Start")
 
 	// If enabled, wait for initial splits to complete before returning control.
 	// If initial splits do not complete, the server is stopped before
 	// returning.
 	if stk, ok := ts.cfg.TestingKnobs.Store.(*storage.StoreTestingKnobs); ok &&
 		stk.DisableSplitQueue {
+		log.Infof(context.TODO(), "Returning without waiting")
 		return nil
 	}
 	if err := ts.WaitForInitialSplits(); err != nil {
+		log.Infof(context.TODO(), "Waited for splits (error)")
 		ts.Stop()
 		return err
 	}
+	log.Infof(context.TODO(), "Waited for splits")
 
 	return nil
 }

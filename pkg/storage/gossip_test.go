@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
 	"golang.org/x/net/context"
 
@@ -136,32 +137,45 @@ func TestGossipHandlesReplacedNode(t *testing.T) {
 	defer leaktest.AfterTest(t)()
 	ctx := context.Background()
 
+	start := time.Now()
+
 	tc := testcluster.StartTestCluster(t, 3,
 		base.TestClusterArgs{
 			ReplicationMode: base.ReplicationAuto,
 		})
+	log.Infof(ctx, "started test cluster: %v", time.Since(start))
 	defer tc.Stopper().Stop()
 
 	// Take down the first node of the cluster and replace it with a new one.
 	// We replace the first node rather than the second or third to be adversarial
 	// because it typically has the most leases on it.
-	oldNodeIdx := 0
+	//oldNodeIdx := 0
+	oldNodeIdx := 1
 	newServerArgs := base.TestServerArgs{
 		Addr:          tc.Servers[oldNodeIdx].ServingAddr(),
 		PartOfCluster: true,
-		JoinAddr:      tc.Servers[1].ServingAddr(),
+		//JoinAddr:      tc.Servers[1].ServingAddr(),
+		JoinAddr: tc.Servers[0].ServingAddr(),
 	}
 	tc.StopServer(oldNodeIdx)
+	log.Infof(ctx, "stopped server: %v", time.Since(start))
 	tc.AddServer(t, newServerArgs)
-	tc.WaitForStores(t, tc.Server(1).Gossip())
+	log.Infof(ctx, "added server: %v", time.Since(start))
+	//tc.WaitForStores(t, tc.Server(1).Gossip())
+	tc.WaitForStores(t, tc.Server(0).Gossip())
+	log.Infof(ctx, "waited for stores: %v", time.Since(start))
 
 	// Ensure that all servers still running are responsive. If the two remaining
 	// original nodes don't refresh their connection to the address of the first
 	// node, they can get stuck here.
-	for i := 1; i < 4; i++ {
+	//for i := 1; i < 4; i++ {
+	for _, i := range []int{0, 2, 3} {
 		kvClient := tc.Server(i).KVClient().(*client.DB)
+		log.Infof(ctx, "got kvclient %d: %v", i, time.Since(start))
 		if err := kvClient.Put(ctx, fmt.Sprintf("%d", i), i); err != nil {
 			t.Errorf("failed Put to node %d: %s", i, err)
 		}
+		log.Infof(ctx, "finished put %d: %v", i, time.Since(start))
 	}
+	log.Infof(ctx, "done: %v", time.Since(start))
 }
