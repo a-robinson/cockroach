@@ -164,9 +164,7 @@ func (gt *grpcTransport) SendNext(done chan<- BatchCall) {
 	gt.setPending(client.args.Replica, true)
 
 	addr := client.remoteAddr
-	if log.V(2) {
-		log.Infof(gt.opts.ctx, "sending request to %s: %+v", addr, client.args)
-	}
+	log.Infof(gt.opts.ctx, "sending request to %s: %+v", addr, client.args)
 
 	if localServer := gt.rpcContext.GetLocalInternalServerForAddr(addr); enableLocalCalls && localServer != nil {
 		// Clone the request. At the time of writing, Replica may mutate it

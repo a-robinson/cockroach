@@ -812,7 +812,7 @@ func (n *Node) batchInternal(
 		}
 		defer sp.Finish()
 		traceCtx := opentracing.ContextWithSpan(ctx, sp)
-		log.Event(traceCtx, args.Summary())
+		log.Info(traceCtx, args.Summary())
 
 		tStart := timeutil.Now()
 		var pErr *roachpb.Error

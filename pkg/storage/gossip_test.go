@@ -139,9 +139,19 @@ func TestGossipHandlesReplacedNode(t *testing.T) {
 
 	start := time.Now()
 
+	// Shorten the raft tick interval and election timeout to make range leases
+	// much shorter than normal. This keeps us from having to wait so long for
+	// the replaced node's leases to time out.
+	raftTickInterval := 20 * time.Millisecond
+	raftElectionTimeoutTicks := 10
+
 	tc := testcluster.StartTestCluster(t, 3,
 		base.TestClusterArgs{
 			ReplicationMode: base.ReplicationAuto,
+			ServerArgs: base.TestServerArgs{
+				RaftTickInterval:         raftTickInterval,
+				RaftElectionTimeoutTicks: raftElectionTimeoutTicks,
+			},
 		})
 	log.Infof(ctx, "started test cluster: %v", time.Since(start))
 	defer tc.Stopper().Stop()
@@ -149,27 +159,28 @@ func TestGossipHandlesReplacedNode(t *testing.T) {
 	// Take down the first node of the cluster and replace it with a new one.
 	// We replace the first node rather than the second or third to be adversarial
 	// because it typically has the most leases on it.
-	//oldNodeIdx := 0
-	oldNodeIdx := 1
+	oldNodeIdx := 0
 	newServerArgs := base.TestServerArgs{
-		Addr:          tc.Servers[oldNodeIdx].ServingAddr(),
-		PartOfCluster: true,
-		//JoinAddr:      tc.Servers[1].ServingAddr(),
-		JoinAddr: tc.Servers[0].ServingAddr(),
+		Addr:                     tc.Servers[oldNodeIdx].ServingAddr(),
+		PartOfCluster:            true,
+		JoinAddr:                 tc.Servers[1].ServingAddr(),
+		RaftTickInterval:         raftTickInterval,
+		RaftElectionTimeoutTicks: raftElectionTimeoutTicks,
 	}
 	tc.StopServer(oldNodeIdx)
 	log.Infof(ctx, "stopped server: %v", time.Since(start))
+	//newTime := tc.Server(1).Clock().Now().Add(int64(10*time.Second), 0)
+	//tc.Server(1).Clock().Update(newTime)
+	//tc.Server(2).Clock().Update(newTime)
 	tc.AddServer(t, newServerArgs)
 	log.Infof(ctx, "added server: %v", time.Since(start))
-	//tc.WaitForStores(t, tc.Server(1).Gossip())
-	tc.WaitForStores(t, tc.Server(0).Gossip())
+	tc.WaitForStores(t, tc.Server(1).Gossip())
 	log.Infof(ctx, "waited for stores: %v", time.Since(start))
 
 	// Ensure that all servers still running are responsive. If the two remaining
 	// original nodes don't refresh their connection to the address of the first
 	// node, they can get stuck here.
-	//for i := 1; i < 4; i++ {
-	for _, i := range []int{0, 2, 3} {
+	for i := 1; i < 4; i++ {
 		kvClient := tc.Server(i).KVClient().(*client.DB)
 		log.Infof(ctx, "got kvclient %d: %v", i, time.Since(start))
 		if err := kvClient.Put(ctx, fmt.Sprintf("%d", i), i); err != nil {

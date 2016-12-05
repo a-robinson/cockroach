@@ -440,9 +440,12 @@ func sendAndFill(
 // operation. The order of the results matches the order the operations were
 // added to the batch.
 func (db *DB) Run(ctx context.Context, b *Batch) error {
+	log.Infof(ctx, "Preparing batch")
 	if err := b.prepare(); err != nil {
 		return err
 	}
+	log.Infof(ctx, "Done preparing batch")
+	defer log.Infof(ctx, "Done sending batch request")
 	sendFn := func(br roachpb.BatchRequest) (*roachpb.BatchResponse, *roachpb.Error) {
 		return db.send(ctx, br)
 	}
@@ -506,10 +509,12 @@ func (db *DB) send(
 	if len(ba.Requests) == 0 {
 		return nil, nil
 	}
+	log.Infof(ctx, "calling db.prepareToSend: %v", ba)
 	if pErr := db.prepareToSend(&ba); pErr != nil {
 		return nil, pErr
 	}
 
+	log.Infof(ctx, "calling db.sender.Send")
 	br, pErr := db.sender.Send(ctx, ba)
 	if pErr != nil {
 		if log.V(1) {

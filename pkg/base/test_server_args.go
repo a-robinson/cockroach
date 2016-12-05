@@ -54,6 +54,8 @@ type TestServerArgs struct {
 	// Fields copied to the server.Config.
 	Insecure                 bool
 	MetricsSampleInterval    time.Duration
+	RaftTickInterval         time.Duration
+	RaftElectionTimeoutTicks int
 	SocketFile               string
 	ScanInterval             time.Duration
 	ScanMaxIdleTime          time.Duration

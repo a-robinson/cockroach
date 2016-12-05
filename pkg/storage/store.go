@@ -127,8 +127,11 @@ func RaftElectionTimeout(
 func RangeLeaseDurations(
 	raftElectionTimeout time.Duration,
 ) (rangeLeaseActive time.Duration, rangeLeaseRenewal time.Duration) {
-	rangeLeaseActive = rangeLeaseRaftElectionTimeoutMultiplier * raftElectionTimeout
+	rangeLeaseActive = rangeLeaseRaftElectionTimeoutMultiplier * raftElectionTimeout / 3
 	rangeLeaseRenewal = rangeLeaseActive / rangeLeaseRenewalDivisor
+	log.Infof(context.TODO(), "raftElectionTimeout: %v", raftElectionTimeout)
+	log.Infof(context.TODO(), "rangeLeaseActive: %v", rangeLeaseActive)
+	log.Infof(context.TODO(), "rangeLeaseRenewal: %v", rangeLeaseRenewal)
 	return
 }
 

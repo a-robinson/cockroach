@@ -264,7 +264,7 @@ func DefaultRetryOptions() retry.Options {
 	// estimate of latency.
 	return retry.Options{
 		InitialBackoff: 50 * time.Millisecond,
-		MaxBackoff:     5 * time.Second,
+		MaxBackoff:     50 * time.Millisecond,
 		Multiplier:     2,
 	}
 }

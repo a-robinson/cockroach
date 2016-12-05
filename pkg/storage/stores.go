@@ -145,6 +145,7 @@ func (ls *Stores) Send(
 	// If we aren't given a Replica, then a little bending over
 	// backwards here. This case applies exclusively to unittests.
 	if ba.RangeID == 0 || ba.Replica.StoreID == 0 {
+		log.Infof(ctx, "NOOOOOOOOOOOOOOOO")
 		rs, err := keys.Range(ba)
 		if err != nil {
 			return nil, roachpb.NewError(err)
@@ -158,6 +159,7 @@ func (ls *Stores) Send(
 	}
 
 	store, err := ls.GetStore(ba.Replica.StoreID)
+	log.Infof(ctx, "GetStore(%d): %v, %v", ba.Replica.StoreID, store, err)
 	if err != nil {
 		return nil, roachpb.NewError(err)
 	}

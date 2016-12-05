@@ -45,8 +45,8 @@ import (
 const (
 	// TODO(bdarnell): make SendNextTimeout configurable.
 	// https://github.com/cockroachdb/cockroach/issues/6719
-	defaultSendNextTimeout = 500 * time.Millisecond
-	defaultClientTimeout   = 10 * time.Second
+	defaultSendNextTimeout = 100 * time.Millisecond
+	defaultClientTimeout   = 1 * time.Second
 
 	// The default maximum number of ranges to return from a range
 	// lookup.
@@ -337,7 +337,9 @@ func (ds *DistSender) sendRPC(
 	tracing.AnnotateTrace()
 	defer tracing.AnnotateTrace()
 
+	log.Infof(ctx, "sending to replicas for range %d", rangeID)
 	reply, err := ds.sendToReplicas(rpcOpts, rangeID, replicas, ba, ds.rpcContext)
+	log.Infof(ctx, "done sending to replicas for range %d: %v", rangeID, err)
 	if err != nil {
 		return nil, err
 	}
@@ -387,6 +389,7 @@ func (ds *DistSender) getDescriptor(
 func (ds *DistSender) sendSingleRange(
 	ctx context.Context, ba roachpb.BatchRequest, desc *roachpb.RangeDescriptor,
 ) (*roachpb.BatchResponse, *roachpb.Error) {
+	log.Infof(ctx, "in sendSingleRange: %+v", desc)
 	// Try to send the call.
 	replicas := NewReplicaSlice(ds.gossip, desc)
 
@@ -407,9 +410,11 @@ func (ds *DistSender) sendSingleRange(
 
 	// TODO(tschottdorf): should serialize the trace here, not higher up.
 	br, err := ds.sendRPC(ctx, desc.RangeID, replicas, ba)
+	log.Infof(ctx, "sent RPC: %v", err)
 	if err != nil {
 		return nil, roachpb.NewError(err)
 	}
+	log.Infof(ctx, "RPC response: %v", br)
 
 	// If the reply contains a timestamp, update the local HLC with it.
 	if br.Error != nil && br.Error.Now != hlc.ZeroTimestamp {
@@ -609,7 +614,9 @@ func (ds *DistSender) divideAndSendBatchToRanges(
 		}
 		for _, responseCh := range responseChs {
 			resp := <-responseCh
+			log.Infof(ctx, "got response: %+v", resp)
 			if resp.pErr != nil {
+				log.Infof(ctx, "response err: %v", resp.pErr)
 				if pErr == nil {
 					pErr = resp.pErr
 				}
@@ -1063,7 +1070,7 @@ func (ds *DistSender) sendToReplicas(
 
 	// Send the first request.
 	pending := 1
-	log.VEventf(opts.ctx, 2, "sending RPC for batch: %s", args.Summary())
+	log.Infof(opts.ctx, "sending RPC for batch: %s", args.Summary())
 	transport.SendNext(done)
 
 	// Wait for completions. This loop will retry operations that fail
@@ -1078,7 +1085,7 @@ func (ds *DistSender) sendToReplicas(
 			sendNextTimer.Read = true
 			// On successive RPC timeouts, send to additional replicas if available.
 			if !transport.IsExhausted() {
-				log.VEventf(opts.ctx, 2, "timeout, trying next peer")
+				log.Infof(opts.ctx, "timeout, trying next peer")
 				pending++
 				transport.SendNext(done)
 			}

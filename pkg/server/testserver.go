@@ -98,6 +98,12 @@ func makeTestConfigFromParams(params base.TestServerArgs) Config {
 	if params.MetricsSampleInterval != time.Duration(0) {
 		cfg.MetricsSampleInterval = params.MetricsSampleInterval
 	}
+	if params.RaftTickInterval != time.Duration(0) {
+		cfg.RaftTickInterval = params.RaftTickInterval
+	}
+	if params.RaftElectionTimeoutTicks != 0 {
+		cfg.RaftElectionTimeoutTicks = params.RaftElectionTimeoutTicks
+	}
 	if knobs := params.Knobs.Store; knobs != nil {
 		if mo := knobs.(*storage.StoreTestingKnobs).MaxOffset; mo != time.Duration(0) {
 			cfg.MaxOffset = mo
