@@ -237,13 +237,13 @@ func migrationKey(migration migrationDescriptor) roachpb.Key {
 }
 
 func checkQueryResults(results []sql.Result, numResults int) error {
-	if a, e := len(results), numResults; a != e {
-		return errors.Errorf("number of results %d != expected %d", a, e)
-	}
 	for _, result := range results {
 		if result.Err != nil {
 			return result.Err
 		}
+	}
+	if a, e := len(results), numResults; a != e {
+		return errors.Errorf("number of results %d != expected %d", a, e)
 	}
 	return nil
 }
@@ -253,15 +253,15 @@ func checkQueryResults(results []sql.Result, numResults int) error {
 func eventlogUniqueRowID(ctx context.Context, r runner) error {
 	// The series of statements to be run in order to update the system.eventlog
 	// table to replace "uniqueID BYTES DEFAULT experimental_unique_bytes()" with
-	// "uniqueID INT DEFAULT unique_rowid()". We have to truncate eventlog2 after
-	// creating it to avoid inserting duplicate rows in the case that it had been
-	// created but not renamed in a previous attempt.
+	// "uniqueID INT DEFAULT unique_rowid()". We have to truncate eventlog_new
+	// after creating it to avoid inserting duplicate rows in the case that it had
+	// been created but not renamed in a previous attempt.
 	modifySchemaStmts := []string{
-		fmt.Sprintf("CREATE TABLE IF NOT EXISTS system.eventlog2 %s;", sqlbase.NewEventLogTableFields),
-		"TRUNCATE TABLE system.eventlog2;",
-		"INSERT INTO system.eventlog2 SELECT timestamp, eventType, targetID, reportingID, info FROM system.eventlog;",
-		"DROP TABLE IF EXISTS system.eventlog;",
-		"ALTER TABLE system.eventlog2 RENAME TO system.eventlog;",
+		fmt.Sprintf("CREATE TABLE IF NOT EXISTS system.eventlog_new %s;", sqlbase.NewEventLogTableFields),
+		"TRUNCATE TABLE system.eventlog_new;",
+		"INSERT INTO system.eventlog_new SELECT timestamp, eventType, targetID, reportingID, info FROM system.eventlog;",
+		"ALTER TABLE system.eventlog RENAME TO system.eventlog_old, system.eventlog_new RENAME TO system.eventlog;",
+		"DROP TABLE system.eventlog_old;",
 	}
 
 	// If we don't disable event logging, dropping the eventlog table will fail
