@@ -2711,15 +2711,19 @@ func TestRemovedReplicaError(t *testing.T) {
 	mtc.manualClock.Increment(mtc.stores[1].LeaseExpiration(mtc.clock))
 
 	// Expect to get a RangeNotFoundError. We have to allow for ambiguous result
-	// errors to avoid the occasional test flake.
+	// errors and not leaseholder errors to avoid the occasional test flake,
+	// because the unreplicate change hasn't always finished processing on the
+	// removed replica before this request arrives.
 	getArgs := getArgs([]byte("a"))
+loop:
 	for {
 		_, pErr := client.SendWrappedWith(context.Background(), rg1(mtc.stores[0]), roachpb.Header{}, getArgs)
-		if _, ok := pErr.GetDetail().(*roachpb.RangeNotFoundError); ok {
-			break
-		} else if _, ok := pErr.GetDetail().(*roachpb.AmbiguousResultError); ok {
+		switch pErr.GetDetail().(type) {
+		case *roachpb.RangeNotFoundError:
+			break loop
+		case *roachpb.AmbiguousResultError, *roachpb.NotLeaseHolderError:
 			continue
-		} else {
+		default:
 			t.Fatalf("expected RangeNotFoundError; got %v", pErr)
 		}
 	}
