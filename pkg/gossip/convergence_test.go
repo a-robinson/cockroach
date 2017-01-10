@@ -17,9 +17,8 @@
 package gossip_test
 
 import (
+	"context"
 	"testing"
-
-	"golang.org/x/net/context"
 
 	"github.com/cockroachdb/cockroach/pkg/gossip/simulation"
 	"github.com/cockroachdb/cockroach/pkg/util/leaktest"
@@ -44,7 +43,27 @@ func TestConvergence(t *testing.T) {
 
 	const maxCycles = 100
 	if connectedCycle := network.RunUntilFullyConnected(); connectedCycle > maxCycles {
-		log.Warningf(context.TODO(), "expected a fully-connected network within %d cycles; took %d",
+		t.Errorf("expected a fully-connected network within %d cycles; took %d",
 			maxCycles, connectedCycle)
 	}
+}
+
+// TODO: De-dupe code
+func TestConvergenceLarge(t *testing.T) {
+	defer leaktest.AfterTest(t)()
+	stopper := stop.NewStopper()
+	defer stopper.Stop()
+
+	for i := 1; i < 64; i++ {
+		network := simulation.NewNetwork(stopper, i, true)
+
+		const maxCycles = 100
+		connectedCycles := network.RunUntilFullyConnected()
+		log.Infof(context.TODO(), "NUM_NODES: %d\tNUM_CYCLES: %d", i, connectedCycles)
+		if connectedCycles > maxCycles {
+			t.Errorf("expected a fully-connected network within %d cycles; took %d",
+				maxCycles, connectedCycles)
+		}
+	}
+	t.Errorf("done")
 }
