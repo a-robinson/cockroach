@@ -299,7 +299,7 @@ func (is *infoStore) runCallbacks(key string, content roachpb.Value, callbacks .
 			w()
 		}
 	}); err != nil {
-		ctx := is.AnnotateCtx(context.TODO())
+		_ = is.AnnotateCtx(context.TODO())
 		//log.Warning(ctx, err)
 	}
 }
