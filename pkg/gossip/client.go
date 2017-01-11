@@ -122,14 +122,14 @@ func (c *client) start(
 		}
 
 		// Start gossiping.
-		log.Infof(ctx, "started gossip client to %s", c.addr)
+		//log.Infof(ctx, "started gossip client to %s", c.addr)
 		if err := c.gossip(ctx, g, stream, stopper, &wg); err != nil {
 			if !grpcutil.IsClosedConnection(err) {
 				g.mu.Lock()
 				if c.peerID != 0 {
-					log.Infof(ctx, "closing client to node %d (%s): %s", c.peerID, c.addr, err)
+					//log.Infof(ctx, "closing client to node %d (%s): %s", c.peerID, c.addr, err)
 				} else {
-					log.Infof(ctx, "closing client to %s: %s", c.addr, err)
+					//log.Infof(ctx, "closing client to %s: %s", c.addr, err)
 				}
 				g.mu.Unlock()
 			}
