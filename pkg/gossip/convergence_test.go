@@ -19,6 +19,7 @@ package gossip_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/cockroachdb/cockroach/pkg/gossip/simulation"
 	"github.com/cockroachdb/cockroach/pkg/util/leaktest"
@@ -53,17 +54,33 @@ func TestConvergenceLarge(t *testing.T) {
 
 	for numNodes := 1; numNodes <= 64; numNodes++ {
 		t.Run(fmt.Sprintf("%d", numNodes), func(t *testing.T) {
+			fmt.Printf("RUNNING WITH NUMNODES=%d\n", numNodes)
 			stopper := stop.NewStopper()
 			defer stopper.Stop()
 			network := simulation.NewNetwork(stopper, numNodes, true)
 
 			const maxCycles = 100
 			//connectedCycles := network.RunUntilFullyConnected()
+			resultChan := make(chan int64)
+			go func() {
+				var cyclesRun int64
+				network.SimulateNetwork(func(cycle int, network *simulation.Network) bool {
+					cyclesRun++
+					return cycle < 100
+				})
+				resultChan <- cyclesRun
+			}()
+
 			var cyclesRun int64
-			network.SimulateNetwork(func(cycle int, network *simulation.Network) bool {
-				cyclesRun++
-				return cycle < 100
-			})
+			select {
+			case cyclesRun = <-resultChan:
+			case <-time.After(15 * time.Second):
+				var connsRefused int64
+				for _, node := range network.Nodes {
+					connsRefused += node.Gossip.GetNodeMetrics().ConnectionsRefused.Count()
+				}
+				t.Fatalf("numNodes=%d timed out with %d connections refused", numNodes, connsRefused)
+			}
 
 			var connsRefused int64
 			for _, node := range network.Nodes {
