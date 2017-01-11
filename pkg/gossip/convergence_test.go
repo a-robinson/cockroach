@@ -17,12 +17,11 @@
 package gossip_test
 
 import (
-	"context"
+	"fmt"
 	"testing"
 
 	"github.com/cockroachdb/cockroach/pkg/gossip/simulation"
 	"github.com/cockroachdb/cockroach/pkg/util/leaktest"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
 )
 
@@ -51,19 +50,30 @@ func TestConvergence(t *testing.T) {
 // TODO: De-dupe code
 func TestConvergenceLarge(t *testing.T) {
 	defer leaktest.AfterTest(t)()
-	stopper := stop.NewStopper()
-	defer stopper.Stop()
 
-	for i := 1; i < 64; i++ {
-		network := simulation.NewNetwork(stopper, i, true)
+	for numNodes := 1; numNodes <= 64; numNodes++ {
+		t.Run(fmt.Sprintf("%d", numNodes), func(t *testing.T) {
+			stopper := stop.NewStopper()
+			defer stopper.Stop()
+			network := simulation.NewNetwork(stopper, numNodes, true)
 
-		const maxCycles = 100
-		connectedCycles := network.RunUntilFullyConnected()
-		log.Infof(context.TODO(), "NUM_NODES: %d\tNUM_CYCLES: %d", i, connectedCycles)
-		if connectedCycles > maxCycles {
-			t.Errorf("expected a fully-connected network within %d cycles; took %d",
-				maxCycles, connectedCycles)
-		}
+			const maxCycles = 100
+			//connectedCycles := network.RunUntilFullyConnected()
+			var cyclesRun int64
+			network.SimulateNetwork(func(cycle int, network *simulation.Network) bool {
+				cyclesRun++
+				return cycle < 100
+			})
+
+			var connsRefused int64
+			for _, node := range network.Nodes {
+				connsRefused += node.Gossip.GetNodeMetrics().ConnectionsRefused.Count()
+			}
+			t.Errorf("NUM_NODES: %d\tNUM_CYCLES: %d, NUM_REFUSED: %d", numNodes, cyclesRun, connsRefused)
+			if cyclesRun > maxCycles {
+				t.Errorf("expected a fully-connected network within %d cycles; took %d",
+					maxCycles, cyclesRun)
+			}
+		})
 	}
-	t.Errorf("done")
 }

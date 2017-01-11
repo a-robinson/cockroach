@@ -126,6 +126,7 @@ const (
 var (
 	MetaConnectionsIncomingGauge = metric.Metadata{Name: "gossip.connections.incoming"}
 	MetaConnectionsOutgoingGauge = metric.Metadata{Name: "gossip.connections.outgoing"}
+	MetaConnectionsRefusedRates  = metric.Metadata{Name: "gossip.connections.refused"}
 	MetaInfosSentRates           = metric.Metadata{Name: "gossip.infos.sent"}
 	MetaInfosReceivedRates       = metric.Metadata{Name: "gossip.infos.received"}
 	MetaBytesSentRates           = metric.Metadata{Name: "gossip.bytes.sent"}
@@ -1230,10 +1231,11 @@ func (*Request) GetUser() string {
 
 // Metrics contains gossip metrics used per node and server.
 type Metrics struct {
-	BytesReceived *metric.Counter
-	BytesSent     *metric.Counter
-	InfosReceived *metric.Counter
-	InfosSent     *metric.Counter
+	ConnectionsRefused *metric.Counter
+	BytesReceived      *metric.Counter
+	BytesSent          *metric.Counter
+	InfosReceived      *metric.Counter
+	InfosSent          *metric.Counter
 }
 
 func (m Metrics) String() string {
@@ -1244,9 +1246,10 @@ func (m Metrics) String() string {
 // makeMetrics makes a new metrics object with rates.
 func makeMetrics() Metrics {
 	return Metrics{
-		BytesReceived: metric.NewCounter(MetaBytesReceivedRates),
-		BytesSent:     metric.NewCounter(MetaBytesSentRates),
-		InfosReceived: metric.NewCounter(MetaInfosReceivedRates),
-		InfosSent:     metric.NewCounter(MetaInfosSentRates),
+		ConnectionsRefused: metric.NewCounter(MetaConnectionsRefusedRates),
+		BytesReceived:      metric.NewCounter(MetaBytesReceivedRates),
+		BytesSent:          metric.NewCounter(MetaBytesSentRates),
+		InfosReceived:      metric.NewCounter(MetaInfosReceivedRates),
+		InfosSent:          metric.NewCounter(MetaInfosSentRates),
 	}
 }
