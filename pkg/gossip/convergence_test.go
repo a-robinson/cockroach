@@ -52,7 +52,9 @@ func TestConvergence(t *testing.T) {
 func TestConvergenceLarge(t *testing.T) {
 	defer leaktest.AfterTest(t)()
 
-	for numNodes := 1; numNodes <= 64; numNodes++ {
+	//for numNodes := 1; numNodes <= 32; numNodes++ {
+	//for numNodes := 32; numNodes <= 32; numNodes++ {
+	for numNodes := 64; numNodes <= 64; numNodes++ {
 		t.Run(fmt.Sprintf("%d", numNodes), func(t *testing.T) {
 			fmt.Printf("RUNNING WITH NUMNODES=%d\n", numNodes)
 			stopper := stop.NewStopper()
@@ -74,7 +76,7 @@ func TestConvergenceLarge(t *testing.T) {
 			var cyclesRun int64
 			select {
 			case cyclesRun = <-resultChan:
-			case <-time.After(15 * time.Second):
+			case <-time.After(90 * time.Second):
 				var connsRefused int64
 				for _, node := range network.Nodes {
 					connsRefused += node.Gossip.GetNodeMetrics().ConnectionsRefused.Count()
@@ -83,10 +85,11 @@ func TestConvergenceLarge(t *testing.T) {
 			}
 
 			var connsRefused int64
-			for _, node := range network.Nodes {
+			for i, node := range network.Nodes {
+				t.Errorf("NUM_NODES: %d,\tNODE_IDX: %d,\tINCOMING: %d,\tOUTGOING: %d", numNodes, i, node.Gossip.GetIncoming().Value(), node.Gossip.GetOutgoing().Value())
 				connsRefused += node.Gossip.GetNodeMetrics().ConnectionsRefused.Count()
 			}
-			t.Errorf("NUM_NODES: %d\tNUM_CYCLES: %d, NUM_REFUSED: %d", numNodes, cyclesRun, connsRefused)
+			t.Errorf("NUM_NODES: %d\tIS_CONNECTED: %v,\tNUM_REFUSED: %d", numNodes, network.IsNetworkConnected(), connsRefused)
 			if cyclesRun > maxCycles {
 				t.Errorf("expected a fully-connected network within %d cycles; took %d",
 					maxCycles, cyclesRun)

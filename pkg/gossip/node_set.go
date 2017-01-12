@@ -17,6 +17,8 @@
 package gossip
 
 import (
+	"log"
+
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/util/metric"
 )
@@ -24,9 +26,10 @@ import (
 // A nodeSet keeps a set of nodes and provides simple node-matched
 // management functions. nodeSet is not thread safe.
 type nodeSet struct {
-	nodes   map[roachpb.NodeID]struct{} // Set of roachpb.NodeID
-	maxSize int                         // Maximum size of set
-	gauge   *metric.Gauge               // Gauge for the number of nodes in the set.
+	placeholders int
+	nodes        map[roachpb.NodeID]struct{} // Set of roachpb.NodeIDs
+	maxSize      int                         // Maximum size of set
+	gauge        *metric.Gauge               // Gauge for the number of nodes in the set.
 }
 
 func makeNodeSet(maxSize int, gauge *metric.Gauge) nodeSet {
@@ -40,7 +43,7 @@ func makeNodeSet(maxSize int, gauge *metric.Gauge) nodeSet {
 // hasSpace returns whether there are fewer than maxSize nodes
 // in the nodes slice.
 func (as nodeSet) hasSpace() bool {
-	return len(as.nodes) < as.maxSize
+	return len(as.nodes)+as.placeholders < as.maxSize
 }
 
 // len returns the number of nodes in the set.
@@ -88,16 +91,48 @@ func (as *nodeSet) setMaxSize(maxSize int) {
 
 // addNode adds the node to the nodes set.
 func (as *nodeSet) addNode(node roachpb.NodeID) {
-	as.nodes[node] = struct{}{}
+	if !as.hasNode(node) {
+		as.nodes[node] = struct{}{}
+	} else {
+		as.placeholders++
+	}
 	as.updateGauge()
 }
 
 // removeNode removes the node from the nodes set.
 func (as *nodeSet) removeNode(node roachpb.NodeID) {
-	delete(as.nodes, node)
+	if as.hasNode(node) {
+		//log.Fatal("removing non-existent node")
+		delete(as.nodes, node)
+	} else {
+		as.placeholders--
+	}
+	as.updateGauge()
+}
+
+func (as *nodeSet) addPlaceholder() {
+	as.placeholders++
+	as.updateGauge()
+}
+
+func (as *nodeSet) resolvePlaceholder(node roachpb.NodeID) {
+	// TODO: This logic would be better off in client.go
+	if _, ok := as.nodes[node]; !ok {
+		as.placeholders--
+		as.addNode(node)
+	}
+}
+
+func (as *nodeSet) removePlaceholder() {
+	as.placeholders--
 	as.updateGauge()
 }
 
 func (as *nodeSet) updateGauge() {
-	as.gauge.Update(int64(len(as.nodes)))
+	as.gauge.Update(int64(len(as.nodes) + as.placeholders))
+	//fmt.Println(as.gauge.Value())
+	//debug.PrintStack()
+	if as.gauge.Value() > int64(as.maxSize) {
+		log.Fatal("FUCK")
+	}
 }

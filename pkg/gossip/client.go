@@ -41,6 +41,7 @@ type client struct {
 
 	createdAt             time.Time
 	peerID                roachpb.NodeID           // Peer node ID; 0 until first gossip response
+	recordedPeerID        bool                     // Have we written peerID to the outgoing nodeSet?
 	addr                  net.Addr                 // Peer node network address
 	forwardAddr           *util.UnresolvedAddr     // Set if disconnected with an alternate addr
 	remoteHighWaterStamps map[roachpb.NodeID]int64 // Remote server's high water timestamps
@@ -118,6 +119,10 @@ func (c *client) start(
 			if consecFailures == 0 {
 				log.Warningf(ctx, "failed to start gossip client to %s: %s", c.addr, err)
 			}
+			//g.mu.Lock()
+			//defer g.mu.Unlock()
+			//g.mu.outgoing.removeNode(c.addr)
+			//g.outgoing.removePlaceholder()
 			return
 		}
 
@@ -213,6 +218,10 @@ func (c *client) handleResponse(ctx context.Context, g *Gossip, reply *Response)
 	c.nodeMetrics.BytesReceived.Inc(bytesReceived)
 	c.nodeMetrics.InfosReceived.Inc(infosReceived)
 
+	c.peerID = reply.NodeID
+	g.outgoing.resolvePlaceholder(c.peerID)
+	c.remoteHighWaterStamps = reply.HighWaterStamps
+
 	// Combine remote node's infostore delta with ours.
 	if reply.Delta != nil {
 		freshCount, err := g.mu.is.combine(reply.Delta, reply.NodeID)
@@ -226,9 +235,6 @@ func (c *client) handleResponse(ctx context.Context, g *Gossip, reply *Response)
 		}
 		g.maybeTightenLocked()
 	}
-	c.peerID = reply.NodeID
-	g.outgoing.addNode(c.peerID)
-	c.remoteHighWaterStamps = reply.HighWaterStamps
 
 	// Handle remote forwarding.
 	if reply.AlternateAddr != nil {

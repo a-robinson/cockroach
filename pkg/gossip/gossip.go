@@ -287,6 +287,14 @@ func (g *Gossip) GetNodeMetrics() *Metrics {
 	return g.server.GetNodeMetrics()
 }
 
+func (g *Gossip) GetOutgoing() *metric.Gauge {
+	return g.outgoing.gauge
+}
+
+func (g *Gossip) GetIncoming() *metric.Gauge {
+	return g.mu.incoming.gauge
+}
+
 // SetNodeDescriptor adds the node descriptor to the gossip network.
 func (g *Gossip) SetNodeDescriptor(desc *roachpb.NodeDescriptor) error {
 	ctx := g.AnnotateCtx(context.TODO())
@@ -478,7 +486,9 @@ func (g *Gossip) EnableSimulationCycler(enable bool) {
 func (g *Gossip) SimulationCycle() {
 	g.mu.Lock()
 	defer g.mu.Unlock()
-	g.simulationCycler.Broadcast()
+	if g.simulationCycler != nil {
+		g.simulationCycler.Broadcast()
+	}
 }
 
 // maybeAddResolver creates and adds a resolver for the specified
@@ -1094,6 +1104,17 @@ func (g *Gossip) tightenNetwork(distantNodeID roachpb.NodeID) {
 			log.Errorf(ctx, "unable to get address for node %d: %s", distantNodeID, err)
 		} else {
 			//log.Infof(ctx, "starting client to distant node %d to tighten network graph", distantNodeID)
+			alreadyConnected := false
+			g.clientsMu.Lock()
+			for _, candidate := range g.clientsMu.clients {
+				if candidate.addr == nodeAddr {
+					alreadyConnected = true
+				}
+			}
+			g.clientsMu.Unlock()
+			if alreadyConnected {
+				return
+			}
 			log.Eventf(ctx, "tightening network with new client to %s", nodeAddr)
 			g.startClient(nodeAddr)
 		}
@@ -1178,6 +1199,7 @@ func (g *Gossip) signalConnectedLocked() {
 // startClient launches a new client connected to remote address.
 // The client is added to the outgoing address set and launched in
 // a goroutine.
+// Requires that g.mu is held. TODO: RENAME
 func (g *Gossip) startClient(addr net.Addr) {
 	g.clientsMu.Lock()
 	defer g.clientsMu.Unlock()
@@ -1190,6 +1212,7 @@ func (g *Gossip) startClient(addr net.Addr) {
 	log.Eventf(ctx, "starting new client to %s", addr)
 	c := newClient(g.server.AmbientContext, addr, g.serverMetrics)
 	g.clientsMu.clients = append(g.clientsMu.clients, c)
+	g.outgoing.addPlaceholder()
 	c.start(g, g.disconnected, g.rpcContext, g.server.stopper, breaker)
 }
 
@@ -1198,15 +1221,24 @@ func (g *Gossip) startClient(addr net.Addr) {
 func (g *Gossip) removeClient(target *client) {
 	g.clientsMu.Lock()
 	defer g.clientsMu.Unlock()
+	found := false
 	for i, candidate := range g.clientsMu.clients {
 		if candidate == target {
 			ctx := g.AnnotateCtx(context.TODO())
 			log.Eventf(ctx, "client %s disconnected", candidate.addr)
 			g.clientsMu.clients = append(g.clientsMu.clients[:i], g.clientsMu.clients[i+1:]...)
 			delete(g.bootstrapping, candidate.addr.String())
-			g.outgoing.removeNode(candidate.peerID)
+			if candidate.peerID != 0 {
+				g.outgoing.removeNode(candidate.peerID)
+			} else {
+				g.outgoing.removePlaceholder()
+			}
+			found = true
 			break
 		}
+	}
+	if !found {
+		log.Fatalf(g.AnnotateCtx(context.TODO()), "dammit: %+v", target)
 	}
 }
 
