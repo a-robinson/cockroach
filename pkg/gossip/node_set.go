@@ -85,7 +85,9 @@ func (as nodeSet) hasNode(node roachpb.NodeID) bool {
 
 // setMaxSize adjusts the maximum size allowed for the node set.
 func (as *nodeSet) setMaxSize(maxSize int) {
-	if as.maxSize != maxSize {
+	// Only allow increases to maxSize to avoid potentially breaking the
+	// placeholders logic. Keeping extra gossip connections open is safe.
+	if maxSize > as.maxSize {
 		as.maxSize = maxSize
 	}
 }
@@ -126,15 +128,16 @@ func (as *nodeSet) addPlaceholder() {
 // resolvePlaceholder adds another node to the set of tracked nodes, but is
 // intended for nodes whose IDs we don't know at the time of adding.
 func (as *nodeSet) resolvePlaceholder(node roachpb.NodeID) {
-	if as.placeholders <= 0 {
-		log.Fatalf(context.TODO(),
-			"resolvePlaceholder called more times than addPlaceholder; gossip logic is broken: %+v", as)
-	}
 	as.placeholders--
 	as.addNode(node)
 }
 
 func (as *nodeSet) updateGauge() {
+	if as.placeholders < 0 {
+		log.Fatalf(context.TODO(),
+			"nodeSet.placeholders should never be less than 0; gossip logic is broken %+v", as)
+	}
+
 	newTotal := as.len()
 	if newTotal > as.maxSize {
 		log.Fatalf(context.TODO(),
