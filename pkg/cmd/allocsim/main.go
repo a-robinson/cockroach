@@ -325,6 +325,7 @@ func (a *allocSim) finalStatus() {
 }
 
 func handleStart() bool {
+	log.Infof(context.TODO(), "args: %+v", os.Args)
 	if len(os.Args) < 2 || os.Args[1] != "start" {
 		return false
 	}
@@ -334,12 +335,15 @@ func handleStart() bool {
 	// pflags package used by cli.Start to manage the rest of the flags as usual.
 	var latenciesStr string
 	for i, arg := range os.Args {
+		log.Infof(context.TODO(), "arg: %s", arg)
 		if strings.HasPrefix(arg, "--latencies=") || strings.HasPrefix(arg, "-latencies=") {
+			log.Infof(context.TODO(), "has prefix")
 			latenciesStr = strings.SplitAfterN(arg, "=", 2)[1]
 			os.Args = append(os.Args[:i], os.Args[i+1:]...)
 			break
 		}
 	}
+	log.Infof(context.TODO(), "latenciesStr: %s", latenciesStr)
 	if latenciesStr != "" {
 		if err := configureArtificialLatencies(latenciesStr); err != nil {
 			log.Fatal(context.Background(), err)
@@ -368,6 +372,7 @@ func configureArtificialLatencies(latenciesConfig string) error {
 		delays[addr] = delay
 		log.Infof(context.Background(), "adding delay %s to address %q", delay, addr)
 	}
+	log.Infof(context.TODO(), "delays: %+v", delays)
 	rpc.ArtificialLatencies = delays
 	return nil
 }

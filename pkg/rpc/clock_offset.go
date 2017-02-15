@@ -134,6 +134,9 @@ func (r *RemoteClockMonitor) UpdateOffset(
 			r.mu.latenciesNanos[addr] = latencyAvg
 		}
 		latencyAvg.Add(float64(roundTripLatency.Nanoseconds()))
+		log.Infof(ctx, "actual latency(%s): %d", addr, roundTripLatency/time.Millisecond)
+		log.Infof(ctx, "actual latency(%s): %.2f", addr, float64(roundTripLatency.Nanoseconds())/float64(time.Millisecond))
+		log.Infof(ctx, "average latency(%s): %.2f", addr, r.mu.latenciesNanos[addr].Value()/float64(time.Millisecond))
 	}
 
 	if log.V(2) {

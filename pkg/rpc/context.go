@@ -238,6 +238,36 @@ func (ctx *Context) GRPCDial(target string, opts ...grpc.DialOption) (*grpc.Clie
 					}, nil
 				},
 			))
+			/*
+				dialOpts = append(dialOpts, grpc.WithUnaryInterceptor(
+					func(
+						ctx context.Context,
+						method string,
+						req, reply interface{},
+						cc *grpc.ClientConn,
+						invoker grpc.UnaryInvoker,
+						opts ...grpc.CallOption,
+					) error {
+						time.Sleep(delay)
+						return invoker(ctx, method, req, reply, cc, opts...)
+					},
+				))
+				// Note that this only injects latency when opening a stream, not on
+				// all traffic that uses the stream, unfortunately.
+				dialOpts = append(dialOpts, grpc.WithStreamInterceptor(
+					func(
+						ctx context.Context,
+						desc *grpc.StreamDesc,
+						cc *grpc.ClientConn,
+						method string,
+						streamer grpc.Streamer,
+						opts ...grpc.CallOption,
+					) (grpc.ClientStream, error) {
+						time.Sleep(delay)
+						return streamer(ctx, desc, cc, method, opts...)
+					},
+				))
+			*/
 		}
 
 		if log.V(1) {
