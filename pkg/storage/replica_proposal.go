@@ -397,6 +397,10 @@ func (r *Replica) leasePostApply(
 		r.mu.tsCache.SetLowWater(newLease.Start)
 		r.mu.Unlock()
 
+		// Reset the request counts used to make lease placement decisions whenever
+		// starting a new lease.
+		r.stats.resetRequestCounts()
+
 		// Gossip the first range whenever its lease is acquired. We check to
 		// make sure the lease is active so that a trailing replica won't process
 		// an old lease request and attempt to gossip the first range.
