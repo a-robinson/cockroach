@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"time"
 
 	"github.com/coreos/etcd/raft"
 	"github.com/pkg/errors"
@@ -29,6 +30,7 @@ import (
 
 	"github.com/cockroachdb/cockroach/pkg/config"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
+	"github.com/cockroachdb/cockroach/pkg/rpc"
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/envutil"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
@@ -122,13 +124,15 @@ func makeAllocatorRand(source rand.Source) allocatorRand {
 
 // Allocator tries to spread replicas as evenly as possible across the stores
 // in the cluster.
+// TODO: Consider extracting the latency management into a separate struct?
 type Allocator struct {
-	storePool *StorePool
-	randGen   allocatorRand
+	storePool  *StorePool
+	rpcContext *rpc.Context
+	randGen    allocatorRand
 }
 
 // MakeAllocator creates a new allocator using the specified StorePool.
-func MakeAllocator(storePool *StorePool) Allocator {
+func MakeAllocator(storePool *StorePool, rpcContext *rpc.Context) Allocator {
 	var randSource rand.Source
 	// There are number of test cases that make a test store but don't add
 	// gossip or a store pool. So we can't rely on the existence of the
@@ -139,8 +143,9 @@ func MakeAllocator(storePool *StorePool) Allocator {
 		randSource = rand.NewSource(rand.Int63())
 	}
 	return Allocator{
-		storePool: storePool,
-		randGen:   makeAllocatorRand(randSource),
+		storePool:  storePool,
+		rpcContext: rpcContext,
+		randGen:    makeAllocatorRand(randSource),
 	}
 }
 
@@ -347,6 +352,7 @@ func (a *Allocator) TransferLeaseTarget(
 	existing []roachpb.ReplicaDescriptor,
 	leaseStoreID roachpb.StoreID,
 	rangeID roachpb.RangeID,
+	stats *replicaStats,
 	checkTransferLeaseSource bool,
 ) roachpb.ReplicaDescriptor {
 	sl, _, _ := a.storePool.getStoreList(rangeID)
@@ -379,7 +385,7 @@ func (a *Allocator) TransferLeaseTarget(
 	if !ok {
 		return roachpb.ReplicaDescriptor{}
 	}
-	if checkTransferLeaseSource && !a.shouldTransferLease(sl, source, existing) {
+	if checkTransferLeaseSource && !a.shouldTransferLease(sl, source, stats, existing) {
 		return roachpb.ReplicaDescriptor{}
 	}
 
@@ -412,6 +418,7 @@ func (a *Allocator) ShouldTransferLease(
 	existing []roachpb.ReplicaDescriptor,
 	leaseStoreID roachpb.StoreID,
 	rangeID roachpb.RangeID,
+	stats *replicaStats,
 ) bool {
 	source, ok := a.storePool.getStoreDescriptor(leaseStoreID)
 	if !ok {
@@ -422,7 +429,7 @@ func (a *Allocator) ShouldTransferLease(
 	if log.V(3) {
 		log.Infof(context.TODO(), "transfer-lease-source (lease-holder=%d):\n%s", leaseStoreID, sl)
 	}
-	return a.shouldTransferLease(sl, source, existing)
+	return a.shouldTransferLease(sl, source, stats, existing)
 }
 
 // EnableLeaseRebalancing controls whether lease rebalancing is enabled or
@@ -430,11 +437,41 @@ func (a *Allocator) ShouldTransferLease(
 var EnableLeaseRebalancing = envutil.EnvOrDefaultBool("COCKROACH_ENABLE_LEASE_REBALANCING", true)
 
 func (a Allocator) shouldTransferLease(
-	sl StoreList, source roachpb.StoreDescriptor, existing []roachpb.ReplicaDescriptor,
+	sl StoreList, source roachpb.StoreDescriptor, stats *replicaStats, existing []roachpb.ReplicaDescriptor,
 ) bool {
 	if !EnableLeaseRebalancing {
 		return false
 	}
+
+	// TODO: Finish up this logic
+	// TODO: Decide whether to reset request counts
+	requestCounts, requestCountsDur := stats.getRequestCounts()
+	if len(requestCounts) != 0 {
+		latencies := a.rpcContext.RemoteClocks.Latencies()
+		nodeIDLatencies := make(map[roachpb.NodeID]time.Duration)
+		for addr, latency := range latencies {
+			nodeID, err := a.storePool.gossip.GetAddressNodeID(util.MakeUnresolvedAddr("tcp", addr))
+			if err != nil {
+				log.Warningf(context.TODO(), "missing NodeID for address %q", addr)
+				continue
+			}
+			nodeIDLatencies[nodeID] = latency
+		}
+		localityLatencies := make(map[string]struct {
+			avg   time.Duration
+			nodes int64
+		})
+		for nodeID, latency := range nodeIDLatencies {
+			localityStr := a.storePool.getNodeLocalityString(nodeID)
+			l := localityLatencies[localityStr]
+			l.nodes++
+			l.avg = l.avg + time.Duration(int64(l.avg+latency)/l.nodes)
+			localityLatencies[localityStr] = l
+		}
+	}
+	// TODO: remove
+	_ = requestCountsDur
+
 	// Allow lease transfer if we're above the overfull threshold, which is
 	// mean*(1+rebalanceThreshold).
 	overfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 + rebalanceThreshold)))

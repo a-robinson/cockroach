@@ -172,7 +172,7 @@ func (rq *replicateQueue) shouldQueue(
 		leaseStoreID = lease.Replica.StoreID
 		if rq.canTransferLease() &&
 			rq.allocator.ShouldTransferLease(
-				zone.Constraints, desc.Replicas, leaseStoreID, desc.RangeID) {
+				zone.Constraints, desc.Replicas, leaseStoreID, desc.RangeID, repl.stats) {
 			if log.V(2) {
 				log.Infof(ctx, "lease transfer needed, enqueuing")
 			}
@@ -295,7 +295,7 @@ func (rq *replicateQueue) processOneChange(
 		// leases) allow transferring the lease away.
 		leaseHolderStoreID := repl.store.StoreID()
 		if rq.allocator.ShouldTransferLease(
-			zone.Constraints, desc.Replicas, leaseHolderStoreID, desc.RangeID) {
+			zone.Constraints, desc.Replicas, leaseHolderStoreID, desc.RangeID, repl.stats) {
 			leaseHolderStoreID = 0
 		}
 		removeReplica, err := rq.allocator.RemoveTarget(
@@ -418,6 +418,7 @@ func (rq *replicateQueue) transferLease(
 		candidates,
 		repl.store.StoreID(),
 		desc.RangeID,
+		repl.stats,
 		checkTransferLeaseSource,
 	); target != (roachpb.ReplicaDescriptor{}) {
 		rq.metrics.TransferLeaseCount.Inc(1)
