@@ -375,6 +375,9 @@ func handleStart() bool {
 }
 
 func configureArtificialLatencies(latenciesConfig string) error {
+	if latenciesConfig == "" {
+		return nil
+	}
 	for _, latency := range strings.Split(latenciesConfig, ",") {
 		parts := strings.Split(latency, "=")
 		if len(parts) != 2 {
