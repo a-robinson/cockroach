@@ -663,7 +663,7 @@ func TestAllocatorRebalanceThrashing(t *testing.T) {
 		for i := range stores {
 			stores[i].rangeCount = mean
 		}
-		surplus := int32(math.Ceil(float64(mean)*rebalanceThreshold + 1))
+		surplus := int32(math.Ceil(float64(mean)*baseRebalanceThreshold + 1))
 		stores[0].rangeCount += surplus
 		stores[0].shouldRebalanceFrom = true
 		for i := 1; i < len(stores); i++ {
@@ -682,7 +682,7 @@ func TestAllocatorRebalanceThrashing(t *testing.T) {
 		// Subtract enough ranges from the first store to make it a suitable
 		// rebalance target. To maintain the specified mean, we then add that delta
 		// back to the rest of the replicas.
-		deficit := int32(math.Ceil(float64(mean)*rebalanceThreshold + 1))
+		deficit := int32(math.Ceil(float64(mean)*baseRebalanceThreshold + 1))
 		stores[0].rangeCount -= deficit
 		for i := 1; i < len(stores); i++ {
 			stores[i].rangeCount += int32(math.Ceil(float64(deficit) / float64(len(stores)-1)))
@@ -702,8 +702,8 @@ func TestAllocatorRebalanceThrashing(t *testing.T) {
 		// Adding an empty node to a 3-node cluster triggers rebalancing from
 		// existing nodes.
 		{"empty-node", []testStore{{100, true}, {100, true}, {100, true}, {0, false}}},
-		// A cluster where all range counts are within RebalanceThreshold should
-		// not rebalance. This assumes RebalanceThreshold > 2%.
+		// A cluster where all range counts are within baseRebalanceThreshold should
+		// not rebalance. This assumes baseRebalanceThreshold > 2%.
 		{"within-threshold", []testStore{{98, false}, {99, false}, {101, false}, {102, false}}},
 
 		{"5-stores-mean-100-one-above", oneStoreAboveRebalanceTarget(100, 5)},

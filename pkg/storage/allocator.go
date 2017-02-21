@@ -444,8 +444,10 @@ func (a Allocator) shouldTransferLease(
 	}
 
 	// TODO: Finish up this logic
+	// TODO: Clean up code and consider basic cachingoptimizations
 	// TODO: Decide whether to reset request counts
-	requestCounts, requestCountsDur := stats.getRequestCounts()
+	rebalanceThreshold := baseRebalanceThreshold
+	requestCounts, _ := stats.getRequestCounts()
 	if len(requestCounts) != 0 {
 		latencies := a.rpcContext.RemoteClocks.Latencies()
 		nodeIDLatencies := make(map[roachpb.NodeID]time.Duration)
@@ -468,9 +470,36 @@ func (a Allocator) shouldTransferLease(
 			l.avg = l.avg + time.Duration(int64(l.avg+latency)/l.nodes)
 			localityLatencies[localityStr] = l
 		}
+		replicaLocalities := a.storePool.getLocalities(existing)
+		replicaLatencies := make(map[roachpb.NodeID]time.Duration)
+		for nodeID, locality := range replicaLocalities {
+			replicaLatencies[nodeID] = localityLatencies[locality.String()].avg
+		}
+
+		// TODO: Adjust rebalanceThreshold
+		replicaWeights := make(map[roachpb.NodeID]float64)
+		for requestLocalityStr, count := range requestCounts {
+			var requestLocality roachpb.Locality
+			if err := requestLocality.Set(requestLocalityStr); err != nil {
+				log.Errorf(context.TODO(), "unable to parse locality string %q: %s", requestLocalityStr, err)
+				// TODO: Return error here if moved to a helper function?
+				continue
+			}
+			for nodeID, replicaLocality := range replicaLocalities {
+				// Add weights to each replica based on the number of requests from
+				// that replica's locality and neighboring localities.
+				replicaWeights[nodeID] += (1 - replicaLocality.DiversityScore(requestLocality)) * float64(count)
+			}
+		}
+		currentWeight := replicaWeights[source.Node.NodeID]
+		maxWeightRatio := 1.0
+		for _, weight := range replicaWeights {
+			if ratio := weight / currentWeight; ratio > maxWeightRatio {
+				maxWeightRatio = ratio
+			}
+		}
+		rebalanceThreshold *= maxWeightRatio
 	}
-	// TODO: remove
-	_ = requestCountsDur
 
 	// Allow lease transfer if we're above the overfull threshold, which is
 	// mean*(1+rebalanceThreshold).
@@ -503,10 +532,10 @@ func (a Allocator) shouldTransferLease(
 	return false
 }
 
-// rebalanceThreshold is the minimum ratio of a store's range/lease surplus to
+// baseRebalanceThreshold is the minimum ratio of a store's range/lease surplus to
 // the mean range/lease count that permits rebalances/lease-transfers away from
 // that store.
-var rebalanceThreshold = envutil.EnvOrDefaultFloat("COCKROACH_REBALANCE_THRESHOLD", 0.05)
+var baseRebalanceThreshold = envutil.EnvOrDefaultFloat("COCKROACH_REBALANCE_THRESHOLD", 0.05)
 
 // shouldRebalance returns whether the specified store is a candidate for
 // having a replica removed from it given the candidate store list.
@@ -517,16 +546,16 @@ func (a Allocator) shouldRebalance(store roachpb.StoreDescriptor, sl StoreList) 
 	maxCapacityUsed := store.Capacity.FractionUsed() >= maxFractionUsedThreshold
 
 	// Rebalance if we're above the rebalance target, which is
-	// mean*(1+rebalanceThreshold).
-	target := int32(math.Ceil(sl.candidateCount.mean * (1 + rebalanceThreshold)))
+	// mean*(1+baseRebalanceThreshold).
+	target := int32(math.Ceil(sl.candidateCount.mean * (1 + baseRebalanceThreshold)))
 	rangeCountAboveTarget := store.Capacity.RangeCount > target
 
 	// Rebalance if the candidate store has a range count above the mean, and
 	// there exists another store that is underfull: its range count is smaller
-	// than mean*(1-rebalanceThreshold).
+	// than mean*(1-baseRebalanceThreshold).
 	var rebalanceToUnderfullStore bool
 	if float64(store.Capacity.RangeCount) > sl.candidateCount.mean {
-		underfullThreshold := int32(math.Floor(sl.candidateCount.mean * (1 - rebalanceThreshold)))
+		underfullThreshold := int32(math.Floor(sl.candidateCount.mean * (1 - baseRebalanceThreshold)))
 		for _, desc := range sl.stores {
 			if desc.Capacity.RangeCount < underfullThreshold {
 				rebalanceToUnderfullStore = true
