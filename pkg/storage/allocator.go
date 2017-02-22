@@ -518,32 +518,60 @@ func (a Allocator) leaseTransferWeights(
 		}
 	}
 	currentWeight := math.Max(1.0, replicaWeights[source.Node.NodeID])
-	maxWeightRatio := 1.0
-	for _, weight := range replicaWeights {
-		if ratio := weight / currentWeight; ratio > maxWeightRatio {
-			maxWeightRatio = ratio
+	/*
+		replicasByWeight := make(map[float64]roachpb.ReplicaDescriptor)
+		sortedWeights := make([]float64, len(replicaWeights))
+		for i, repl := range existing {
+			weight := replicaWeights[repl.NodeID]
+			replicasByWeight[weight] = repl
+			sortedWeights[i] = weight
 		}
-	}
+		sort.Sort(sort.Reverse(sort.Float64Slice(sortedWeights)))
+	*/
+	/*
+		maxWeightRatio := 1.0
+		for _, weight := range replicaWeights {
+			if ratio := weight / currentWeight; ratio > maxWeightRatio {
+				maxWeightRatio = ratio
+			}
+		}
+	*/
 	log.Infof(context.TODO(), "requestCounts: %+v", requestCounts)
 	log.Infof(context.TODO(), "localityLatencies: %+v", localityLatencies)
 	log.Infof(context.TODO(), "replicaWeights: %+v", replicaWeights)
 
+	/*
+		for _, repl := range existing {
+			if repl.NodeID == source.Node.NodeID {
+				continue
+			}
+	*/
+	var bestRepl roachpb.ReplicaDescriptor
+	var bestReplScore int32
 	for _, repl := range existing {
 		if repl.NodeID == source.Node.NodeID {
 			continue
 		}
+		/*
+			for _, weight := range sortedWeights {
+				repl, ok := replicasByWeight[weight]
+				if !ok {
+					log.Fatal(context.TODO(), "mapping by float doesn't work :(")
+				}
+		*/
 		// TODO: Need more symmetry in calculations here to avoid lease thrashing! Use log?
 		// TODO: Need to factor in duration here to also add weight to things?
 		rebalanceThreshold := baseRebalanceThreshold - math.Log(math.Max(1.0, replicaWeights[repl.NodeID])/currentWeight)
+		//rebalanceThreshold := baseRebalanceThreshold - math.Log(math.Max(1.0, weight)/currentWeight)
 		log.Infof(context.TODO(), "node %d, node weight %f, self weight %f, rebalanceThreshold %f",
 			repl.NodeID, replicaWeights[repl.NodeID], currentWeight, rebalanceThreshold)
 
 		overfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 + rebalanceThreshold)))
 		if source.Capacity.LeaseCount > overfullLeaseThreshold {
-			log.Infof(context.TODO(), "yes transfer lease, count %d overfull threshold %d", source.Capacity.LeaseCount, overfullLeaseThreshold)
-			return true, replicaWeights, repl
+			log.Infof(context.TODO(), "yes overfull, count %d threshold %d", source.Capacity.LeaseCount, overfullLeaseThreshold)
+		} else {
+			log.Infof(context.TODO(), "no overfull, count %d threshold %d", source.Capacity.LeaseCount, overfullLeaseThreshold)
 		}
-		log.Infof(context.TODO(), "no transfer lease, count %d overfull threshold %d", source.Capacity.LeaseCount, overfullLeaseThreshold)
 
 		storeDesc, ok := a.storePool.getStoreDescriptor(repl.StoreID)
 		if !ok {
@@ -551,12 +579,24 @@ func (a Allocator) leaseTransferWeights(
 		}
 		underfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 - rebalanceThreshold)))
 		if storeDesc.Capacity.LeaseCount < underfullLeaseThreshold {
-			log.Infof(context.TODO(), "yes transfer lease, count %d underfull threshold %d", source.Capacity.LeaseCount, underfullLeaseThreshold)
-			return true, replicaWeights, repl
+			log.Infof(context.TODO(), "yes underfull, count %d threshold %d", storeDesc.Capacity.LeaseCount, underfullLeaseThreshold)
+		} else {
+			log.Infof(context.TODO(), "no underfull, count %d threshold %d", storeDesc.Capacity.LeaseCount, underfullLeaseThreshold)
 		}
-		log.Infof(context.TODO(), "no transfer lease, count %d underfull threshold %d", source.Capacity.LeaseCount, underfullLeaseThreshold)
+
+		overfullScore := source.Capacity.LeaseCount - overfullLeaseThreshold
+		underfullScore := underfullLeaseThreshold - storeDesc.Capacity.LeaseCount
+		log.Infof(context.TODO(), "overfull score %d, underfull score %d", overfullScore, underfullScore)
+		if score := overfullScore + underfullScore; score > bestReplScore {
+			log.Infof(context.TODO(), "new best score %d, will transfer lease", score)
+			bestReplScore = score
+			bestRepl = repl
+		}
 	}
 
+	if bestReplScore > 0 {
+		return true, replicaWeights, bestRepl
+	}
 	return false, replicaWeights, roachpb.ReplicaDescriptor{}
 }
 
