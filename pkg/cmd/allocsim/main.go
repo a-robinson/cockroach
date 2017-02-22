@@ -118,9 +118,10 @@ type allocSim struct {
 	}
 	ranges struct {
 		syncutil.Mutex
-		count    int
-		replicas []int
-		leases   []int
+		count          int
+		replicas       []int
+		leases         []int
+		leaseTransfers []int
 	}
 	localities []Locality
 }
@@ -190,6 +191,21 @@ func (a *allocSim) maybeLogError(err error) {
 }
 
 // TODO: Also record average latency!
+/*
+func (a *allocSim) worker(dbIdx, startNum, workers int) {
+	const insert = `INSERT INTO allocsim.blocks (id, num, data) VALUES ($1, $2, repeat('a', $3)::bytes)`
+	r, _ := randutil.NewPseudoRand()
+	for i := 0; ; i++ {
+		now := time.Now()
+		if _, err := a.DB[i%len(a.DB)].Exec(insert, r.Int63(), startNum+i*workers, *blockSize); err != nil {
+			a.maybeLogError(err)
+		} else {
+			atomic.AddUint64(&a.stats.ops, 1)
+			atomic.AddUint64(&a.stats.totalLatencyNanos, uint64(time.Since(now).Nanoseconds()))
+		}
+	}
+}
+*/
 func (a *allocSim) worker(dbIdx, startNum, workers int) {
 	const insert = `INSERT INTO allocsim.blocks (id, num, data) VALUES ($1, $2, repeat('a', $3)::bytes)`
 
@@ -208,9 +224,10 @@ func (a *allocSim) worker(dbIdx, startNum, workers int) {
 	}
 }
 
-func (a *allocSim) rangeInfo() (total int, replicas []int, leases []int) {
+func (a *allocSim) rangeInfo() (total int, replicas, leases, leaseTransfers []int) {
 	replicas = make([]int, len(a.Nodes))
 	leases = make([]int, len(a.Nodes))
+	leaseTransfers = make([]int, len(a.Nodes))
 
 	// Retrieve the metrics for each node and extract the replica and leaseholder
 	// counts.
@@ -238,6 +255,9 @@ func (a *allocSim) rangeInfo() (total int, replicas []int, leases []int) {
 				if v, ok := storeMetrics["replicas.leaseholders"]; ok {
 					leases[i] += int(v.(float64))
 				}
+				if v, ok := storeMetrics["leasestransfers.success"]; ok {
+					leaseTransfers[i] += int(v.(float64))
+				}
 			}
 		}(i)
 	}
@@ -246,23 +266,24 @@ func (a *allocSim) rangeInfo() (total int, replicas []int, leases []int) {
 	for _, v := range replicas {
 		total += v
 	}
-	return total, replicas, leases
+	return total, replicas, leases, leaseTransfers
 }
 
 func (a *allocSim) rangeStats(d time.Duration) {
 	for {
-		count, replicas, leases := a.rangeInfo()
+		count, replicas, leases, leaseTransfers := a.rangeInfo()
 		a.ranges.Lock()
 		a.ranges.count = count
 		a.ranges.replicas = replicas
 		a.ranges.leases = leases
+		a.ranges.leaseTransfers = leaseTransfers
 		a.ranges.Unlock()
 
 		time.Sleep(d)
 	}
 }
 
-const padding = "__________"
+const padding = "__________________"
 
 func formatHeader(header string, numberNodes int, localities []Locality) string {
 	var buf bytes.Buffer
@@ -278,14 +299,14 @@ func formatHeader(header string, numberNodes int, localities []Locality) string 
 }
 
 func (a *allocSim) monitor(d time.Duration) {
-	formatNodes := func(replicas, leases []int) string {
+	formatNodes := func(replicas, leases, leaseTransfers []int) string {
 		var buf bytes.Buffer
 		for i := range replicas {
 			alive := a.Nodes[i].Alive()
 			if !alive {
 				_, _ = buf.WriteString("\033[0;31;49m")
 			}
-			fmt.Fprintf(&buf, "%*s", len(padding), fmt.Sprintf("%d/%d", replicas[i], leases[i]))
+			fmt.Fprintf(&buf, "%*s", len(padding), fmt.Sprintf("%d/%d %d", replicas[i], leases[i], leaseTransfers[i]))
 			if !alive {
 				_, _ = buf.WriteString("\033[0m")
 			}
@@ -310,6 +331,7 @@ func (a *allocSim) monitor(d time.Duration) {
 		ranges := a.ranges.count
 		replicas := a.ranges.replicas
 		leases := a.ranges.leases
+		leaseTransfers := a.ranges.leaseTransfers
 		a.ranges.Unlock()
 
 		if ticks%20 == 0 || numReplicas != len(replicas) {
@@ -321,7 +343,7 @@ func (a *allocSim) monitor(d time.Duration) {
 			time.Duration(now.Sub(start).Seconds()+0.5)*time.Second,
 			float64(ops-lastOps)/elapsed, float64(ops)/now.Sub(start).Seconds(),
 			float64(totalLatencyNanos/ops)/float64(time.Millisecond),
-			atomic.LoadUint64(&a.stats.errors), ranges, formatNodes(replicas, leases))
+			atomic.LoadUint64(&a.stats.errors), ranges, formatNodes(replicas, leases, leaseTransfers))
 		lastTime = now
 		lastOps = ops
 	}
