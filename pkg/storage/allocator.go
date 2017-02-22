@@ -389,6 +389,12 @@ func (a *Allocator) TransferLeaseTarget(
 		return roachpb.ReplicaDescriptor{}
 	}
 
+	// TODO: Add some logic with replicaWeights?
+	_, _, repl := a.leaseTransferWeights(sl, source, stats, existing)
+	if repl != (roachpb.ReplicaDescriptor{}) {
+		return repl
+	}
+
 	candidates := make([]roachpb.ReplicaDescriptor, 0, len(existing))
 	for _, repl := range existing {
 		if leaseStoreID == repl.StoreID {
@@ -443,67 +449,123 @@ func (a Allocator) shouldTransferLease(
 		return false
 	}
 
+	shouldTransfer, replicaWeights, _ := a.leaseTransferWeights(sl, source, stats, existing)
+	if replicaWeights != nil {
+		return shouldTransfer
+	}
+
+	return a.shouldTransferLeaseNoReplicaStats(sl, source, existing)
+}
+
+func (a Allocator) leaseTransferWeights(
+	sl StoreList, source roachpb.StoreDescriptor, stats *replicaStats, existing []roachpb.ReplicaDescriptor,
+) (bool, map[roachpb.NodeID]float64, roachpb.ReplicaDescriptor) {
 	// TODO: Finish up this logic
 	// TODO: Clean up code and consider basic cachingoptimizations
 	// TODO: Decide whether to reset request counts
-	rebalanceThreshold := baseRebalanceThreshold
-	requestCounts, _ := stats.getRequestCounts()
-	if len(requestCounts) != 0 {
-		latencies := a.rpcContext.RemoteClocks.Latencies()
-		nodeIDLatencies := make(map[roachpb.NodeID]time.Duration)
-		for addr, latency := range latencies {
-			nodeID, err := a.storePool.gossip.GetAddressNodeID(util.MakeUnresolvedAddr("tcp", addr))
-			if err != nil {
-				log.Warningf(context.TODO(), "missing NodeID for address %q", addr)
-				continue
-			}
-			nodeIDLatencies[nodeID] = latency
+	// TODO: Add minimum duration needed before consiedering requestCounts
+	// TODO: Unrename rebalanceThreshold?
+	requestCounts, requestCountsDur := stats.getRequestCounts()
+	if len(requestCounts) == 0 || requestCountsDur < 10*time.Second {
+		return false, nil, roachpb.ReplicaDescriptor{}
+	}
+	latencies := a.rpcContext.RemoteClocks.Latencies()
+	nodeIDLatencies := make(map[roachpb.NodeID]time.Duration)
+	for addr, latency := range latencies {
+		nodeID, err := a.storePool.gossip.GetAddressNodeID(util.MakeUnresolvedAddr("tcp", addr))
+		if err != nil {
+			// TODO: Switch back to continuing in this case after GetAddressNodeID is fixed
+			//log.Warningf(context.TODO(), "missing NodeID for address %q", addr)
+			//continue
+			nodeID = source.Node.NodeID
 		}
-		localityLatencies := make(map[string]struct {
-			avg   time.Duration
-			nodes int64
-		})
-		for nodeID, latency := range nodeIDLatencies {
-			localityStr := a.storePool.getNodeLocalityString(nodeID)
-			l := localityLatencies[localityStr]
-			l.nodes++
-			l.avg = l.avg + time.Duration(int64(l.avg+latency)/l.nodes)
-			localityLatencies[localityStr] = l
-		}
-		replicaLocalities := a.storePool.getLocalities(existing)
-		replicaLatencies := make(map[roachpb.NodeID]time.Duration)
-		for nodeID, locality := range replicaLocalities {
-			replicaLatencies[nodeID] = localityLatencies[locality.String()].avg
-		}
-
-		// TODO: Adjust rebalanceThreshold
-		replicaWeights := make(map[roachpb.NodeID]float64)
-		for requestLocalityStr, count := range requestCounts {
-			var requestLocality roachpb.Locality
-			if err := requestLocality.Set(requestLocalityStr); err != nil {
-				log.Errorf(context.TODO(), "unable to parse locality string %q: %s", requestLocalityStr, err)
-				// TODO: Return error here if moved to a helper function?
-				continue
-			}
-			for nodeID, replicaLocality := range replicaLocalities {
-				// Add weights to each replica based on the number of requests from
-				// that replica's locality and neighboring localities.
-				replicaWeights[nodeID] += (1 - replicaLocality.DiversityScore(requestLocality)) * float64(count)
-			}
-		}
-		currentWeight := replicaWeights[source.Node.NodeID]
-		maxWeightRatio := 1.0
-		for _, weight := range replicaWeights {
-			if ratio := weight / currentWeight; ratio > maxWeightRatio {
-				maxWeightRatio = ratio
-			}
-		}
-		rebalanceThreshold *= maxWeightRatio
+		nodeIDLatencies[nodeID] = latency
+	}
+	localityLatencies := make(map[string]struct {
+		avg   time.Duration
+		nodes int64
+	})
+	for nodeID, latency := range nodeIDLatencies {
+		localityStr := a.storePool.getNodeLocalityString(nodeID)
+		l := localityLatencies[localityStr]
+		l.nodes++
+		l.avg = l.avg + time.Duration(int64(l.avg+latency)/l.nodes)
+		localityLatencies[localityStr] = l
+	}
+	replicaLocalities := a.storePool.getLocalities(existing)
+	replicaLatencies := make(map[roachpb.NodeID]time.Duration)
+	for nodeID, locality := range replicaLocalities {
+		replicaLatencies[nodeID] = localityLatencies[locality.String()].avg
 	}
 
+	// TODO: Add proper weight to this replica based on latency to remote replicas!
+	replicaWeights := make(map[roachpb.NodeID]float64)
+	for requestLocalityStr, count := range requestCounts {
+		if requestLocalityStr == "" {
+			// TODO: Remove spammy log
+			log.Infof(context.TODO(), "ignoring %d requests without a locality", count)
+			continue
+		}
+		var requestLocality roachpb.Locality
+		if err := requestLocality.Set(requestLocalityStr); err != nil {
+			log.Errorf(context.TODO(), "unable to parse locality string %q: %s", requestLocalityStr, err)
+			continue
+		}
+		for nodeID, replicaLocality := range replicaLocalities {
+			// Add weights to each replica based on the number of requests from
+			// that replica's locality and neighboring localities.
+			replicaWeights[nodeID] += (1 - replicaLocality.DiversityScore(requestLocality)) * float64(count)
+		}
+	}
+	currentWeight := math.Max(1.0, replicaWeights[source.Node.NodeID])
+	maxWeightRatio := 1.0
+	for _, weight := range replicaWeights {
+		if ratio := weight / currentWeight; ratio > maxWeightRatio {
+			maxWeightRatio = ratio
+		}
+	}
+	log.Infof(context.TODO(), "requestCounts: %+v", requestCounts)
+	log.Infof(context.TODO(), "localityLatencies: %+v", localityLatencies)
+	log.Infof(context.TODO(), "replicaWeights: %+v", replicaWeights)
+
+	for _, repl := range existing {
+		if repl.NodeID == source.Node.NodeID {
+			continue
+		}
+		// TODO: Need more symmetry in calculations here to avoid lease thrashing! Use log?
+		// TODO: Need to factor in duration here to also add weight to things?
+		rebalanceThreshold := baseRebalanceThreshold - math.Log(math.Max(1.0, replicaWeights[repl.NodeID])/currentWeight)
+		log.Infof(context.TODO(), "node %d, node weight %f, self weight %f, rebalanceThreshold %f",
+			repl.NodeID, replicaWeights[repl.NodeID], currentWeight, rebalanceThreshold)
+
+		overfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 + rebalanceThreshold)))
+		if source.Capacity.LeaseCount > overfullLeaseThreshold {
+			log.Infof(context.TODO(), "yes transfer lease, count %d overfull threshold %d", source.Capacity.LeaseCount, overfullLeaseThreshold)
+			return true, replicaWeights, repl
+		}
+		log.Infof(context.TODO(), "no transfer lease, count %d overfull threshold %d", source.Capacity.LeaseCount, overfullLeaseThreshold)
+
+		storeDesc, ok := a.storePool.getStoreDescriptor(repl.StoreID)
+		if !ok {
+			continue
+		}
+		underfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 - rebalanceThreshold)))
+		if storeDesc.Capacity.LeaseCount < underfullLeaseThreshold {
+			log.Infof(context.TODO(), "yes transfer lease, count %d underfull threshold %d", source.Capacity.LeaseCount, underfullLeaseThreshold)
+			return true, replicaWeights, repl
+		}
+		log.Infof(context.TODO(), "no transfer lease, count %d underfull threshold %d", source.Capacity.LeaseCount, underfullLeaseThreshold)
+	}
+
+	return false, replicaWeights, roachpb.ReplicaDescriptor{}
+}
+
+func (a Allocator) shouldTransferLeaseNoReplicaStats(
+	sl StoreList, source roachpb.StoreDescriptor, existing []roachpb.ReplicaDescriptor,
+) bool {
 	// Allow lease transfer if we're above the overfull threshold, which is
-	// mean*(1+rebalanceThreshold).
-	overfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 + rebalanceThreshold)))
+	// mean*(1+baseRebalanceThreshold).
+	overfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 + baseRebalanceThreshold)))
 	minOverfullThreshold := int32(math.Ceil(sl.candidateLeases.mean + 5))
 	if overfullLeaseThreshold < minOverfullThreshold {
 		overfullLeaseThreshold = minOverfullThreshold
@@ -513,7 +575,7 @@ func (a Allocator) shouldTransferLease(
 	}
 
 	if float64(source.Capacity.LeaseCount) > sl.candidateLeases.mean {
-		underfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 - rebalanceThreshold)))
+		underfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 - baseRebalanceThreshold)))
 		minUnderfullThreshold := int32(math.Ceil(sl.candidateLeases.mean - 5))
 		if underfullLeaseThreshold > minUnderfullThreshold {
 			underfullLeaseThreshold = minUnderfullThreshold
