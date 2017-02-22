@@ -95,8 +95,10 @@ func loadConfig(file string) (Configuration, error) {
 	}
 
 	*numNodes = 0
+	*workers = 0
 	for _, locality := range config.Localities {
 		*numNodes += locality.NumNodes
+		*workers += locality.NumWorkers
 	}
 	return config, nil
 }
@@ -110,8 +112,9 @@ func loadConfig(file string) (Configuration, error) {
 type allocSim struct {
 	*localcluster.Cluster
 	stats struct {
-		ops    uint64
-		errors uint64
+		ops               uint64
+		totalLatencyNanos uint64
+		errors            uint64
 	}
 	ranges struct {
 		syncutil.Mutex
@@ -192,12 +195,15 @@ func (a *allocSim) worker(dbIdx, startNum, workers int) {
 
 	r, _ := randutil.NewPseudoRand()
 	db := a.DB[dbIdx%len(a.DB)]
+	log.Infof(context.TODO(), "running worker against node %d", dbIdx%len(a.DB))
 
 	for num := startNum; true; num += workers {
+		now := time.Now()
 		if _, err := db.Exec(insert, r.Int63(), num, *blockSize); err != nil {
 			a.maybeLogError(err)
 		} else {
 			atomic.AddUint64(&a.stats.ops, 1)
+			atomic.AddUint64(&a.stats.totalLatencyNanos, uint64(time.Since(now).Nanoseconds()))
 		}
 	}
 }
@@ -298,6 +304,7 @@ func (a *allocSim) monitor(d time.Duration) {
 		now := timeutil.Now()
 		elapsed := now.Sub(lastTime).Seconds()
 		ops := atomic.LoadUint64(&a.stats.ops)
+		totalLatencyNanos := atomic.LoadUint64(&a.stats.totalLatencyNanos)
 
 		a.ranges.Lock()
 		ranges := a.ranges.count
@@ -307,12 +314,13 @@ func (a *allocSim) monitor(d time.Duration) {
 
 		if ticks%20 == 0 || numReplicas != len(replicas) {
 			numReplicas = len(replicas)
-			fmt.Println(formatHeader("_elapsed__ops/sec_aggregate___errors_replicas", numReplicas, a.localities))
+			fmt.Println(formatHeader("_elapsed__ops/sec__average__latency___errors_replicas", numReplicas, a.localities))
 		}
 
-		fmt.Printf("%8s %8.1f %9.1f %8d %8d%s\n",
+		fmt.Printf("%8s %8.1f %8.1f %6.1fms %8d %8d%s\n",
 			time.Duration(now.Sub(start).Seconds()+0.5)*time.Second,
 			float64(ops-lastOps)/elapsed, float64(ops)/now.Sub(start).Seconds(),
+			float64(totalLatencyNanos/ops)/float64(time.Millisecond),
 			atomic.LoadUint64(&a.stats.errors), ranges, formatNodes(replicas, leases))
 		lastTime = now
 		lastOps = ops
@@ -340,7 +348,7 @@ func (a *allocSim) finalStatus() {
 			var percent, fromMean float64
 			if total != 0 {
 				percent = float64(count) / total * 100
-				fromMean = math.Abs((float64(count) - mean) / total * 100)
+				fromMean = (float64(count) - mean) / total * 100
 			}
 			fmt.Fprintf(&buf, " %9.9s", fmt.Sprintf("%.0f/%.0f", percent, fromMean))
 		}
@@ -469,9 +477,11 @@ func main() {
 
 	c.Start("allocsim", *workers, os.Args[0], nil, flag.Args(), perNodeArgs)
 	c.UpdateZoneConfig(1, 1<<20)
-	if len(config.Localities) != 0 && *workers == 4 {
+	if len(config.Localities) != 0 {
+		log.Infof(context.TODO(), "running with config %+v", config)
 		a.runWithConfig(config)
 	} else {
+		log.Infof(context.TODO(), "running with workers=%d", *workers)
 		a.run(*workers)
 	}
 }
