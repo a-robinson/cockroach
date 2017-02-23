@@ -389,8 +389,12 @@ func (a *Allocator) TransferLeaseTarget(
 		return roachpb.ReplicaDescriptor{}
 	}
 
-	// TODO: Add some logic with replicaWeights?
-	_, _, repl := a.leaseTransferWeights(sl, source, stats, existing)
+	// TODO: Add some logic with replicaWeights? It's possible we need to
+	// transfer the lease even though none of the options are great.
+	shouldTransfer, _, repl := a.leaseTransferWeights(sl, source, stats, existing)
+	if !shouldTransfer {
+		return roachpb.ReplicaDescriptor{}
+	}
 	if repl != (roachpb.ReplicaDescriptor{}) {
 		return repl
 	}
@@ -460,16 +464,16 @@ func (a Allocator) shouldTransferLease(
 func (a Allocator) leaseTransferWeights(
 	sl StoreList, source roachpb.StoreDescriptor, stats *replicaStats, existing []roachpb.ReplicaDescriptor,
 ) (bool, map[roachpb.NodeID]float64, roachpb.ReplicaDescriptor) {
-	// TODO: Finish up this logic
-	// TODO: Clean up code and consider basic cachingoptimizations
+	// TODO: Clean up code and consider basic caching optimizations
 	// TODO: Decide whether to reset request counts
-	// TODO: Add minimum duration needed before consiedering requestCounts
+	// TODO: Add configuration of duration needed before considering requestCounts
 	// TODO: Unrename rebalanceThreshold?
 	requestCounts, requestCountsDur := stats.getRequestCounts()
 	if len(requestCounts) == 0 || requestCountsDur < 10*time.Second {
 		return false, nil, roachpb.ReplicaDescriptor{}
 	}
 	latencies := a.rpcContext.RemoteClocks.Latencies()
+	// TODO: This and the loop below it can trivially be merged
 	nodeIDLatencies := make(map[roachpb.NodeID]time.Duration)
 	for addr, latency := range latencies {
 		nodeID, err := a.storePool.gossip.GetAddressNodeID(util.MakeUnresolvedAddr("tcp", addr))
@@ -493,10 +497,12 @@ func (a Allocator) leaseTransferWeights(
 		localityLatencies[localityStr] = l
 	}
 	replicaLocalities := a.storePool.getLocalities(existing)
-	replicaLatencies := make(map[roachpb.NodeID]time.Duration)
-	for nodeID, locality := range replicaLocalities {
-		replicaLatencies[nodeID] = localityLatencies[locality.String()].avg
-	}
+	/*
+		replicaLatencies := make(map[roachpb.NodeID]time.Duration)
+		for nodeID, locality := range replicaLocalities {
+			replicaLatencies[nodeID] = localityLatencies[locality.String()].avg
+		}
+	*/
 
 	// TODO: Add proper weight to this replica based on latency to remote replicas!
 	replicaWeights := make(map[roachpb.NodeID]float64)
