@@ -136,7 +136,6 @@ func makeAllocatorRand(source rand.Source) allocatorRand {
 
 // Allocator tries to spread replicas as evenly as possible across the stores
 // in the cluster.
-// TODO: Consider extracting the latency management into a separate struct?
 type Allocator struct {
 	storePool  *StorePool
 	rpcContext *rpc.Context
@@ -360,6 +359,7 @@ func (a Allocator) RebalanceTarget(
 // TransferLeaseTarget returns a suitable replica to transfer the range lease
 // to from the provided list. It excludes the current lease holder replica.
 func (a *Allocator) TransferLeaseTarget(
+	ctx context.Context,
 	constraints config.Constraints,
 	existing []roachpb.ReplicaDescriptor,
 	leaseStoreID roachpb.StoreID,
@@ -397,23 +397,32 @@ func (a *Allocator) TransferLeaseTarget(
 	if !ok {
 		return roachpb.ReplicaDescriptor{}
 	}
-	if checkTransferLeaseSource && !a.shouldTransferLease(sl, source, stats, existing) {
+
+	if checkTransferLeaseSource && !a.shouldTransferLease(ctx, sl, source, stats, existing) {
 		return roachpb.ReplicaDescriptor{}
 	}
 
-	// TODO: Add some logic with replicaWeights? It's possible we need to
-	// transfer the lease even though none of the options are great.
-	transferDec, repl := a.shouldTransferLeaseUsingStats(sl, source, stats, existing)
-	switch transferDec {
-	case shouldNotTransfer:
-		return roachpb.ReplicaDescriptor{}
-	case shouldTransfer:
+	transferDec, repl := a.shouldTransferLeaseUsingStats(ctx, sl, source, stats, existing)
+	if checkTransferLeaseSource {
+		switch transferDec {
+		case shouldNotTransfer:
+			return roachpb.ReplicaDescriptor{}
+		case shouldTransfer:
+		case decideWithoutStats:
+			if !a.shouldTransferLeaseWithoutStats(ctx, sl, source, existing) {
+				return roachpb.ReplicaDescriptor{}
+			}
+		default:
+			log.Errorf(context.TODO(), "unexpected transfer decision %d with replica %+v", transferDec, repl)
+		}
+	}
+
+	if repl != (roachpb.ReplicaDescriptor{}) {
 		return repl
-	case decideWithoutStats:
-	default:
-		log.Errorf(context.TODO(), "unexpected transfer decision %d with replica %+v", transferDec, repl)
 	}
 
+	// Fall back to logic that doesn't take request counts and latency into
+	// account if the counts/latency-based logic couldn't pick a best replica.
 	candidates := make([]roachpb.ReplicaDescriptor, 0, len(existing))
 	for _, repl := range existing {
 		if leaseStoreID == repl.StoreID {
@@ -439,6 +448,7 @@ func (a *Allocator) TransferLeaseTarget(
 // of leases with respect to the other stores matching the specified
 // attributes.
 func (a *Allocator) ShouldTransferLease(
+	ctx context.Context,
 	constraints config.Constraints,
 	existing []roachpb.ReplicaDescriptor,
 	leaseStoreID roachpb.StoreID,
@@ -452,9 +462,9 @@ func (a *Allocator) ShouldTransferLease(
 	sl, _, _ := a.storePool.getStoreList(rangeID)
 	sl = sl.filter(constraints)
 	if log.V(3) {
-		log.Infof(context.TODO(), "transfer-lease-source (lease-holder=%d):\n%s", leaseStoreID, sl)
+		log.Infof(ctx, "ShouldTransferLease source (lease-holder=%d):\n%s", leaseStoreID, sl)
 	}
-	return a.shouldTransferLease(sl, source, stats, existing)
+	return a.shouldTransferLease(ctx, sl, source, stats, existing)
 }
 
 // EnableLeaseRebalancing controls whether lease rebalancing is enabled or
@@ -471,13 +481,17 @@ const (
 )
 
 func (a Allocator) shouldTransferLease(
-	sl StoreList, source roachpb.StoreDescriptor, stats *replicaStats, existing []roachpb.ReplicaDescriptor,
+	ctx context.Context,
+	sl StoreList,
+	source roachpb.StoreDescriptor,
+	stats *replicaStats,
+	existing []roachpb.ReplicaDescriptor,
 ) bool {
 	if !EnableLeaseRebalancing {
 		return false
 	}
 
-	transferDec, _ := a.shouldTransferLeaseUsingStats(sl, source, stats, existing)
+	transferDec, _ := a.shouldTransferLeaseUsingStats(ctx, sl, source, stats, existing)
 	switch transferDec {
 	case shouldNotTransfer:
 		return false
@@ -485,19 +499,23 @@ func (a Allocator) shouldTransferLease(
 		return true
 	case decideWithoutStats:
 	default:
-		log.Errorf(context.TODO(), "unexpected transfer decision %d", transferDec)
+		log.Errorf(ctx, "unexpected transfer decision %d", transferDec)
 	}
 
-	return a.shouldTransferLeaseWithoutStats(sl, source, existing)
+	return a.shouldTransferLeaseWithoutStats(ctx, sl, source, existing)
 }
 
 func (a Allocator) shouldTransferLeaseUsingStats(
+	ctx context.Context,
 	sl StoreList,
 	source roachpb.StoreDescriptor,
 	stats *replicaStats,
 	existing []roachpb.ReplicaDescriptor,
 ) (transferDecision, roachpb.ReplicaDescriptor) {
-	// TODO: Clean up code and consider basic caching optimizations
+	if stats == nil {
+		return decideWithoutStats, roachpb.ReplicaDescriptor{}
+	}
+
 	requestCounts, requestCountsDur := stats.getRequestCounts()
 	if requestCountsDur > ResetLeaseTransferStatsPeriod {
 		stats.resetRequestCounts()
@@ -517,17 +535,6 @@ func (a Allocator) shouldTransferLeaseUsingStats(
 		return decideWithoutStats, roachpb.ReplicaDescriptor{}
 	}
 
-	latencies := a.rpcContext.RemoteClocks.Latencies()
-	nodeIDLatencies := make(map[roachpb.NodeID]time.Duration)
-	for addr, latency := range latencies {
-		nodeID, err := a.storePool.gossip.GetAddressNodeID(util.MakeUnresolvedAddr("tcp", addr))
-		if err != nil {
-			log.Warningf(context.TODO(), "missing NodeID for address %q", addr)
-			continue
-		}
-		nodeIDLatencies[nodeID] = latency
-	}
-
 	replicaWeights := make(map[roachpb.NodeID]float64)
 	replicaLocalities := a.storePool.getLocalities(existing)
 	for requestLocalityStr, count := range requestCounts {
@@ -536,7 +543,7 @@ func (a Allocator) shouldTransferLeaseUsingStats(
 		}
 		var requestLocality roachpb.Locality
 		if err := requestLocality.Set(requestLocalityStr); err != nil {
-			log.Errorf(context.TODO(), "unable to parse locality string %q: %s", requestLocalityStr, err)
+			log.Errorf(ctx, "unable to parse locality string %q: %s", requestLocalityStr, err)
 			continue
 		}
 		for nodeID, replicaLocality := range replicaLocalities {
@@ -545,15 +552,18 @@ func (a Allocator) shouldTransferLeaseUsingStats(
 			replicaWeights[nodeID] += (1 - replicaLocality.DiversityScore(requestLocality)) * float64(count)
 		}
 	}
-	log.Infof(context.TODO(), "requestCounts: %+v", requestCounts)
-	log.Infof(context.TODO(), "replicaWeights: %+v", replicaWeights)
+	localWeight := math.Max(1.0, replicaWeights[source.Node.NodeID])
+
+	if log.V(1) {
+		log.Infof(ctx, "shouldTransferLease requestCounts: %+v, replicaWeights: %+v",
+			requestCounts, replicaWeights)
+	}
 
 	// TODO(a-robinson): This may not have enough protection against all leases
 	// ending up on a single node in extreme cases. Continue testing against
 	// different situations.
 	var bestRepl roachpb.ReplicaDescriptor
-	var bestReplScore int32
-	localWeight := math.Max(1.0, replicaWeights[source.Node.NodeID])
+	bestReplScore := int32(math.MinInt32)
 	for _, repl := range existing {
 		if repl.NodeID == source.Node.NodeID {
 			continue
@@ -562,11 +572,16 @@ func (a Allocator) shouldTransferLeaseUsingStats(
 		if !ok {
 			continue
 		}
+		addr, err := a.storePool.gossip.GetNodeIDAddress(repl.NodeID)
+		if err != nil {
+			log.Errorf(ctx, "missing address for node %d: %s", repl.NodeID, err)
+			continue
+		}
 
 		// This is a bit of magic that was determined to work well via a bunch of
 		// testing. See #13232 for context.
 		remoteWeight := math.Max(1.0, replicaWeights[repl.NodeID])
-		remoteLatency := math.Max(1.0, float64(nodeIDLatencies[repl.NodeID]/time.Millisecond))
+		remoteLatency := float64(a.rpcContext.RemoteClocks.Latency(addr.String())) / float64(time.Millisecond)
 		rebalanceThreshold :=
 			baseRebalanceThreshold - 0.1*math.Log10(remoteWeight/localWeight)*math.Log1p(remoteLatency)
 
@@ -574,28 +589,38 @@ func (a Allocator) shouldTransferLeaseUsingStats(
 		overfullScore := source.Capacity.LeaseCount - overfullLeaseThreshold
 		underfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 - rebalanceThreshold)))
 		underfullScore := underfullLeaseThreshold - storeDesc.Capacity.LeaseCount
-		// TODO: Remove debug log messages
-		log.Infof(context.TODO(), "node %d, node weight %f, self weight %f, rebalanceThreshold %f",
-			repl.NodeID, replicaWeights[repl.NodeID], localWeight, rebalanceThreshold)
-		log.Infof(context.TODO(), "overfull count %d threshold %d", source.Capacity.LeaseCount, overfullLeaseThreshold)
-		log.Infof(context.TODO(), "underfull, count %d threshold %d", storeDesc.Capacity.LeaseCount, underfullLeaseThreshold)
-		log.Infof(context.TODO(), "overfull score %d, underfull score %d", overfullScore, underfullScore)
-		if score := overfullScore + underfullScore; score > bestReplScore {
-			log.Infof(context.TODO(), "new best score %d, will transfer lease", score)
-			bestReplScore = score
+		totalScore := overfullScore + underfullScore
+		if totalScore > bestReplScore {
+			bestReplScore = totalScore
 			bestRepl = repl
+		}
+
+		if log.V(1) {
+			log.Infof(ctx,
+				"node: %d, remoteWeight: %.2f, localWeight %.2f, rebalanceThreshold: %.2f, "+
+					"remoteLeaseCount: %d, overfullThreshold: %d, localLeaseCount: %d, "+
+					"underfullThreshold: %d, totalScore: %d",
+				repl.NodeID, replicaWeights[repl.NodeID], localWeight, rebalanceThreshold,
+				source.Capacity.LeaseCount, overfullLeaseThreshold, storeDesc.Capacity.LeaseCount,
+				underfullLeaseThreshold, totalScore,
+			)
 		}
 	}
 
+	// Return the best replica even in cases where transferring is not advised in
+	// order to support forced lease transfers, such as when removing a replica or
+	// draining all leases before shutdown.
 	if bestReplScore > 0 {
 		return shouldTransfer, bestRepl
 	}
-	// TODO: Need to return a bestRepl even if not worth rebalancing?
-	return shouldNotTransfer, roachpb.ReplicaDescriptor{}
+	return shouldNotTransfer, bestRepl
 }
 
 func (a Allocator) shouldTransferLeaseWithoutStats(
-	sl StoreList, source roachpb.StoreDescriptor, existing []roachpb.ReplicaDescriptor,
+	ctx context.Context,
+	sl StoreList,
+	source roachpb.StoreDescriptor,
+	existing []roachpb.ReplicaDescriptor,
 ) bool {
 	// Allow lease transfer if we're above the overfull threshold, which is
 	// mean*(1+baseRebalanceThreshold).
