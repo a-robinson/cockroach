@@ -417,9 +417,15 @@ func (g *Gossip) GetNodeIDAddress(nodeID roachpb.NodeID) (*util.UnresolvedAddr, 
 func (g *Gossip) GetAddressNodeID(addr util.UnresolvedAddr) (roachpb.NodeID, error) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
-	// TODO: This needs to handle the local node as well
 	nodeID, ok := g.bootstrapAddrs[addr]
 	if !ok {
+		// We have to separately check whether addr is our own, since bootstrapAddrs
+		// doesn't track our own address.
+		if selfDesc, err := g.getNodeDescriptorLocked(g.NodeID.Get()); err == nil && selfDesc != nil {
+			if selfDesc.Address == addr {
+				return selfDesc.NodeID, nil
+			}
+		}
 		return 0, errors.Errorf("unable to look up descriptor for node %d", nodeID)
 	}
 	return nodeID, nil
