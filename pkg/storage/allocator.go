@@ -478,10 +478,9 @@ func (a Allocator) leaseTransferWeights(
 	for addr, latency := range latencies {
 		nodeID, err := a.storePool.gossip.GetAddressNodeID(util.MakeUnresolvedAddr("tcp", addr))
 		if err != nil {
-			// TODO: Switch back to continuing in this case after GetAddressNodeID is fixed
-			//log.Warningf(context.TODO(), "missing NodeID for address %q", addr)
-			//continue
-			nodeID = source.Node.NodeID
+			log.Warningf(context.TODO(), "missing NodeID for address %q", addr)
+			continue
+			//nodeID = source.Node.NodeID
 		}
 		nodeIDLatencies[nodeID] = latency
 	}
@@ -523,7 +522,7 @@ func (a Allocator) leaseTransferWeights(
 			replicaWeights[nodeID] += (1 - replicaLocality.DiversityScore(requestLocality)) * float64(count)
 		}
 	}
-	currentWeight := math.Max(1.0, replicaWeights[source.Node.NodeID])
+	localWeight := math.Max(1.0, replicaWeights[source.Node.NodeID])
 	/*
 		replicasByWeight := make(map[float64]roachpb.ReplicaDescriptor)
 		sortedWeights := make([]float64, len(replicaWeights))
@@ -537,7 +536,7 @@ func (a Allocator) leaseTransferWeights(
 	/*
 		maxWeightRatio := 1.0
 		for _, weight := range replicaWeights {
-			if ratio := weight / currentWeight; ratio > maxWeightRatio {
+			if ratio := weight / localWeight; ratio > maxWeightRatio {
 				maxWeightRatio = ratio
 			}
 		}
@@ -565,12 +564,14 @@ func (a Allocator) leaseTransferWeights(
 					log.Fatal(context.TODO(), "mapping by float doesn't work :(")
 				}
 		*/
-		// TODO: Need more symmetry in calculations here to avoid lease thrashing! Use log?
+		// TODO: This has zero protection against all leases being moved to one node...
 		// TODO: Need to factor in duration here to also add weight to things?
-		rebalanceThreshold := baseRebalanceThreshold - math.Log(math.Max(1.0, replicaWeights[repl.NodeID])/currentWeight)
-		//rebalanceThreshold := baseRebalanceThreshold - math.Log(math.Max(1.0, weight)/currentWeight)
+		remoteWeight := math.Max(1.0, replicaWeights[repl.NodeID])
+		remoteLatency := math.Max(1.0, float64(nodeIDLatencies[repl.NodeID]/time.Millisecond))
+		rebalanceThreshold := baseRebalanceThreshold - 0.1*math.Log10(remoteWeight/localWeight)*math.Log1p(remoteLatency)
+		//rebalanceThreshold := baseRebalanceThreshold - math.Log(math.Max(1.0, weight)/localWeight)
 		log.Infof(context.TODO(), "node %d, node weight %f, self weight %f, rebalanceThreshold %f",
-			repl.NodeID, replicaWeights[repl.NodeID], currentWeight, rebalanceThreshold)
+			repl.NodeID, replicaWeights[repl.NodeID], localWeight, rebalanceThreshold)
 
 		overfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 + rebalanceThreshold)))
 		if source.Capacity.LeaseCount > overfullLeaseThreshold {
@@ -603,6 +604,7 @@ func (a Allocator) leaseTransferWeights(
 	if bestReplScore > 0 {
 		return true, replicaWeights, bestRepl
 	}
+	// TODO: Need to return a bestRepl even if not worth rebalancing?
 	return false, replicaWeights, roachpb.ReplicaDescriptor{}
 }
 
