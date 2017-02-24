@@ -50,6 +50,18 @@ const (
 	removeExtraReplicaPriority float64 = 100
 )
 
+var (
+	// MinLeaseTransferStatsDuration configures the minimum amount of time a
+	// replica must wait for stats about request counts to accumulate before
+	// making decisions based on them.
+	// Made configurable for the sake of testing.
+	MinLeaseTransferStatsDuration = time.Minute
+	// ResetLeaseTransferStatsPeriod configures how frequently per-replica request
+	// stats should be cleared out to avoid old data from overpowering new data.
+	// Made configurable for the sake of testing.
+	ResetLeaseTransferStatsPeriod = 10 * time.Minute
+)
+
 // AllocatorAction enumerates the various replication adjustments that may be
 // recommended by the allocator.
 type AllocatorAction int
@@ -391,12 +403,15 @@ func (a *Allocator) TransferLeaseTarget(
 
 	// TODO: Add some logic with replicaWeights? It's possible we need to
 	// transfer the lease even though none of the options are great.
-	shouldTransfer, replicaWeights, repl := a.leaseTransferWeights(sl, source, stats, existing)
-	if replicaWeights != nil && !shouldTransfer {
+	transferDec, repl := a.shouldTransferLeaseUsingStats(sl, source, stats, existing)
+	switch transferDec {
+	case shouldNotTransfer:
 		return roachpb.ReplicaDescriptor{}
-	}
-	if repl != (roachpb.ReplicaDescriptor{}) {
+	case shouldTransfer:
 		return repl
+	case decideWithoutStats:
+	default:
+		log.Errorf(context.TODO(), "unexpected transfer decision %d with replica %+v", transferDec, repl)
 	}
 
 	candidates := make([]roachpb.ReplicaDescriptor, 0, len(existing))
@@ -446,6 +461,15 @@ func (a *Allocator) ShouldTransferLease(
 // not. Exported for testing.
 var EnableLeaseRebalancing = envutil.EnvOrDefaultBool("COCKROACH_ENABLE_LEASE_REBALANCING", true)
 
+type transferDecision int
+
+const (
+	_ transferDecision = iota
+	shouldTransfer
+	shouldNotTransfer
+	decideWithoutStats
+)
+
 func (a Allocator) shouldTransferLease(
 	sl StoreList, source roachpb.StoreDescriptor, stats *replicaStats, existing []roachpb.ReplicaDescriptor,
 ) bool {
@@ -453,24 +477,46 @@ func (a Allocator) shouldTransferLease(
 		return false
 	}
 
-	shouldTransfer, replicaWeights, _ := a.leaseTransferWeights(sl, source, stats, existing)
-	if replicaWeights != nil {
-		return shouldTransfer
+	transferDec, _ := a.shouldTransferLeaseUsingStats(sl, source, stats, existing)
+	switch transferDec {
+	case shouldNotTransfer:
+		return false
+	case shouldTransfer:
+		return true
+	case decideWithoutStats:
+	default:
+		log.Errorf(context.TODO(), "unexpected transfer decision %d", transferDec)
 	}
 
-	return a.shouldTransferLeaseNoReplicaStats(sl, source, existing)
+	return a.shouldTransferLeaseWithoutStats(sl, source, existing)
 }
 
-func (a Allocator) leaseTransferWeights(
-	sl StoreList, source roachpb.StoreDescriptor, stats *replicaStats, existing []roachpb.ReplicaDescriptor,
-) (bool, map[roachpb.NodeID]float64, roachpb.ReplicaDescriptor) {
+func (a Allocator) shouldTransferLeaseUsingStats(
+	sl StoreList,
+	source roachpb.StoreDescriptor,
+	stats *replicaStats,
+	existing []roachpb.ReplicaDescriptor,
+) (transferDecision, roachpb.ReplicaDescriptor) {
 	// TODO: Clean up code and consider basic caching optimizations
-	// TODO: Decide when to reset request counts
-	// TODO: Add configuration of duration needed before considering requestCounts and increase default
 	requestCounts, requestCountsDur := stats.getRequestCounts()
-	if len(requestCounts) == 0 || requestCountsDur < 10*time.Second {
-		return false, nil, roachpb.ReplicaDescriptor{}
+	if requestCountsDur > ResetLeaseTransferStatsPeriod {
+		stats.resetRequestCounts()
 	}
+
+	// If we haven't yet accumulated enough data, avoid transferring for now. Do
+	// not fall back to the algorithm that doesn't use stats, since it can easily
+	// start fighting with the stats-based algorithm.
+	if requestCountsDur < MinLeaseTransferStatsDuration {
+		return shouldNotTransfer, roachpb.ReplicaDescriptor{}
+	}
+
+	// On the other hand, if we don't have any stats with associated localities,
+	// then do fall back to the algorithm that doesn't use request stats.
+	delete(requestCounts, "")
+	if len(requestCounts) == 0 {
+		return decideWithoutStats, roachpb.ReplicaDescriptor{}
+	}
+
 	latencies := a.rpcContext.RemoteClocks.Latencies()
 	nodeIDLatencies := make(map[roachpb.NodeID]time.Duration)
 	for addr, latency := range latencies {
@@ -516,9 +562,13 @@ func (a Allocator) leaseTransferWeights(
 		if !ok {
 			continue
 		}
+
+		// This is a bit of magic that was determined to work well via a bunch of
+		// testing. See #13232 for context.
 		remoteWeight := math.Max(1.0, replicaWeights[repl.NodeID])
 		remoteLatency := math.Max(1.0, float64(nodeIDLatencies[repl.NodeID]/time.Millisecond))
-		rebalanceThreshold := baseRebalanceThreshold - 0.1*math.Log10(remoteWeight/localWeight)*math.Log1p(remoteLatency)
+		rebalanceThreshold :=
+			baseRebalanceThreshold - 0.1*math.Log10(remoteWeight/localWeight)*math.Log1p(remoteLatency)
 
 		overfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 + rebalanceThreshold)))
 		overfullScore := source.Capacity.LeaseCount - overfullLeaseThreshold
@@ -538,13 +588,13 @@ func (a Allocator) leaseTransferWeights(
 	}
 
 	if bestReplScore > 0 {
-		return true, replicaWeights, bestRepl
+		return shouldTransfer, bestRepl
 	}
 	// TODO: Need to return a bestRepl even if not worth rebalancing?
-	return false, replicaWeights, roachpb.ReplicaDescriptor{}
+	return shouldNotTransfer, roachpb.ReplicaDescriptor{}
 }
 
-func (a Allocator) shouldTransferLeaseNoReplicaStats(
+func (a Allocator) shouldTransferLeaseWithoutStats(
 	sl StoreList, source roachpb.StoreDescriptor, existing []roachpb.ReplicaDescriptor,
 ) bool {
 	// Allow lease transfer if we're above the overfull threshold, which is
