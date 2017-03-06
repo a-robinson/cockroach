@@ -32,6 +32,7 @@ import (
 
 	"github.com/cockroachdb/cockroach/pkg/base"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
+	"github.com/cockroachdb/cockroach/pkg/util/envutil"
 	"github.com/cockroachdb/cockroach/pkg/util/grpcutil"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
@@ -59,7 +60,7 @@ const (
 // SourceAddr provides a way to specify a source/local address for outgoing
 // connections. It should only ever be set by testing code, and is not thread
 // safe (so it must be initialized before the server starts).
-var SourceAddr net.Addr
+var SourceAddr string = envutil.EnvOrDefaultString("COCKROACH_SOURCE_IP_ADDRESS", "")
 
 // NewServer is a thin wrapper around grpc.NewServer that registers a heartbeat
 // service.
@@ -227,12 +228,20 @@ func (ctx *Context) GRPCDial(target string, opts ...grpc.DialOption) (*grpc.Clie
 		dialOpts = append(dialOpts, grpc.WithBackoffMaxDelay(maxBackoff))
 		dialOpts = append(dialOpts, opts...)
 
-		if SourceAddr != nil {
+		if SourceAddr != "" {
+			sourceIP := net.ParseIP(SourceAddr)
+			if sourceIP == nil {
+				log.Fatalf(ctx.masterCtx,
+					"unable to parse COCKROACH_SOURCE_IP_ADDRESS %q as IP address", SourceAddr)
+			}
+			tcpAddr := &net.TCPAddr{
+				IP: sourceIP,
+			}
 			dialOpts = append(dialOpts, grpc.WithDialer(
 				func(addr string, timeout time.Duration) (net.Conn, error) {
 					dialer := net.Dialer{
 						Timeout:   timeout,
-						LocalAddr: SourceAddr,
+						LocalAddr: tcpAddr,
 					}
 					return dialer.Dial("tcp", addr)
 				},

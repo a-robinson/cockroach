@@ -102,7 +102,7 @@ func New(size int, separateAddrs bool) *Cluster {
 // can be used to pass extra arguments to an individual node. If not nil, its
 // size must equal the number of nodes.
 func (c *Cluster) Start(
-	db string, numWorkers int, binary string, env, allNodeArgs []string, perNodeArgs map[int][]string,
+	db string, numWorkers int, binary string, allNodeArgs []string, perNodeEnv, perNodeArgs map[int][]string,
 ) {
 	c.started = timeutil.Now()
 
@@ -119,7 +119,7 @@ func (c *Cluster) Start(
 	}
 
 	for i := range c.Nodes {
-		c.Nodes[i] = c.makeNode(i, binary, append(append([]string(nil), allNodeArgs...), perNodeArgs[i]...), env)
+		c.Nodes[i] = c.makeNode(i, binary, append(append([]string(nil), allNodeArgs...), perNodeArgs[i]...), perNodeEnv[i])
 		c.Clients[i] = c.makeClient(i)
 		c.Status[i] = c.makeStatus(i)
 		c.DB[i] = c.makeDB(i, numWorkers, db)

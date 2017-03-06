@@ -454,7 +454,7 @@ func main() {
 		os.Exit(1)
 	}()
 
-	c.Start("zerosum", *workers, localcluster.CockroachBin, nil, flag.Args(), nil)
+	c.Start("zerosum", *workers, localcluster.CockroachBin, flag.Args(), nil, nil)
 
 	z := newZeroSum(c, *numAccounts, *chaosType)
 	z.run(*workers, *monkeys)

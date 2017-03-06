@@ -22,11 +22,9 @@ import (
 	"flag"
 	"fmt"
 	"math"
-	"net"
 	"os"
 	"os/signal"
 	"runtime"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"syscall"
@@ -37,7 +35,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/cli"
 	"github.com/cockroachdb/cockroach/pkg/cmd/internal/localcluster"
 	"github.com/cockroachdb/cockroach/pkg/cmd/internal/tc"
-	"github.com/cockroachdb/cockroach/pkg/rpc"
 	"github.com/cockroachdb/cockroach/pkg/server/serverpb"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/randutil"
@@ -390,24 +387,6 @@ func handleStart() bool {
 		return false
 	}
 
-	// Do our own hacky flag parsing here to get around the fact that the default
-	// flag package complains about any unknown flags while still allowing the
-	// pflags package used by cli.Start to manage the rest of the flags as usual.
-	for i, arg := range os.Args {
-		if strings.HasPrefix(arg, "--source-addr=") || strings.HasPrefix(arg, "-source-addr=") {
-			sourceAddr := strings.SplitAfterN(arg, "=", 2)[1]
-			sourceIP := net.ParseIP(sourceAddr)
-			if sourceIP == nil {
-				log.Fatalf(context.Background(), "unable to parse source-addr %q as IP", sourceAddr)
-			}
-			rpc.SourceAddr = &net.TCPAddr{
-				IP: sourceIP,
-			}
-			os.Args = append(os.Args[:i], os.Args[i+1:]...)
-			break
-		}
-	}
-
 	cli.Main()
 	return true
 }
@@ -455,6 +434,7 @@ func main() {
 	a := newAllocSim(c)
 
 	var perNodeArgs map[int][]string
+	var perNodeEnv map[int][]string
 	if len(config.Localities) != 0 {
 		perNodeArgs = make(map[int][]string)
 		a.localities = make([]Locality, len(c.Nodes))
@@ -464,8 +444,7 @@ func main() {
 			for i := 0; i < locality.NumNodes; i++ {
 				perNodeArgs[nodeIdx] = []string{fmt.Sprintf("--locality=l=%s", locality.Name)}
 				if separateAddrs {
-					perNodeArgs[nodeIdx] = append(
-						perNodeArgs[nodeIdx], fmt.Sprintf("--source-addr=%s", c.IPAddr(nodeIdx)))
+					perNodeEnv[nodeIdx] = []string{fmt.Sprintf("COCKROACH_SOURCE_IP_ADDRESS=%s", c.IPAddr(nodeIdx))}
 				}
 				a.localities[nodeIdx] = locality
 				nodesPerLocality[locality.Name] = append(nodesPerLocality[locality.Name], nodeIdx)
@@ -518,7 +497,7 @@ func main() {
 	}()
 
 	allNodeArgs := append(flag.Args(), "--vmodule=allocator=1")
-	c.Start("allocsim", *workers, os.Args[0], nil, allNodeArgs, perNodeArgs)
+	c.Start("allocsim", *workers, os.Args[0], allNodeArgs, perNodeArgs, perNodeEnv)
 	c.UpdateZoneConfig(1, 1<<20)
 	if len(config.Localities) != 0 {
 		a.runWithConfig(config)
