@@ -525,6 +525,7 @@ func (sp *StorePool) throttle(reason throttleReason, storeID roachpb.StoreID) {
 func (sp *StorePool) getLocalities(
 	replicas []roachpb.ReplicaDescriptor,
 ) map[roachpb.NodeID]roachpb.Locality {
+	log.Infof(context.TODO(), "replicas: %+v", replicas)
 	sp.localitiesMu.RLock()
 	defer sp.localitiesMu.RUnlock()
 	localities := make(map[roachpb.NodeID]roachpb.Locality)
@@ -534,6 +535,7 @@ func (sp *StorePool) getLocalities(
 		} else {
 			localities[replica.NodeID] = roachpb.Locality{}
 		}
+		log.Infof(context.TODO(), "%d: %v", replica.NodeID, localities[replica.NodeID])
 	}
 	return localities
 }
