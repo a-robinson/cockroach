@@ -2905,6 +2905,12 @@ func (s *Store) processRaftRequest(
 ) (pErr *roachpb.Error) {
 	// Lazily create the replica.
 	// TODO(DONOTMERGE): Should we not create the replica if the incoming request isn't a snapshot?
+	s.mu.RLock()
+	_, ok := s.mu.replicas[req.RangeID]
+	s.mu.RUnlock()
+	if !ok {
+		log.Infof(ctx, "no existing replica for range %d; request=%+v, inSnap=%v", req.RangeID, req, inSnap)
+	}
 	r, _, err := s.getOrCreateReplica(
 		req.RangeID, req.ToReplica.ReplicaID, &req.FromReplica)
 	if err != nil {

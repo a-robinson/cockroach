@@ -131,8 +131,8 @@ func (r RangeDescriptor) GetReplicaDescriptor(storeID StoreID) (ReplicaDescripto
 	return ReplicaDescriptor{}, false
 }
 
-// GetReplicaDescriptorByID returns the replica which matches the specified store
-// ID.
+// GetReplicaDescriptorByID returns the replica which matches the specified
+// replica ID.
 func (r RangeDescriptor) GetReplicaDescriptorByID(replicaID ReplicaID) (ReplicaDescriptor, bool) {
 	for _, repDesc := range r.Replicas {
 		if repDesc.ReplicaID == replicaID {

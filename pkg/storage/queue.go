@@ -305,6 +305,7 @@ func (bq *baseQueue) Start(clock *hlc.Clock, stopper *stop.Stopper) {
 // was already present, and (false, err) if the replica could not be
 // added for any other reason.
 func (bq *baseQueue) Add(repl *Replica, priority float64) (bool, error) {
+	log.Infof(bq.AnnotateCtx(context.TODO()), "called Add on replica %v", repl)
 	bq.mu.Lock()
 	defer bq.mu.Unlock()
 	ctx := repl.AnnotateCtx(bq.AnnotateCtx(context.TODO()))
@@ -317,6 +318,7 @@ func (bq *baseQueue) Add(repl *Replica, priority float64) (bool, error) {
 // not be added, as the replica with the lowest priority will be
 // dropped.
 func (bq *baseQueue) MaybeAdd(repl *Replica, now hlc.Timestamp) {
+	log.Infof(repl.AnnotateCtx(bq.AnnotateCtx(context.TODO())), "called MaybeAdd on replica %+v", repl)
 	// Load the system config.
 	cfg, cfgOk := bq.gossip.GetSystemConfig()
 	requiresSplit := cfgOk && bq.requiresSplit(cfg, repl)
@@ -365,6 +367,8 @@ func (bq *baseQueue) MaybeAdd(repl *Replica, now hlc.Timestamp) {
 	should, priority := bq.impl.shouldQueue(ctx, now, repl, cfg)
 	if _, err := bq.addInternal(ctx, repl.Desc(), should, priority); !isExpectedQueueError(err) {
 		log.Errorf(ctx, "unable to add: %s", err)
+	} else {
+		log.Infof(repl.AnnotateCtx(bq.AnnotateCtx(context.TODO())), "MaybeAdd succeeded on replica %+v", repl)
 	}
 }
 
@@ -388,6 +392,7 @@ func (bq *baseQueue) requiresSplit(cfg config.SystemConfig, repl *Replica) bool 
 func (bq *baseQueue) addInternal(
 	ctx context.Context, desc *roachpb.RangeDescriptor, should bool, priority float64,
 ) (bool, error) {
+	log.Infof(ctx, "called addInternal on replica %+v", desc)
 	if bq.mu.stopped {
 		return false, errQueueStopped
 	}
@@ -435,6 +440,7 @@ func (bq *baseQueue) addInternal(
 	}
 	item = &replicaItem{value: desc.RangeID, priority: priority}
 	bq.add(item)
+	log.Infof(ctx, "addInternal succeeded on replica %+v", desc)
 
 	// If adding this replica has pushed the queue past its maximum size,
 	// remove the lowest priority element.
@@ -452,6 +458,7 @@ func (bq *baseQueue) addInternal(
 
 // MaybeRemove removes the specified replica from the queue if enqueued.
 func (bq *baseQueue) MaybeRemove(rangeID roachpb.RangeID) {
+	log.Infof(bq.AnnotateCtx(context.TODO()), "calling MaybeRemove on range %d", rangeID)
 	bq.mu.Lock()
 	defer bq.mu.Unlock()
 
@@ -465,6 +472,7 @@ func (bq *baseQueue) MaybeRemove(rangeID roachpb.RangeID) {
 			log.Infof(ctx, "%s: removing", item.value)
 		}
 		bq.remove(item)
+		log.Infof(bq.AnnotateCtx(context.TODO()), "removed range %d from queue", rangeID)
 	}
 }
 
@@ -511,9 +519,13 @@ func (bq *baseQueue) processLoop(clock *hlc.Clock, stopper *stop.Stopper) {
 					if stopper.RunTask(func() {
 						annotatedCtx := repl.AnnotateCtx(ctx)
 						start := timeutil.Now()
+						log.Infof(annotatedCtx, "calling processReplica on %v", repl)
 						if err := bq.processReplica(annotatedCtx, repl, clock); err != nil {
 							// Maybe add failing replica to purgatory if the queue supports it.
 							bq.maybeAddToPurgatory(annotatedCtx, repl, err, clock, stopper)
+							log.Infof(annotatedCtx, "processReplica failed on %v: %v", repl, err)
+						} else {
+							log.Infof(annotatedCtx, "processReplica succeeded on %v", repl)
 						}
 						duration = timeutil.Since(start)
 						if log.V(2) {
@@ -730,12 +742,19 @@ func (bq *baseQueue) pop() *Replica {
 		delete(bq.mu.replicas, item.value)
 		bq.mu.Unlock()
 		repl, _ = bq.store.GetReplica(item.value)
+		if repl == nil {
+			log.Infof(bq.AnnotateCtx(context.TODO()), "popped nil replica from queue for range %d", item.value)
+		}
+		if repl == nil {
+			log.Infof(bq.AnnotateCtx(context.TODO()), "popped non-nil replica %v from queue for range %d", repl, item.value)
+		}
 	}
 	return repl
 }
 
 // add adds an element to the priority queue. Caller must hold mutex.
 func (bq *baseQueue) add(item *replicaItem) {
+	log.Infof(bq.AnnotateCtx(context.TODO()), "adding %+v to queue", item)
 	heap.Push(&bq.mu.priorityQ, item)
 	bq.pending.Update(int64(bq.mu.priorityQ.Len()))
 	bq.mu.replicas[item.value] = item
@@ -744,6 +763,7 @@ func (bq *baseQueue) add(item *replicaItem) {
 // remove removes an element from purgatory (if it's experienced an
 // error) or from the priority queue by index. Caller must hold mutex.
 func (bq *baseQueue) remove(item *replicaItem) {
+	log.Infof(bq.AnnotateCtx(context.TODO()), "removing %+v from gc queue", item)
 	if _, ok := bq.mu.purgatory[item.value]; ok {
 		delete(bq.mu.purgatory, item.value)
 		bq.purgatory.Update(int64(len(bq.mu.purgatory)))

@@ -472,6 +472,7 @@ func (r *Replica) withRaftGroupLocked(
 		// was created from a preemptive snapshot).
 		return nil
 	}
+	// TODO(DONOTMERGE): Do we also need to check if r's RangeDescriptor is initialized?
 
 	if shouldCampaignOnCreation {
 		// Special handling of idle replicas: we campaign their Raft group upon
@@ -4565,7 +4566,7 @@ func (r *Replica) maybeGossipNodeLiveness(ctx context.Context, span roachpb.Span
 	ba.Add(&roachpb.ScanRequest{Span: span})
 	// Call executeBatch instead of Send to avoid command queue reentrance.
 	br, result, pErr :=
-		r.executeBatch(ctx, storagebase.CmdIDKey(""), r.store.Engine(), nil, ba)
+		r.executeBatch(ctx, storagebase.CmdIDKey(""), r.store.Engine(), nil, ba) // TODO: Does executeBatch not handle WriteIntentErrors that Send would?
 	if pErr != nil {
 		return errors.Wrapf(pErr.GoError(), "couldn't scan node liveness records in span %s", span)
 	}

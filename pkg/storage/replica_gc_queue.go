@@ -115,6 +115,7 @@ func newReplicaGCQueue(store *Store, db *client.DB, gossip *gossip.Gossip) *repl
 func (rgcq *replicaGCQueue) shouldQueue(
 	ctx context.Context, now hlc.Timestamp, repl *Replica, _ config.SystemConfig,
 ) (bool, float64) {
+	log.Infof(ctx, "calling shouldQueue replica %v", repl)
 	lastCheck, err := repl.getLastReplicaGCTimestamp(ctx)
 	if err != nil {
 		log.Errorf(ctx, "could not read last replica GC timestamp: %s", err)
@@ -133,7 +134,10 @@ func (rgcq *replicaGCQueue) shouldQueue(
 	if raftStatus := repl.RaftStatus(); raftStatus != nil {
 		isCandidate = (raftStatus.SoftState.RaftState == raft.StateCandidate)
 	}
-	return replicaGCShouldQueueImpl(now, lastCheck, lastActivity, isCandidate)
+	log.Infof(ctx, "calling replicaGCShouldQueueImpl on replica %v", repl)
+	result, prio := replicaGCShouldQueueImpl(now, lastCheck, lastActivity, isCandidate)
+	log.Infof(ctx, "replicaGCShouldQueueImpl result for replica %v: %v", repl, result)
+	return result, prio
 }
 
 func replicaGCShouldQueueImpl(
@@ -171,6 +175,7 @@ func replicaGCShouldQueueImpl(
 func (rgcq *replicaGCQueue) process(
 	ctx context.Context, repl *Replica, _ config.SystemConfig,
 ) error {
+	log.Infof(ctx, "calling replicaGCQueue.process on replica %v", repl)
 	// Note that the Replicas field of desc is probably out of date, so
 	// we should only use `desc` for its static fields like RangeID and
 	// StartKey (and avoid rng.GetReplica() for the same reason).
@@ -198,7 +203,8 @@ func (rgcq *replicaGCQueue) process(
 	}
 
 	replyDesc := reply.Ranges[0]
-	if _, currentMember := replyDesc.GetReplicaDescriptor(repl.store.StoreID()); !currentMember {
+	if rDesc, currentMember := replyDesc.GetReplicaDescriptor(repl.store.StoreID()); !currentMember {
+		log.Infof(ctx, "not a currentMember, removing replica %v, IsInitialized()=%v", repl, repl.IsInitialized())
 		// We are no longer a member of this range; clean up our local data.
 		rgcq.metrics.RemoveReplicaCount.Inc(1)
 		if log.V(1) {
@@ -207,7 +213,9 @@ func (rgcq *replicaGCQueue) process(
 		if err := repl.store.RemoveReplica(ctx, repl, replyDesc, true); err != nil {
 			return err
 		}
+		log.Infof(ctx, "removed replica %v", repl)
 	} else if desc.RangeID != replyDesc.RangeID {
+		log.Infof(ctx, "not a currentMember, removing replica %v DUE TO MERGE, IsInitialized()=%v", repl, repl.IsInitialized())
 		// If we get a different range ID back, then the range has been merged
 		// away. But currentMember is true, so we are still a member of the
 		// subsuming range. Shut down raft processing for the former range
@@ -219,6 +227,7 @@ func (rgcq *replicaGCQueue) process(
 		if err := repl.store.RemoveReplica(ctx, repl, replyDesc, false); err != nil {
 			return err
 		}
+		log.Infof(ctx, "removed replica %v DUE TO MERGE", repl)
 
 		// TODO(bdarnell): remove raft logs and other metadata (while leaving a
 		// tombstone). Add tests for GC of merged ranges.
@@ -231,7 +240,7 @@ func (rgcq *replicaGCQueue) process(
 		// Replica (see #8111) when inactive ones can be starved by
 		// event-driven additions.
 		if log.V(1) {
-			log.Infof(ctx, "not gc'able") // TODO(DONOTMERGE): Why is rejecting snapshots sometimes getting us stuck here?
+			log.Infof(ctx, "not gc'able, replDesc: %+v", rDesc) // TODO(DONOTMERGE): Why is rejecting snapshots sometimes getting us stuck here?
 		}
 		if err := repl.setLastReplicaGCTimestamp(ctx, repl.store.Clock().Now()); err != nil {
 			return err
