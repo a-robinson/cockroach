@@ -762,11 +762,8 @@ func (r *Replica) setReplicaIDLocked(replicaID roachpb.ReplicaID) error {
 		// The common case: the replica ID is unchanged.
 		return nil
 	}
-	// TODO(DONOTMERGE): Would we be better off just checking in
-	// processRaftRequest that the preemptive snapshot isn't to an initialized
-	// replica?
 	if r.mu.replicaID > replicaID {
-		return errors.Errorf("replicaID cannot move backwards from %d to %d", r.mu.replicaID, replicaID)
+		log.Errorf(r.AnnotateCtx(context.TODO()), "moving replicaID backwards from %d to %d", r.mu.replicaID, replicaID)
 	}
 	if replicaID == 0 {
 		// If the incoming message does not have a new replica ID it is a
@@ -776,6 +773,12 @@ func (r *Replica) setReplicaIDLocked(replicaID roachpb.ReplicaID) error {
 		// comment should be changed to reflect that all we immediately set in that
 		// case is minReplicaID, not the tombstone itself.
 		return nil
+	}
+	// TODO(DONOTMERGE): Would we be better off just checking in
+	// processRaftRequest that the preemptive snapshot isn't to an initialized
+	// replica?
+	if r.mu.replicaID > replicaID {
+		return errors.Errorf("replicaID cannot move backwards from %d to %d", r.mu.replicaID, replicaID)
 	}
 	if replicaID < r.mu.minReplicaID {
 		return &roachpb.RaftGroupDeletedError{}
