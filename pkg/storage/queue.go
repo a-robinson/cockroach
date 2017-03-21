@@ -18,6 +18,7 @@ package storage
 
 import (
 	"container/heap"
+	"runtime/debug"
 	"sync"
 	"time"
 
@@ -306,6 +307,7 @@ func (bq *baseQueue) Start(clock *hlc.Clock, stopper *stop.Stopper) {
 // added for any other reason.
 func (bq *baseQueue) Add(repl *Replica, priority float64) (bool, error) {
 	log.Infof(bq.AnnotateCtx(context.TODO()), "called Add on replica %v", repl)
+	debug.PrintStack()
 	bq.mu.Lock()
 	defer bq.mu.Unlock()
 	ctx := repl.AnnotateCtx(bq.AnnotateCtx(context.TODO()))
