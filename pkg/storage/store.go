@@ -2262,7 +2262,6 @@ func (s *Store) removeReplicaImpl(
 	delete(s.mu.replicaPlaceholders, rep.RangeID)
 	// TODO(peter): Could release s.mu.Lock() here.
 	s.maybeGossipOnCapacityChange(ctx, rangeChangeEvent)
-	s.replicaGCQueue.MaybeRemove(rep.RangeID)
 	s.scanner.RemoveReplica(rep)
 	return nil
 }
