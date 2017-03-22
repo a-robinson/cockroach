@@ -484,6 +484,8 @@ func (r *Replica) withRaftGroupLocked(
 	ctx := r.AnnotateCtx(context.TODO())
 
 	if r.mu.internalRaftGroup == nil {
+		log.Infof(ctx, "creating raft.NewRawNode in withRaftGroupLocked with %v; %v; %v; %v", raft.Storage(r), r.mu.replicaID, r.mu.state.RaftAppliedIndex, r.store.cfg)
+		log.Infof(ctx, "replica state when creating NewRawNode: %+v", r.mu.state)
 		raftGroup, err := raft.NewRawNode(newRaftConfig(
 			raft.Storage(r),
 			uint64(r.mu.replicaID),
@@ -491,6 +493,7 @@ func (r *Replica) withRaftGroupLocked(
 			r.store.cfg,
 			&raftLogger{ctx: ctx},
 		), nil)
+		log.Infof(ctx, "created NewRaftNode %p", raftGroup)
 		if err != nil {
 			return err
 		}

@@ -2221,7 +2221,7 @@ func (s *Store) removeReplicaImpl(
 		// this far. This method will need some changes when we introduce GC of
 		// uninitialized replicas.
 		s.mu.Unlock()
-		log.Fatalf(ctx, "unexpectedly overlapped by %v", placeholder)
+		log.Fatalf(ctx, "replica %+v unexpectedly overlapped by %+v", rep, placeholder)
 	}
 	// Adjust stats before calling Destroy. This can be called before or after
 	// Destroy, but this configuration helps avoid races in stat verification
@@ -3076,6 +3076,7 @@ func (s *Store) processRaftRequest(
 			if err != nil {
 				return roachpb.NewError(err)
 			}
+			log.Infof(ctx, "calling raft.NewRawNode with %v; %v; %v; %v", raft.Storage(r), appliedIndex, r.store.cfg)
 			raftGroup, err := raft.NewRawNode(
 				newRaftConfig(
 					raft.Storage(r),
@@ -3088,6 +3089,7 @@ func (s *Store) processRaftRequest(
 					r.store.cfg,
 					&raftLogger{ctx: ctx},
 				), nil)
+			log.Infof(ctx, "created NewRaftNode %p", raftGroup)
 			if err != nil {
 				return roachpb.NewError(err)
 			}
@@ -3095,6 +3097,7 @@ func (s *Store) processRaftRequest(
 			if err := raftGroup.Step(req.Message); err != nil {
 				return roachpb.NewError(errors.Wrap(err, "unable to process preemptive snapshot"))
 			}
+			log.Infof(ctx, "initialized NewRaftNode %p with preemptive snapshot", raftGroup)
 			// In the normal case, the group should ask us to apply a snapshot.
 			// If it doesn't, our snapshot was probably stale. In that case we
 			// still go ahead and apply a noop because we want that case to be
@@ -3147,6 +3150,7 @@ func (s *Store) processRaftRequest(
 		if req.Message.Type == raftpb.MsgApp {
 			r.setEstimatedCommitIndexLocked(req.Message.Commit)
 		}
+		log.Infof(ctx, "calling raftGroup.Step on raftGroup %p with message %v", raftGroup, req.Message)
 		return false, /* !unquiesceAndWakeLeader */
 			raftGroup.Step(req.Message)
 	}); err != nil {
