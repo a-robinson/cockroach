@@ -176,6 +176,10 @@ func (rgcq *replicaGCQueue) process(
 	ctx context.Context, repl *Replica, _ config.SystemConfig,
 ) error {
 	log.Infof(ctx, "calling replicaGCQueue.process on replica %v", repl)
+	if !repl.IsInitialized() {
+		log.Infof(ctx, "rejecting replicaGCQueue.process on uninitialized replica %v", repl)
+		return errors.Errorf("replicaGC queue cannot process uninitialized replica %v", repl)
+	}
 	// Note that the Replicas field of desc is probably out of date, so
 	// we should only use `desc` for its static fields like RangeID and
 	// StartKey (and avoid rng.GetReplica() for the same reason).
