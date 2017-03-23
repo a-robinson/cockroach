@@ -708,6 +708,7 @@ func (r *Replica) destroyDataRaftMuLocked(
 	clearTime := timeutil.Now()
 
 	// Save a tombstone to ensure that replica IDs never get reused.
+	log.Infof(ctx, "setting tombstone during replica GC using desc %+v", consistentDesc)
 	if err := r.setTombstoneKey(ctx, batch, &consistentDesc); err != nil {
 		return err
 	}
@@ -748,6 +749,7 @@ func (r *Replica) setTombstoneKey(
 	r.mu.Lock()
 	nextReplicaID := r.nextReplicaIDLocked(desc)
 	r.mu.minReplicaID = nextReplicaID
+	log.Infof(ctx, "setting tombstone key to %d", nextReplicaID)
 	r.mu.Unlock()
 	tombstoneKey := keys.RaftTombstoneKey(desc.RangeID)
 	tombstone := &roachpb.RaftTombstone{
@@ -761,6 +763,7 @@ func (r *Replica) setTombstoneKey(
 // with for this replica's range. We have to be very careful to ensure that
 // replica IDs never get re-used because that can cause panics.
 func (r *Replica) nextReplicaIDLocked(desc *roachpb.RangeDescriptor) roachpb.ReplicaID {
+	log.Infof(r.AnnotateCtx(context.TODO()), "nextReplicaIDLocked called with desc.Next=%d, r.mu.state.Desc.Next=%d, r.mu.minReplicaID=%d", desc.NextReplicaID, r.mu.state.Desc.NextReplicaID, r.mu.minReplicaID)
 	result := desc.NextReplicaID
 	if r.mu.state.Desc.NextReplicaID > result {
 		result = r.mu.state.Desc.NextReplicaID

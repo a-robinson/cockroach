@@ -3070,6 +3070,7 @@ func (s *Store) processRaftRequest(
 			// preemptive snapshots.
 			r.mu.internalRaftGroup = nil
 			needTombstone := r.mu.state.Desc.NextReplicaID != 0
+			log.Infof(ctx, "needTombstone=%v when applying preemptive snapshot", needTombstone)
 			r.mu.Unlock()
 
 			appliedIndex, _, err := r.stateLoader.loadAppliedIndex(ctx, r.store.Engine())
@@ -3115,6 +3116,7 @@ func (s *Store) processRaftRequest(
 				// writing the tombstone key incorrectly.
 				r.mu.Lock()
 				r.mu.minReplicaID = r.nextReplicaIDLocked(r.mu.state.Desc)
+				log.Infof(ctx, "set minReplicaID to %d when applying preemptive snapshot, current replicaID=%d", r.mu.minReplicaID, r.mu.replicaID)
 				r.mu.Unlock()
 			}
 
@@ -3683,6 +3685,7 @@ func (s *Store) tryGetOrCreateReplica(
 	); err != nil {
 		return nil, false, err
 	} else if ok {
+		log.Infof(ctx, "read tombstone from disk for rangeID=%d, replicaID=%d; got NextReplicaID=%d", rangeID, replicaID, tombstone.NextReplicaID)
 		if replicaID != 0 && replicaID < tombstone.NextReplicaID {
 			return nil, false, &roachpb.RaftGroupDeletedError{}
 		}
