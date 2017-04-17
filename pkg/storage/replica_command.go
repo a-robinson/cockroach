@@ -226,7 +226,7 @@ func evaluateCommand(
 	// 	}
 	// }
 
-	if log.V(2) {
+	if log.V(5) {
 		log.Infof(ctx, "executed %s command %+v: %+v, err=%v", args.Method(), args, reply, err)
 	}
 
@@ -268,6 +268,7 @@ func evalGet(
 func evalPut(
 	ctx context.Context, batch engine.ReadWriter, cArgs CommandArgs, resp roachpb.Response,
 ) (EvalResult, error) {
+	log.Infof(context.TODO(), "running evalPut on repl %v for %+v with stats %+v", cArgs.EvalCtx.repl, cArgs.Args, cArgs.Stats)
 	args := cArgs.Args.(*roachpb.PutRequest)
 	h := cArgs.Header
 	ms := cArgs.Stats
@@ -569,11 +570,11 @@ func declareKeysEndTransaction(
 			// side is when the existing stats contain estimates. We might
 			// be able to be smarter here and avoid declaring reads on RHS
 			// in most cases.
-			spans.Add(SpanReadOnly, roachpb.Span{
+			spans.Add(SpanReadWrite, roachpb.Span{
 				Key:    st.LeftDesc.StartKey.AsRawKey(),
 				EndKey: st.RightDesc.EndKey.AsRawKey(),
 			})
-			spans.Add(SpanReadOnly, roachpb.Span{
+			spans.Add(SpanReadWrite, roachpb.Span{
 				Key:    keys.MakeRangeKeyPrefix(st.LeftDesc.StartKey),
 				EndKey: keys.MakeRangeKeyPrefix(st.RightDesc.EndKey).PrefixEnd(),
 			})
@@ -2831,8 +2832,8 @@ func (r *Replica) adminSplitWithDescriptor(
 // send a snapshot to B and C and we'll fall into the situation above where a
 // snapshot is received for a range before it has finished splitting from its
 // sibling and is thus rejected. An interesting subtlety here: A will send a
-// snapshot to B and C because when range 2 is initialized we were careful set
-// synthesize its HardState to set its Raft log index to 10. If we had instead
+// snapshot to B and C because when range 2 is initialized we were careful when
+// synthesizing its HardState to set its Raft log index to 10. If we had instead
 // used log index 0, Raft would have believed the group to be empty, but the
 // RHS has something. Using a non-zero initial log index causes Raft to believe
 // that there is a discarded prefix to the log and will thus send a snapshot to
@@ -2879,6 +2880,7 @@ func splitTrigger(
 
 	// Preserve stats for pre-split range, excluding the current batch.
 	origBothMS, err := rec.GetMVCCStats()
+	log.Infof(ctx, "original MVCCStats: %+v", origBothMS)
 	if err != nil {
 		return enginepb.MVCCStats{}, EvalResult{}, err
 	}
@@ -2891,8 +2893,10 @@ func splitTrigger(
 	// to the LHS must happen below this point.
 	leftMS, err := ComputeStatsForRange(&split.LeftDesc, batch, ts.WallTime)
 	if err != nil {
+		log.Infof(ctx, "unable to compute leftMS: %v", err)
 		return enginepb.MVCCStats{}, EvalResult{}, errors.Wrap(err, "unable to compute stats for LHS range after split")
 	}
+	log.Infof(ctx, "leftMS computed stats: %+v", leftMS)
 	log.Event(ctx, "computed stats for left hand side range")
 
 	// Copy the last replica GC timestamp. This value is unreplicated,
@@ -2925,6 +2929,7 @@ func splitTrigger(
 		if err != nil {
 			return enginepb.MVCCStats{}, EvalResult{}, errors.Wrap(err, "unable to compute stats for RHS range after split")
 		}
+		log.Infof(ctx, "rightMS computed stats: %+v", rightMS)
 	} else {
 		// Because neither the original stats nor the delta stats contain
 		// estimate values, we can safely perform arithmetic to determine the
@@ -2946,6 +2951,9 @@ func splitTrigger(
 		// the batch contributions for the right-hand side.
 		rightMS.Subtract(leftMS)
 		rightMS.Add(bothDeltaMS)
+		log.Infof(ctx, "origBothMS: %+v", origBothMS)
+		log.Infof(ctx, "bothDeltaMS: %+v", bothDeltaMS)
+		log.Infof(ctx, "rightMS stats via deduction: %+v", rightMS)
 	}
 
 	// Note: we don't copy the queue last processed times. This means
@@ -2965,6 +2973,7 @@ func splitTrigger(
 		if err := engine.AccountForSelf(&rightMS, split.RightDesc.RangeID); err != nil {
 			return enginepb.MVCCStats{}, EvalResult{}, errors.Wrap(err, "unable to account for enginepb.MVCCStats's own stats impact")
 		}
+		log.Infof(ctx, "rightMS after accounting for self: %+v", rightMS)
 
 		// Writing the initial state is subtle since this also seeds the Raft
 		// group. We are writing to the right hand side's Raft group state in this
@@ -3050,6 +3059,8 @@ func splitTrigger(
 	}
 	leftDeltaMS.Subtract(recStats)        // subtract pre-split absolute stats
 	leftDeltaMS.ContainsEstimates = false // if there were any, recomputation removed them
+	log.Infof(ctx, "recStats: %+v", recStats)
+	log.Infof(ctx, "leftDeltaMS: %+v", leftDeltaMS)
 
 	// Perform a similar computation for the right hand side. The difference
 	// is that there isn't yet a Replica which could apply these stats, so

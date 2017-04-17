@@ -1868,7 +1868,9 @@ func TestUnsplittableRange(t *testing.T) {
 	stopper := stop.NewStopper()
 	defer stopper.Stop()
 
-	store := createTestStoreWithConfig(t, stopper, storage.TestStoreConfig(nil))
+	storeCfg := storage.TestStoreConfig(nil)
+	//storeCfg.TestingKnobs.DisableScanner = true
+	store := createTestStoreWithConfig(t, stopper, storeCfg)
 	store.ForceSplitScanAndProcess()
 
 	// Add a single large row to /Table/14.
@@ -1880,7 +1882,9 @@ func TestUnsplittableRange(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	log.Infof(context.TODO(), "forcing split after creating table")
 	store.ForceSplitScanAndProcess()
+	log.Infof(context.TODO(), "done forcing split after creating table")
 	testutils.SucceedsSoon(t, func() error {
 		repl := store.LookupReplica(tableKey, nil)
 		if repl.Desc().StartKey.Equal(tableKey) {
@@ -1888,6 +1892,7 @@ func TestUnsplittableRange(t *testing.T) {
 		}
 		return errors.Errorf("waiting for split: %s", repl)
 	})
+	log.Infof(context.TODO(), "done waiting for split after creating table")
 
 	repl := store.LookupReplica(tableKey, nil)
 	origMaxBytes := repl.GetMaxBytes()
@@ -1896,14 +1901,27 @@ func TestUnsplittableRange(t *testing.T) {
 	// Wait for an attempt to split the range which will fail because it contains
 	// a single large value. The max-bytes for the range will be changed, but it
 	// should not have been reset to its original value.
+	log.Infof(context.TODO(), "forcing split after setting max bytes")
 	store.ForceSplitScanAndProcess()
+	log.Infof(context.TODO(), "done forcing split after setting max bytes")
 	testutils.SucceedsSoon(t, func() error {
+		store.ForceSplitScanAndProcess()
 		maxBytes := repl.GetMaxBytes()
 		if maxBytes != int64(len(value)) && maxBytes < origMaxBytes {
 			return nil
 		}
+		keyVal, err := store.DB().Get(context.Background(), col1Key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !keyVal.Exists() {
+			t.Fatalf("unable to get key %v that we just added before doing some splits", col1Key)
+		}
+		log.Infof(context.TODO(), "successfully got key %v", col1Key)
+
 		return errors.Errorf("expected max-bytes to be changed: %d", repl.GetMaxBytes())
 	})
+	log.Infof(context.TODO(), "done waiting for max-bytes to change")
 
 	// Add two more rows to the range.
 	for i := int64(2); i < 4; i++ {

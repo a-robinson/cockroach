@@ -33,6 +33,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/storage/engine/enginepb"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
+	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // AddReplica adds the replica to the store's replica map and to the sorted
@@ -69,6 +70,7 @@ func (s *Store) ComputeMVCCStats() (enginepb.MVCCStats, error) {
 
 func forceScanAndProcess(s *Store, q *baseQueue) {
 	newStoreReplicaVisitor(s).Visit(func(repl *Replica) bool {
+		log.Infof(context.TODO(), "forcing split queue for %v", repl)
 		q.MaybeAdd(repl, s.cfg.Clock.Now())
 		return true
 	})

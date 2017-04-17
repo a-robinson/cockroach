@@ -3521,6 +3521,7 @@ func (r *Replica) processRaftCommand(
 	var ts hlc.Timestamp
 	var rSpan roachpb.RSpan
 	if raftCmd.ReplicatedEvalResult != nil {
+		log.Infof(ctx, "applying ReplicatedEvalResult: %+v", raftCmd.ReplicatedEvalResult)
 		isLeaseRequest = raftCmd.ReplicatedEvalResult.IsLeaseRequest
 		if isLeaseRequest {
 			if raftCmd.ReplicatedEvalResult.State.Lease == nil {
@@ -3965,11 +3966,13 @@ func (r *Replica) applyRaftCommand(
 	// Special-cased MVCC stats handling to exploit commutativity of stats
 	// delta upgrades. Thanks to commutativity, the command queue does not
 	// have to serialize on the stats key.
+	log.Infof(ctx, "adding rResult.Delta %+v to existing stats %+v", rResult.Delta, ms)
 	ms.Add(rResult.Delta)
 	if err := r.stateLoader.setMVCCStats(ctx, writer, &ms); err != nil {
 		return enginepb.MVCCStats{}, roachpb.NewError(NewReplicaCorruptionError(
 			errors.Wrap(err, "unable to update MVCCStats")))
 	}
+	log.Infof(ctx, "done setting MVCCStats")
 
 	// TODO(peter): We did not close the writer in an earlier version of
 	// the code, which went undetected even though we used the batch after

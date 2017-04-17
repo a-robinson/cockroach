@@ -77,7 +77,9 @@ func (sq *splitQueue) shouldQueue(
 
 	// Add priority based on the size of range compared to the max
 	// size for the zone it's in.
-	if ratio := float64(repl.GetMVCCStats().Total()) / float64(repl.GetMaxBytes()); ratio > 1 {
+	ratio := float64(repl.GetMVCCStats().Total()) / float64(repl.GetMaxBytes())
+	log.Infof(ctx, "total: %d, max: %d, ratio: %.2f", repl.GetMVCCStats().Total(), repl.GetMaxBytes(), ratio)
+	if ratio > 1 {
 		priority += ratio
 		shouldQ = true
 	}

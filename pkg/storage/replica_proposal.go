@@ -514,6 +514,7 @@ func (r *Replica) handleReplicatedEvalResult(
 
 	// Update MVCC stats and Raft portion of ReplicaState.
 	r.mu.Lock()
+	log.Infof(ctx, "adding rResult.Delta %+v to r.mu.state.Stats %+v", rResult.Delta, r.mu.state.Stats)
 	r.mu.state.Stats.Add(rResult.Delta)
 	if rResult.State.RaftAppliedIndex != 0 {
 		r.mu.state.RaftAppliedIndex = rResult.State.RaftAppliedIndex

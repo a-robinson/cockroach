@@ -344,10 +344,10 @@ func (bq *baseQueue) MaybeAdd(repl *Replica, now hlc.Timestamp) {
 	if requiresSplit {
 		// Range needs to be split due to zone configs, but queue does
 		// not accept unsplit ranges.
-		if log.V(1) {
-			log.Infof(ctx, "split needed; not adding")
-		}
+		log.Infof(ctx, "split needed; not adding")
 		return
+	} else {
+		log.Infof(ctx, "split not needed")
 	}
 
 	if bq.needsLease {
