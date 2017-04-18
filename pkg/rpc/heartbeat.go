@@ -25,6 +25,9 @@ import (
 
 	"github.com/cockroachdb/cockroach/pkg/security"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
+	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/tracing"
+	opentracing "github.com/opentracing/opentracing-go"
 )
 
 var _ security.RequestWithUser = &PingRequest{}
@@ -49,6 +52,7 @@ func (r RemoteOffset) String() string {
 // clock to return the server time every heartbeat. It also keeps track of
 // remote clocks sent to it by storing them in the remoteClockMonitor.
 type HeartbeatService struct {
+	log.AmbientContext
 	// Provides the nanosecond unix epoch timestamp of the processor.
 	clock *hlc.Clock
 	// A pointer to the RemoteClockMonitor configured in the RPC Context,
@@ -61,6 +65,15 @@ type HeartbeatService struct {
 // The requester should also estimate its offset from this server along
 // with the requester's address.
 func (hs *HeartbeatService) Ping(ctx context.Context, args *PingRequest) (*PingResponse, error) {
+	if args.TraceContext != nil {
+		tr := hs.AmbientContext.Tracer
+		var err error
+		ctx, _, err = tracing.JoinRemoteTrace(ctx, tr, args.TraceContext, "servePing")
+		if err != nil {
+			log.Error(ctx, err)
+		}
+		defer opentracing.SpanFromContext(ctx).Finish()
+	}
 	// Enforce that clock max offsets are identical between nodes.
 	// Commit suicide in the event that this is ever untrue.
 	// This check is ignored if either offset is set to 0 (for unittests).

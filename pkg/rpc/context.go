@@ -25,6 +25,8 @@ import (
 	"sync"
 	"time"
 
+	basictracer "github.com/opentracing/basictracer-go"
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/rubyist/circuitbreaker"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -40,6 +42,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
+	"github.com/cockroachdb/cockroach/pkg/util/tracing"
 )
 
 func init() {
@@ -108,6 +111,7 @@ func NewServer(ctx *Context) *grpc.Server {
 	}
 	s := grpc.NewServer(opts...)
 	RegisterHeartbeatServer(s, &HeartbeatService{
+		AmbientContext:     ctx.AmbientContext,
 		clock:              ctx.LocalClock,
 		remoteClockMonitor: ctx.RemoteClocks,
 	})
@@ -124,6 +128,7 @@ type connMeta struct {
 // Context contains the fields required by the rpc framework.
 type Context struct {
 	*base.Config
+	log.AmbientContext
 
 	LocalClock   *hlc.Clock
 	breakerClock breakerClock
@@ -141,7 +146,8 @@ type Context struct {
 
 	conns struct {
 		syncutil.Mutex
-		cache map[string]*connMeta
+		cache      map[string]*connMeta
+		heartbeats map[string]*connMeta
 	}
 
 	// For unittesting.
@@ -156,8 +162,9 @@ func NewContext(
 		panic("nil clock is forbidden")
 	}
 	ctx := &Context{
-		Config:     baseCtx,
-		LocalClock: hlcClock,
+		Config:         baseCtx,
+		AmbientContext: ambient,
+		LocalClock:     hlcClock,
 		breakerClock: breakerClock{
 			clock: hlcClock,
 		},
@@ -171,6 +178,7 @@ func NewContext(
 	ctx.heartbeatInterval = defaultHeartbeatInterval
 	ctx.heartbeatTimeout = 2 * defaultHeartbeatInterval
 	ctx.conns.cache = make(map[string]*connMeta)
+	ctx.conns.heartbeats = make(map[string]*connMeta)
 
 	stopper.RunWorker(func() {
 		<-stopper.ShouldQuiesce()
@@ -178,6 +186,17 @@ func NewContext(
 		cancel()
 		ctx.conns.Lock()
 		for key, meta := range ctx.conns.cache {
+			meta.Do(func() {
+				// Make sure initialization is not in progress when we're removing the
+				// conn. We need to set the error in case we win the race against the
+				// real initialization code.
+				if meta.dialErr == nil {
+					meta.dialErr = &roachpb.NodeUnavailableError{}
+				}
+			})
+			ctx.removeConnLocked(key, meta)
+		}
+		for key, meta := range ctx.conns.heartbeats {
 			meta.Do(func() {
 				// Make sure initialization is not in progress when we're removing the
 				// conn. We need to set the error in case we win the race against the
@@ -292,21 +311,35 @@ func (ctx *Context) GRPCDial(target string, opts ...grpc.DialOption) (*grpc.Clie
 		}
 		meta.conn, meta.dialErr = grpc.DialContext(ctx.masterCtx, target, dialOpts...)
 		if meta.dialErr == nil {
-			if err := ctx.Stopper.RunTask(func() {
-				ctx.Stopper.RunWorker(func() {
-					err := ctx.runHeartbeat(meta, target)
-					if err != nil && !grpcutil.IsClosedConnection(err) {
-						log.Errorf(ctx.masterCtx, "removing connection to %s due to error: %s", target, err)
+			ctx.conns.Lock()
+			if _, ok := ctx.conns.heartbeats[target]; ok {
+				ctx.conns.Unlock()
+			} else {
+				heartbeatConn, err := grpc.DialContext(ctx.masterCtx, target, dialOpts...)
+				if err == nil {
+					hbMeta := &connMeta{
+						conn:         heartbeatConn,
+						heartbeatErr: errNotHeartbeated,
 					}
-					ctx.removeConn(target, meta)
-				})
-			}); err != nil {
-				meta.dialErr = err
-				// removeConn and ctx's cleanup worker both lock ctx.conns. However,
-				// to avoid racing with meta's initialization, the cleanup worker
-				// blocks on meta.Do while holding ctx.conns. Invoke removeConn
-				// asynchronously to avoid deadlock.
-				go ctx.removeConn(target, meta)
+					ctx.conns.heartbeats[target] = hbMeta
+					ctx.conns.Unlock()
+					if err := ctx.Stopper.RunTask(func() {
+						ctx.Stopper.RunWorker(func() {
+							err := ctx.runHeartbeat(hbMeta, target)
+							if err != nil && !grpcutil.IsClosedConnection(err) {
+								log.Errorf(ctx.masterCtx, "removing connection to %s due to error: %s", target, err)
+							}
+							ctx.removeConn(target, hbMeta)
+						})
+					}); err != nil {
+						hbMeta.dialErr = err
+						// removeConn and ctx's cleanup worker both lock ctx.conns. However,
+						// to avoid racing with hbMeta's initialization, the cleanup worker
+						// blocks on hbMeta.Do while holding ctx.conns. Invoke removeConn
+						// asynchronously to avoid deadlock.
+						go ctx.removeConn(target, hbMeta)
+					}
+				}
 			}
 		}
 	})
@@ -365,10 +398,18 @@ func (ctx *Context) runHeartbeat(meta *connMeta, remoteAddr string) error {
 		if hbTimeout := ctx.heartbeatTimeout; hbTimeout > 0 {
 			goCtx, cancel = context.WithTimeout(goCtx, hbTimeout)
 		}
+		sp := ctx.AmbientContext.Tracer.StartSpan("runPing")
+		defer sp.Finish()
+		goCtx = opentracing.ContextWithSpan(goCtx, sp)
+		request.TraceContext = &tracing.SpanContextCarrier{}
+		if err := ctx.AmbientContext.Tracer.Inject(sp.Context(), basictracer.Delegator, request.TraceContext); err != nil {
+			log.Error(goCtx, err)
+		}
 		sendTime := ctx.LocalClock.PhysicalTime()
 		// NB: We want the request to fail-fast (the default), otherwise we won't
 		// be notified of transport failures.
 		response, err := heartbeatClient.Ping(goCtx, &request)
+		tracing.FinishSpan(sp)
 		if cancel != nil {
 			cancel()
 		}
