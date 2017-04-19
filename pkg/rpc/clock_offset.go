@@ -162,6 +162,7 @@ func (r *RemoteClockMonitor) UpdateOffset(
 		}
 		latencyAvg.Add(float64(roundTripLatency.Nanoseconds()))
 		r.metrics.LatencyHistogramNanos.RecordValue(roundTripLatency.Nanoseconds())
+		log.Infof(ctx, "Latency[%s]=%v", addr, time.Duration(int64(latencyAvg.Value())))
 	}
 
 	if log.V(2) {
