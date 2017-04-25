@@ -663,7 +663,7 @@ func loadBasedLeaseRebalanceScore(
 ) int32 {
 	remoteLatencyMillis := float64(remoteLatency) / float64(time.Millisecond)
 	rebalanceAdjustment :=
-		LeaseRebalancingAggressiveness * 0.1 * math.Log10(remoteWeight/sourceWeight) * math.Log1p(remoteLatencyMillis)
+		LeaseRebalancingAggressiveness * 0.1 * math.Log10(remoteWeight/sourceWeight) * (remoteLatencyMillis / 20)
 	// Start with twice the base rebalance threshold in order to fight more
 	// strongly against thrashing caused by small variances in the distribution
 	// of request weights.
