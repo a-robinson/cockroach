@@ -604,6 +604,7 @@ func (r *Replica) handleReplicatedEvalResult(
 	}
 
 	if change := rResult.ChangeReplicas; change != nil {
+		log.Infof(ctx, "in handleReplicatedEvalResult with ChangeReplicasTrigger %+v", rResult.ChangeReplicas)
 		if change.ChangeType == roachpb.REMOVE_REPLICA &&
 			r.store.StoreID() == change.Replica.StoreID {
 			// This wants to run as late as possible, maximizing the chances

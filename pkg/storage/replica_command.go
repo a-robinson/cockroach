@@ -2023,6 +2023,7 @@ func applyNewLease(
 	if err != nil {
 		return EvalResult{}, err
 	}
+	log.Infof(ctx, "desc in applyNewLease for s%d: %v", lease.Replica.StoreID, desc)
 	if _, ok := desc.GetReplicaDescriptor(lease.Replica.StoreID); !ok {
 		return newFailedLeaseTrigger(isTransfer),
 			&roachpb.LeaseRejectedError{
@@ -3320,6 +3321,7 @@ func changeReplicasTrigger(
 	pd.Replicated.ChangeReplicas = &storagebase.ChangeReplicas{
 		ChangeReplicasTrigger: *change,
 	}
+	log.Infof(ctx, "in changeReplicasTrigger(): %+v", pd.Replicated.ChangeReplicas)
 
 	return pd
 }
@@ -3567,6 +3569,7 @@ func (r *Replica) changeReplicas(
 				},
 			},
 		})
+		log.Infof(ctx, "running EndTransaction with ChangeReplicasTrigger: %+v", updatedDesc.Replicas)
 		if err := txn.Run(ctx, b); err != nil {
 			log.Event(ctx, err.Error())
 			return err
