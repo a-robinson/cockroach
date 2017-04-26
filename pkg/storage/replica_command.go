@@ -1888,6 +1888,7 @@ func declareKeysRequestLease(
 	loader := makeReplicaStateLoader(header.RangeID)
 	spans.Add(SpanReadWrite, roachpb.Span{Key: loader.RangeLeaseKey()})
 	spans.Add(SpanReadOnly, roachpb.Span{Key: keys.RangeDescriptorKey(desc.StartKey)})
+	spans.Add(SpanReadWrite, roachpb.Span{Key: keys.RangeDescriptorKey(desc.StartKey)})
 }
 
 // evalRequestLease sets the range lease for this range. The command fails
