@@ -565,6 +565,7 @@ func declareKeysEndTransaction(
 	if et.InternalCommitTrigger != nil {
 		if crt := et.InternalCommitTrigger.ChangeReplicasTrigger; crt != nil {
 			spans.Add(SpanReadWrite, roachpb.Span{Key: keys.RangeDescriptorKey(desc.StartKey)})
+			log.Infof(context.TODO(), "adding SpanReadWrite for ChangeReplicas to range descriptor %+v", desc)
 		}
 		if st := et.InternalCommitTrigger.SplitTrigger; st != nil {
 			// Splits may read from the entire pre-split range (they read
@@ -1889,6 +1890,7 @@ func declareKeysRequestLease(
 	spans.Add(SpanReadWrite, roachpb.Span{Key: loader.RangeLeaseKey()})
 	spans.Add(SpanReadOnly, roachpb.Span{Key: keys.RangeDescriptorKey(desc.StartKey)})
 	spans.Add(SpanReadWrite, roachpb.Span{Key: keys.RangeDescriptorKey(desc.StartKey)})
+	log.Infof(context.TODO(), "adding SpanReadWrite for RequestLease to range descriptor %+v", desc)
 }
 
 // evalRequestLease sets the range lease for this range. The command fails

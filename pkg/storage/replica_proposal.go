@@ -380,6 +380,7 @@ func (r *Replica) leasePostApply(
 ) {
 	iAmTheLeaseHolder := newLease.Replica.ReplicaID == replicaID
 	leaseChangingHands := prevLease.Replica.StoreID != newLease.Replica.StoreID
+	log.Infof(ctx, "NEW LEASE: newOwner=s%d, oldOwner=s%d", newLease.Replica.StoreID, prevLease.Replica.StoreID)
 
 	if leaseChangingHands && iAmTheLeaseHolder {
 		// If this replica is a new holder of the lease, update the low water
