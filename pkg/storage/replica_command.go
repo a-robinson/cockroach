@@ -563,6 +563,9 @@ func declareKeysEndTransaction(
 	spans.Add(SpanReadOnly, roachpb.Span{Key: keys.RangeDescriptorKey(desc.StartKey)})
 
 	if et.InternalCommitTrigger != nil {
+		if crt := et.InternalCommitTrigger.ChangeReplicasTrigger; crt != nil {
+			spans.Add(SpanReadWrite, roachpb.Span{Key: keys.RangeDescriptorKey(desc.StartKey)})
+		}
 		if st := et.InternalCommitTrigger.SplitTrigger; st != nil {
 			// Splits may read from the entire pre-split range (they read
 			// from the LHS in all cases, and the RHS only when the existing
