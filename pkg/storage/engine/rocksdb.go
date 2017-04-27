@@ -44,6 +44,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/humanizeutil"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/metric"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
 )
@@ -101,7 +102,13 @@ const (
 	MinimumMaxOpenFiles = 1700
 )
 
-var useDirectWrites = envutil.EnvOrDefaultBool("COCKROACH_USE_DIRECT_WRITES", false)
+var (
+	useDirectWrites = envutil.EnvOrDefaultBool("COCKROACH_USE_DIRECT_WRITES", false)
+
+	metaCommitLatencyNanos = metric.Metadata{
+		Name: "rocksdb.commit.latency",
+		Help: "Latency of rocksdb commits"}
+)
 
 // SSTableInfo contains metadata about a single RocksDB sstable. This mirrors
 // the C.DBSSTable struct contents.
@@ -290,14 +297,15 @@ func (c RocksDBCache) Release() {
 
 // RocksDB is a wrapper around a RocksDB database instance.
 type RocksDB struct {
-	rdb          *C.DBEngine
-	attrs        roachpb.Attributes // Attributes for this engine
-	dir          string             // The data directory
-	tempDir      string             // A path for storing temp files (ideally under dir).
-	cache        RocksDBCache       // Shared cache.
-	maxSize      int64              // Used for calculating rebalancing and free space.
-	maxOpenFiles int                // The maximum number of open files this instance will use.
-	deallocated  chan struct{}      // Closed when the underlying handle is deallocated.
+	rdb                *C.DBEngine
+	attrs              roachpb.Attributes // Attributes for this engine
+	dir                string             // The data directory
+	tempDir            string             // A path for storing temp files (ideally under dir).
+	cache              RocksDBCache       // Shared cache.
+	maxSize            int64              // Used for calculating rebalancing and free space.
+	maxOpenFiles       int                // The maximum number of open files this instance will use.
+	deallocated        chan struct{}      // Closed when the underlying handle is deallocated.
+	commitLatencyNanos *metric.Histogram  // Histogram of rocksdb commit latency
 
 	commit struct {
 		syncutil.Mutex
@@ -319,19 +327,20 @@ var _ Engine = &RocksDB{}
 // The caller must call the engine's Close method when the engine is no longer
 // needed.
 func NewRocksDB(
-	attrs roachpb.Attributes, dir string, cache RocksDBCache, maxSize int64, maxOpenFiles int,
+	attrs roachpb.Attributes, dir string, cache RocksDBCache, maxSize int64, maxOpenFiles int, histogramWindow time.Duration,
 ) (*RocksDB, error) {
 	if dir == "" {
 		panic("dir must be non-empty")
 	}
 
 	r := &RocksDB{
-		attrs:        attrs,
-		dir:          dir,
-		cache:        cache.ref(),
-		maxSize:      maxSize,
-		maxOpenFiles: maxOpenFiles,
-		deallocated:  make(chan struct{}),
+		attrs:              attrs,
+		dir:                dir,
+		cache:              cache.ref(),
+		maxSize:            maxSize,
+		maxOpenFiles:       maxOpenFiles,
+		deallocated:        make(chan struct{}),
+		commitLatencyNanos: metric.NewLatency(metaCommitLatencyNanos, histogramWindow),
 	}
 
 	temp := filepath.Join(dir, "tmp")
@@ -350,12 +359,17 @@ func NewRocksDB(
 }
 
 func newMemRocksDB(attrs roachpb.Attributes, cache RocksDBCache, maxSize int64) (*RocksDB, error) {
+	// TODO(mrtracy): Improvements to our histogram metrics that will eliminate
+	// the need for this are tracked by #7896. Until then, just use a reasonable
+	// default for in-memory stores since they aren't supported in production.
+	const histogramWindow = time.Minute
 	r := &RocksDB{
 		attrs: attrs,
 		// dir: empty dir == "mem" RocksDB instance.
-		cache:       cache.ref(),
-		maxSize:     maxSize,
-		deallocated: make(chan struct{}),
+		cache:              cache.ref(),
+		maxSize:            maxSize,
+		deallocated:        make(chan struct{}),
+		commitLatencyNanos: metric.NewLatency(metaCommitLatencyNanos, histogramWindow),
 	}
 
 	if err := r.SetTempDir(os.TempDir()); err != nil {
@@ -1214,8 +1228,10 @@ func (r *rocksDBBatch) commitInternal(sync bool) error {
 		r.batch = nil
 	}
 
+	elapsed := timeutil.Since(start)
+	r.parent.commitLatencyNanos.RecordValue(elapsed.Nanoseconds())
 	const batchCommitWarnThreshold = 500 * time.Millisecond
-	if elapsed := timeutil.Since(start); elapsed >= batchCommitWarnThreshold {
+	if elapsed >= batchCommitWarnThreshold {
 		log.Warningf(context.TODO(), "batch [%d/%d/%d] commit took %s (>%s):\n%s",
 			count, size, r.flushes, elapsed, batchCommitWarnThreshold, debug.Stack())
 	}
@@ -1699,7 +1715,8 @@ func MakeRocksDBSstFileReader(tempdir string) (RocksDBSstFileReader, error) {
 	// TODO(dan): I pulled all these magic numbers out of nowhere. Make them
 	// less magic.
 	cache := NewRocksDBCache(1 << 20)
-	rocksDB, err := NewRocksDB(roachpb.Attributes{}, tempdir, cache, 512<<20, DefaultMaxOpenFiles)
+	rocksDB, err := NewRocksDB(
+		roachpb.Attributes{}, tempdir, cache, 512<<20, DefaultMaxOpenFiles, 0*time.Minute)
 	if err != nil {
 		return RocksDBSstFileReader{}, err
 	}

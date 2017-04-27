@@ -16,7 +16,9 @@
 
 package engine
 
-import "github.com/cockroachdb/cockroach/pkg/roachpb"
+import (
+	"github.com/cockroachdb/cockroach/pkg/roachpb"
+)
 
 // InMem wraps RocksDB and configures it for in-memory only storage.
 type InMem struct {

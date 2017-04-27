@@ -19,6 +19,7 @@ package engine
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
@@ -32,6 +33,7 @@ func setupMVCCRocksDB(b testing.TB, loc string) Engine {
 		RocksDBCache{},
 		0,
 		DefaultMaxOpenFiles,
+		time.Minute,
 	)
 	if err != nil {
 		b.Fatalf("could not create new rocksdb db instance at %s: %v", loc, err)

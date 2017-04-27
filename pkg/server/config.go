@@ -401,6 +401,7 @@ func (cfg *Config) CreateEngines() (Engines, error) {
 				cache,
 				sizeInBytes,
 				openFileLimitPerStore,
+				cfg.HistogramWindowInterval(),
 			)
 			if err != nil {
 				return Engines{}, err

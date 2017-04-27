@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	"golang.org/x/net/context"
 
@@ -75,8 +76,9 @@ func openStore(cmd *cobra.Command, dir string, stopper *stop.Stopper) (*engine.R
 		roachpb.Attributes{},
 		dir,
 		cache,
-		0,
+		0, /* maxSize */
 		maxOpenFiles,
+		time.Minute, /* histogramWindow */
 	)
 	if err != nil {
 		return nil, err
