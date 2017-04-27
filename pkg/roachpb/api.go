@@ -78,6 +78,11 @@ const (
 	isRange                // range commands may span multiple keys
 	isReverse              // reverse commands traverse ranges in descending direction
 	isAlone                // requests which must be alone in a batch
+	// Some commands can skip interacting with the command queue and the timestamp
+	// cache. For example, RequestLeaseRequest is sequenced exclusively by Raft.
+	// These requests still have keys in their header, but those keys are used
+	// exclusively for routing the request to the right range.
+	isNonKV
 	// Requests for acquiring a lease skip the (proposal-time) check that the
 	// proposing replica has a valid lease.
 	skipLeaseCheck
@@ -895,16 +900,20 @@ func (*RangeLookupRequest) flags() int         { return isRead }
 func (*ResolveIntentRequest) flags() int       { return isWrite }
 func (*ResolveIntentRangeRequest) flags() int  { return isWrite | isRange }
 func (*NoopRequest) flags() int                { return isRead } // slightly special
-func (*TruncateLogRequest) flags() int         { return isWrite }
-func (*MergeRequest) flags() int               { return isWrite }
+func (*TruncateLogRequest) flags() int         { return isWrite | isNonKV }
+
+// MergeRequests are considered "non KV" because they do not need to be gated
+// by the command queue (reordering is ok) and they operate on non-MVCC data so
+// the timestamp cache is also unnecessary.
+func (*MergeRequest) flags() int { return isWrite | isNonKV }
 
 func (*RequestLeaseRequest) flags() int {
-	return isWrite | isAlone | skipLeaseCheck
+	return isWrite | isAlone | isNonKV | skipLeaseCheck
 }
 
 // LeaseInfoRequest is usually executed in an INCONSISTENT batch, which has the
 // effect of the `skipLeaseCheck` flag that lease write operations have.
-func (*LeaseInfoRequest) flags() int { return isRead | isAlone }
+func (*LeaseInfoRequest) flags() int { return isRead | isNonKV | isAlone }
 func (*TransferLeaseRequest) flags() int {
 	// TODO(andrei): update this comment.
 	// TransferLeaseRequest requires the lease, which is checked in
@@ -915,9 +924,9 @@ func (*TransferLeaseRequest) flags() int {
 	// replica has registered that a transfer is in progress and
 	// `redirectOnOrAcquireLease` already tentatively redirects to the
 	// future lease holder.
-	return isWrite | isAlone | skipLeaseCheck
+	return isWrite | isAlone | isNonKV | skipLeaseCheck
 }
-func (*ComputeChecksumRequest) flags() int          { return isWrite | isRange }
+func (*ComputeChecksumRequest) flags() int          { return isWrite | isNonKV | isRange }
 func (*DeprecatedVerifyChecksumRequest) flags() int { return isWrite }
 func (*CheckConsistencyRequest) flags() int         { return isAdmin | isRange }
 func (*WriteBatchRequest) flags() int               { return isWrite | isRange }
