@@ -22,6 +22,7 @@ import (
 	"io"
 	"math"
 	"runtime"
+	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -53,7 +54,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/metric"
 	"github.com/cockroachdb/cockroach/pkg/util/retry"
-	"github.com/cockroachdb/cockroach/pkg/util/shuffle"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
@@ -313,6 +313,9 @@ func (rs storeReplicaVisitor) Len() int { return len(rs.repls) }
 // Swap implements shuffle.Interface.
 func (rs storeReplicaVisitor) Swap(i, j int) { rs.repls[i], rs.repls[j] = rs.repls[j], rs.repls[i] }
 
+// Less implements sort.Interface
+func (rs storeReplicaVisitor) Less(i, j int) bool { return rs.repls[i].RangeID < rs.repls[j].RangeID }
+
 // newStoreReplicaVisitor constructs a storeReplicaVisitor.
 func newStoreReplicaVisitor(store *Store) *storeReplicaVisitor {
 	return &storeReplicaVisitor{
@@ -341,7 +344,7 @@ func (rs *storeReplicaVisitor) Visit(visitor func(*Replica) bool) {
 	//
 	// TODO(peter): Re-evaluate whether this is necessary after we allow
 	// rebalancing away from the leaseholder. See TestRebalance_3To5Small.
-	shuffle.Shuffle(rs)
+	sort.Sort(sort.Reverse(rs))
 
 	rs.visited = 0
 	for _, repl := range rs.repls {
@@ -1003,6 +1006,7 @@ func (s *Store) SetDraining(drain bool) {
 				var drainingLease *roachpb.Lease
 				for {
 					var leaseCh <-chan *roachpb.Error
+					log.Infof(ctx, "retrieving lease status")
 					r.mu.Lock()
 					lease, nextLease := r.getLeaseRLocked()
 					if nextLease != nil && nextLease.OwnedBy(s.StoreID()) {
@@ -1011,7 +1015,9 @@ func (s *Store) SetDraining(drain bool) {
 					r.mu.Unlock()
 
 					if leaseCh != nil {
+						log.Infof(ctx, "starting waiting for lease request: %+v", nextLease)
 						<-leaseCh
+						log.Infof(ctx, "done waiting for lease request: %+v", nextLease)
 						continue
 					}
 					drainingLease = lease

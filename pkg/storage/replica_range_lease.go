@@ -222,6 +222,7 @@ func (p *pendingLeaseRequest) requestLeaseAsync(
 		// Send result of lease to all waiter channels.
 		repl.mu.Lock()
 		defer repl.mu.Unlock()
+		log.Infof(ctx, "clearing out %d llchans", len(p.llChans))
 		for _, llChan := range p.llChans {
 			// Don't send the same transaction object twice; this can lead to races.
 			if pErr != nil {

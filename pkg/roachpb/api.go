@@ -913,7 +913,7 @@ func (*RequestLeaseRequest) flags() int {
 
 // LeaseInfoRequest is usually executed in an INCONSISTENT batch, which has the
 // effect of the `skipLeaseCheck` flag that lease write operations have.
-func (*LeaseInfoRequest) flags() int { return isRead | isNonKV | isAlone }
+func (*LeaseInfoRequest) flags() int { return isRead | isAlone }
 func (*TransferLeaseRequest) flags() int {
 	// TODO(andrei): update this comment.
 	// TransferLeaseRequest requires the lease, which is checked in
