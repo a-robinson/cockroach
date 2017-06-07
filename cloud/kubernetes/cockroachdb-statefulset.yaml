@@ -138,7 +138,7 @@ spec:
     spec:
       containers:
       - name: cockroachdb
-        image: cockroachdb/cockroach:v1.0.1
+        image: cockroachdb/cockroach:v1.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 26257
@@ -173,7 +173,7 @@ spec:
             exec /cockroach/cockroach ${CRARGS[*]}
       # No pre-stop hook is required, a SIGTERM plus some time is all that's
       # needed for graceful shutdown of a node.
-      terminationGracePeriodSeconds: 60
+      terminationGracePeriodSeconds: 15
       volumes:
       - name: datadir
         persistentVolumeClaim:
