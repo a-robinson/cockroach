@@ -248,6 +248,7 @@ func allocateCandidates(
 			valid:           true,
 			constraintScore: diversityScore + float64(preferredMatched),
 			rangeCount:      int(s.Capacity.RangeCount),
+			// TODO: Start adding stuff here
 			details: fmt.Sprintf("diversity=%.2f, preferred=%d",
 				diversityScore, preferredMatched),
 		})
