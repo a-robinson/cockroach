@@ -39,10 +39,12 @@ import (
 // https://www.eecs.harvard.edu/~michaelm/postscripts/mythesis.pdf.
 const allocatorRandomCount = 2
 
+// TODO:(DONOTSUBMIT): Tweak this
 func rebalanceFromConvergesOnMean(sl StoreList, candidate roachpb.StoreDescriptor) bool {
 	return float64(candidate.Capacity.RangeCount) > sl.candidateCount.mean+0.5
 }
 
+// TODO:(DONOTSUBMIT): Tweak this
 func rebalanceToConvergesOnMean(sl StoreList, candidate roachpb.StoreDescriptor) bool {
 	return float64(candidate.Capacity.RangeCount) < sl.candidateCount.mean-0.5
 }
@@ -52,13 +54,13 @@ type candidate struct {
 	store           roachpb.StoreDescriptor
 	valid           bool
 	constraintScore float64
-	rangeCount      int
+	balanceScore    float64
 	details         string
 }
 
 func (c candidate) String() string {
-	return fmt.Sprintf("s%d, valid:%t, con:%.2f, ranges:%d, details:(%s)",
-		c.store.StoreID, c.valid, c.constraintScore, c.rangeCount, c.details)
+	return fmt.Sprintf("s%d, valid:%t, con:%.2f, balance:%.2f, details:(%s)",
+		c.store.StoreID, c.valid, c.constraintScore, c.balanceScore, c.details)
 }
 
 // less first compares valid, then constraint scores, then range counts.
@@ -72,7 +74,8 @@ func (c candidate) less(o candidate) bool {
 	if c.constraintScore != o.constraintScore {
 		return c.constraintScore < o.constraintScore
 	}
-	return c.rangeCount > o.rangeCount
+	// TODO(DONOTSUBMIT): Switch around to less than after fixing tests.
+	return c.balanceScore > o.balanceScore
 }
 
 type candidateList []candidate
@@ -108,7 +111,7 @@ var _ sort.Interface = byScoreAndID(nil)
 func (c byScoreAndID) Len() int { return len(c) }
 func (c byScoreAndID) Less(i, j int) bool {
 	if c[i].constraintScore == c[j].constraintScore &&
-		c[i].rangeCount == c[j].rangeCount &&
+		c[i].balanceScore == c[j].balanceScore &&
 		c[i].valid == c[j].valid {
 		return c[i].store.StoreID < c[j].store.StoreID
 	}
@@ -227,6 +230,7 @@ func allocateCandidates(
 	sl StoreList,
 	constraints config.Constraints,
 	existing []roachpb.ReplicaDescriptor,
+	rangeInfo RangeInfo,
 	existingNodeLocalities map[roachpb.NodeID]roachpb.Locality,
 	deterministic bool,
 ) candidateList {
@@ -243,14 +247,14 @@ func allocateCandidates(
 			continue
 		}
 		diversityScore := diversityScore(s, existingNodeLocalities)
+		balanceScore := balanceScore(s, rangeInfo)
 		candidates = append(candidates, candidate{
 			store:           s,
 			valid:           true,
 			constraintScore: diversityScore + float64(preferredMatched),
-			rangeCount:      int(s.Capacity.RangeCount),
-			// TODO: Start adding stuff here
-			details: fmt.Sprintf("diversity=%.2f, preferred=%d",
-				diversityScore, preferredMatched),
+			balanceScore:    balanceScore,
+			details: fmt.Sprintf("diversity=%.2f, preferred=%d, balance=%.2f",
+				diversityScore, preferredMatched, balanceScore),
 		})
 	}
 	if deterministic {
@@ -267,6 +271,7 @@ func allocateCandidates(
 func removeCandidates(
 	sl StoreList,
 	constraints config.Constraints,
+	rangeInfo RangeInfo,
 	existingNodeLocalities map[roachpb.NodeID]roachpb.Locality,
 	deterministic bool,
 ) candidateList {
@@ -290,6 +295,8 @@ func removeCandidates(
 			continue
 		}
 		diversityScore := diversityRemovalScore(s.Node.NodeID, existingNodeLocalities)
+		balanceScore := balanceScore(s, rangeInfo)
+		// TODO(DONOTSUBMIT): Tweak this
 		var convergesScore float64
 		if !rebalanceFromConvergesOnMean(sl, s) {
 			// If removing this candidate replica does not converge the range
@@ -303,9 +310,9 @@ func removeCandidates(
 			store:           s,
 			valid:           true,
 			constraintScore: diversityScore + float64(preferredMatched) + convergesScore,
-			rangeCount:      int(s.Capacity.RangeCount),
-			details: fmt.Sprintf("diversity=%.2f, preferred=%d, converge=%.2f",
-				diversityScore, preferredMatched, convergesScore),
+			balanceScore:    balanceScore,
+			details: fmt.Sprintf("diversity=%.2f, preferred=%d, converge=%.2f, balance=%.2f",
+				diversityScore, preferredMatched, convergesScore, balanceScore),
 		})
 	}
 	if deterministic {
@@ -325,6 +332,7 @@ func rebalanceCandidates(
 	sl StoreList,
 	constraints config.Constraints,
 	existing []roachpb.ReplicaDescriptor,
+	rangeInfo RangeInfo,
 	existingNodeLocalities map[roachpb.NodeID]roachpb.Locality,
 	deterministic bool,
 ) (candidateList, candidateList) {
@@ -401,6 +409,8 @@ func rebalanceCandidates(
 				continue
 			}
 			diversityScore := diversityRemovalScore(s.Node.NodeID, existingNodeLocalities)
+			balanceScore := balanceScore(s, rangeInfo)
+			// TODO(DONOTSUBMIT): Tweak this
 			var convergesScore float64
 			if !rebalanceFromConvergesOnMean(constraintsOkStoreList, s) {
 				// Similarly to in removeCandidates, any replica whose removal
@@ -413,9 +423,9 @@ func rebalanceCandidates(
 				store:           s,
 				valid:           true,
 				constraintScore: diversityScore + float64(storeInfo.matched) + convergesScore,
-				rangeCount:      int(s.Capacity.RangeCount),
-				details: fmt.Sprintf("diversity=%.2f, preferred=%d, converge=%.2f",
-					diversityScore, storeInfo.matched, convergesScore),
+				balanceScore:    balanceScore,
+				details: fmt.Sprintf("diversity=%.2f, preferred=%d, converge=%.2f, balance=%.2f",
+					diversityScore, storeInfo.matched, convergesScore, balanceScore),
 			})
 		} else {
 			if !storeInfo.ok || !maxCapacityOK {
@@ -433,13 +443,14 @@ func rebalanceCandidates(
 				continue
 			}
 			diversityScore := diversityScore(s, existingNodeLocalities)
+			balanceScore := balanceScore(s, rangeInfo)
 			candidates = append(candidates, candidate{
 				store:           s,
 				valid:           true,
 				constraintScore: diversityScore + float64(storeInfo.matched) + convergesScore,
-				rangeCount:      int(s.Capacity.RangeCount),
-				details: fmt.Sprintf("diversity=%.2f, preferred=%d, converge=%.2f",
-					diversityScore, storeInfo.matched, convergesScore),
+				balanceScore:    balanceScore,
+				details: fmt.Sprintf("diversity=%.2f, preferred=%d, converge=%.2f, balance=%.2f",
+					diversityScore, storeInfo.matched, convergesScore, balanceScore),
 			})
 		}
 	}
@@ -465,6 +476,7 @@ func shouldRebalance(ctx context.Context, store roachpb.StoreDescriptor, sl Stor
 
 	// Rebalance if we're above the overfull threshold, which is
 	// mean*(1+rebalanceThreshold).
+	// TODO:(DONOTSUBMIT): Tweak this
 	overfullThreshold := int32(math.Ceil(sl.candidateCount.mean * (1 + baseRebalanceThreshold)))
 	rangeCountAboveOverfullThreshold := store.Capacity.RangeCount > overfullThreshold
 
@@ -584,6 +596,14 @@ func diversityRemovalScore(
 		}
 	}
 	return maxScore
+}
+
+// balanceScore returns an arbitrarily scaled score where higher scores are for
+// stores where the range is a better fit based on various balance factors
+// like range count, disk usage, and QPS.
+func balanceScore(store roachpb.StoreDescriptor, rangeInfo RangeInfo) float64 {
+	// TODO(DONOTSUBMIT): Tweak this
+	return float64(store.Capacity.RangeCount)
 }
 
 // maxCapacityCheck returns true if the store has room for a new replica.

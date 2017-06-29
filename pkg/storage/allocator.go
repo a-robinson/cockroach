@@ -301,6 +301,7 @@ func (a *Allocator) AllocateTarget(
 		sl,
 		constraints,
 		existing,
+		rangeInfo,
 		a.storePool.getLocalities(existing),
 		a.storePool.deterministic,
 	)
@@ -349,6 +350,7 @@ func (a Allocator) RemoveTarget(
 	rankedCandidates := removeCandidates(
 		sl,
 		constraints,
+		rangeInfo,
 		a.storePool.getLocalities(rangeInfo.Desc.Replicas),
 		a.storePool.deterministic,
 	)
@@ -400,6 +402,7 @@ func (a Allocator) RebalanceTarget(
 		sl,
 		constraints,
 		rangeInfo.Desc.Replicas,
+		rangeInfo,
 		a.storePool.getLocalities(rangeInfo.Desc.Replicas),
 		a.storePool.deterministic,
 	)
