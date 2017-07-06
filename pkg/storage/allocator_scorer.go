@@ -462,85 +462,55 @@ func rebalanceCandidates(
 // shouldRebalance returns whether the specified store is a candidate for
 // having a replica removed from it given the candidate store list.
 func shouldRebalance(
-	ctx context.Context,
-	store roachpb.StoreDescriptor,
-	sl StoreList,
-	rangeInfo RangeInfo, // TODO(DONOTSUBMIT): Is this actually needed?
+	ctx context.Context, store roachpb.StoreDescriptor, sl StoreList, rangeInfo RangeInfo,
 ) bool {
 	// TODO(peter,bram,cuong): The FractionUsed check seems suspicious. When a
 	// node becomes fuller than maxFractionUsedThreshold we will always select it
 	// for rebalancing. This is currently utilized by tests.
-	maxCapacityUsed := store.Capacity.FractionUsed() >= maxFractionUsedThreshold
+	if store.Capacity.FractionUsed() >= maxFractionUsedThreshold {
+		if log.V(2) {
+			log.Infof(ctx, "s%d: should-rebalance(disk-full): fraction-used=%.2f, capacity=%+v",
+				store.StoreID, store.Capacity.FractionUsed(), store.Capacity)
+		}
+		return true
+	}
 
-	// Rebalance if we're above the overfull threshold in a strict majority of,
-	// dimensions, such that rebalancing away from the store will bring us closer
-	// to overall balance.
-	var overfullDimensions int
-	if float64(store.Capacity.RangeCount) > overfullThreshold(sl.candidateRanges.mean) {
-		overfullDimensions++
+	// Rebalance if this store is full enough that the range is a bad fit.
+	score := balanceScore(sl, store, rangeInfo)
+	if rangeIsBadFit(score) {
+		if log.V(2) {
+			log.Infof(ctx,
+				"s%d: should-rebalance(bad-fit): - balanceScore=%.2f, capacity=%+v, rangeInfo=%+v, "+
+					"(meanRangeCount=%.1f, meanDiskUsage=%.2f, meanWritesPerSecond=%.2f), ",
+				store.StoreID, score, store.Capacity, rangeInfo,
+				sl.candidateRanges.mean, sl.candidateDiskUsage.mean, sl.candidateWritesPerSecond.mean)
+		}
+		return true
 	}
-	if store.Capacity.FractionUsed() > overfullThreshold(sl.candidateDiskUsage.mean) {
-		overfullDimensions++
-	}
-	if store.Capacity.WritesPerSecond > overfullThreshold(sl.candidateWritesPerSecond.mean) {
-		overfullDimensions++
-	}
-	storeIsOverfull := overfullDimensions >= 2
 
-	// Rebalance if the candidate store has a range count above the mean, and
-	// there exists another store that is underfull. Only bother checking this
+	// Rebalance if there exists another store that is very in need of the
+	// range and this store is a somewhat bad match for it. Only bother checking
 	// if we decided that the store wasn't overfull.
-	var rebalanceToUnderfullStore bool
-	if !storeIsOverfull {
-		if !rebalanceToUnderfullStore && float64(store.Capacity.RangeCount) > sl.candidateRanges.mean {
-			underfullRangeCount := underfullThreshold(sl.candidateRanges.mean)
-			if !rebalanceToUnderfullStore && store.Capacity.FractionUsed() > sl.candidateDiskUsage.mean {
-				underfullDiskUsage := underfullThreshold(sl.candidateDiskUsage.mean)
-				for _, desc := range sl.stores {
-					if float64(desc.Capacity.RangeCount) < underfullRangeCount &&
-						desc.Capacity.FractionUsed() < underfullDiskUsage {
-						rebalanceToUnderfullStore = true
-						break
-					}
+	if rangeIsPoorFit(score) {
+		for _, desc := range sl.stores {
+			otherScore := balanceScore(sl, desc, rangeInfo)
+			if rangeIsGoodFit(otherScore) {
+				if log.V(2) {
+					log.Infof(ctx,
+						"s%d: should-rebalance(better-fit=s%d): balanceScore=%.2f, capacity=%+v, rangeInfo=%+v, "+
+							"otherScore=%.2f, otherCapacity=%+v, "+
+							"(meanRangeCount=%.1f, meanDiskUsage=%.2f, meanWritesPerSecond=%.2f), ",
+						store.StoreID, desc.StoreID, score, store.Capacity, rangeInfo,
+						otherScore, desc.Capacity,
+						sl.candidateRanges.mean, sl.candidateDiskUsage.mean, sl.candidateWritesPerSecond.mean)
 				}
-			}
-			if !rebalanceToUnderfullStore && store.Capacity.WritesPerSecond > sl.candidateWritesPerSecond.mean {
-				underfullWritesPerSecond := underfullThreshold(sl.candidateWritesPerSecond.mean)
-				for _, desc := range sl.stores {
-					if float64(desc.Capacity.RangeCount) < underfullRangeCount &&
-						desc.Capacity.WritesPerSecond < underfullWritesPerSecond {
-						rebalanceToUnderfullStore = true
-						break
-					}
-				}
-			}
-		}
-		if !rebalanceToUnderfullStore && store.Capacity.FractionUsed() > sl.candidateDiskUsage.mean &&
-			store.Capacity.WritesPerSecond > sl.candidateWritesPerSecond.mean {
-			underfullDiskUsage := underfullThreshold(sl.candidateDiskUsage.mean)
-			underfullWritesPerSecond := underfullThreshold(sl.candidateWritesPerSecond.mean)
-			for _, desc := range sl.stores {
-				if desc.Capacity.FractionUsed() < underfullDiskUsage &&
-					desc.Capacity.WritesPerSecond < underfullWritesPerSecond {
-					rebalanceToUnderfullStore = true
-					break
-				}
+				return true
 			}
 		}
 	}
 
-	shouldRebalance := maxCapacityUsed || storeIsOverfull || rebalanceToUnderfullStore
-	if log.V(2) && shouldRebalance {
-		// TODO:(DONOTSUBMIT): Tweak this
-		log.Infof(ctx,
-			"s%d: should-rebalance: fraction-used=%.2f range-count=%d "+
-				"(mean=%.1f, overfull-threshold=%d, fraction-used=%t, "+
-				"above-overfull-threshold=%t, rebalance-to-underfull=%t)",
-			store.StoreID, store.Capacity.FractionUsed(), store.Capacity.RangeCount,
-			sl.candidateRanges.mean, overfullThreshold, maxCapacityUsed,
-			storeIsOverfull, rebalanceToUnderfullStore)
-	}
-	return shouldRebalance
+	// If we reached this point, we're happy with the range where it is.
+	return false
 }
 
 // preexistingReplicaCheck returns true if no existing replica is present on
@@ -645,24 +615,27 @@ const (
 // balanceScore returns an arbitrarily scaled score where higher scores are for
 // stores where the range is a better fit based on various balance factors
 // like range count, disk usage, and QPS.
+//
+// TODO(a-robinson): Give balanceScore a type alias to discourage direct usage
+// of them except through helper functions?
 func balanceScore(sl StoreList, store roachpb.StoreDescriptor, rangeInfo RangeInfo) float64 {
 	var score float64
-	var rangeCountStatus rangeCountStatus
+	var rcs rangeCountStatus
 	if float64(store.Capacity.RangeCount) > overfullThreshold(sl.candidateRanges.mean) {
-		score -= 1
-		rangeCountStatus = overfull
+		score--
+		rcs = overfull
 	} else if float64(store.Capacity.RangeCount) < underfullThreshold(sl.candidateRanges.mean) {
-		score += 1
-		rangeCountStatus = underfull
+		score++
+		rcs = underfull
 	}
 	score += balanceContribution(
-		rangeCountStatus,
+		rcs,
 		sl.candidateDiskUsage.mean,
 		store.Capacity.FractionUsed(),
 		store.Capacity.BytesPerReplica,
 		float64(rangeInfo.LiveBytes))
 	score += balanceContribution(
-		rangeCountStatus,
+		rcs,
 		sl.candidateWritesPerSecond.mean,
 		store.Capacity.WritesPerSecond,
 		store.Capacity.WritesPerReplica,
@@ -674,81 +647,92 @@ func balanceScore(sl StoreList, store roachpb.StoreDescriptor, rangeInfo RangeIn
 // balanceScore, where larger values mean a store is a better fit for a given
 // range.
 func balanceContribution(
-	rangeCountStatus rangeCountStatus,
+	rcs rangeCountStatus,
 	mean float64,
 	storeVal float64,
 	percentiles roachpb.Percentiles,
 	rangeVal float64,
 ) float64 {
 	if storeVal > overfullThreshold(mean) {
-		return -percentileScore(rangeCountStatus, percentiles, rangeVal)
+		return -percentileScore(rcs, percentiles, rangeVal)
 	} else if storeVal < underfullThreshold(mean) {
-		return percentileScore(rangeCountStatus, percentiles, rangeVal)
+		return percentileScore(rcs, percentiles, rangeVal)
 	}
 	return 0
 }
 
-// percentileScore returns a score for how desirable it is to put a given range
-// onto a given store given how full that store is, the range's value for that
-// dimension, and the distribution of a store's ranges along that dimension.
-// A higher score means that a range is a better fit for the store.
+// percentileScore returns a score for how desirable it is to put a range
+// onto a particular store given the assumption that the store is underfull
+// along a particular dimension. Takes as parameters:
+// * How the number of ranges on the store compares to the norm
+// * The distribution of values in the store for the dimension
+// * The range's value for the dimension
+// A higher score means that the range is a better fit for the store.
 func percentileScore(
-	rangeCountStatus rangeCountStatus,
-	percentiles roachpb.Percentiles,
-	rangeVal float64,
+	rcs rangeCountStatus, percentiles roachpb.Percentiles, rangeVal float64,
 ) float64 {
 	// Note that there is not any great research behind these values. If they're
 	// causing thrashing or a bad imbalance, rethink them and modify them as
 	// appropriate.
-	if rangeCountStatus == balanced {
+	//
+	// TODO(DONOTSUBMIT): Revisit these numbers and how they affect the
+	// shouldRebalance logic. It's probably too complex.
+	if rcs == balanced {
 		// If the range count is balanced, we should prefer rebalancing ranges that
 		// are outliers on this particular dimension to try to rebalance it without
 		// messing up the replica counts.
 		if rangeVal > percentiles.P90 {
-			return 2
-		} else if rangeVal > percentiles.P75 {
-			return 1
-		} else if rangeVal < percentiles.P10 {
 			return -2
-		} else if rangeVal < percentiles.P25 {
+		} else if rangeVal > percentiles.P75 {
 			return -1
-		} else {
-			// It may be better to return more than 0 here, since balancing away an
-			// average range isn't necessarily bad, but for now let's see how this works.
-			return 0
+		} else if rangeVal < percentiles.P10 {
+			return 2
+		} else if rangeVal < percentiles.P25 {
+			return 1
 		}
-	} else if rangeCountStatus == overfull {
+		// It may be better to return more than 0 here, since balancing away an
+		// average range isn't necessarily bad, but for now let's see how this works.
+		return 0
+	} else if rcs == overfull {
 		// If this store has too many ranges, we're ok with moving any range that's
 		// at least somewhat sizable in this dimension, since we want to reduce both
 		// the range count and this metric. Moving extreme outliers may be
 		// undesirable, though.
 		if rangeVal < percentiles.P10 || rangeVal > percentiles.P90 {
-			return -2
+			return 2
 		} else if rangeVal < percentiles.P25 || rangeVal > percentiles.P75 {
 			return 0
-		} else {
-			return 2
 		}
-	} else if rangeCountStatus == underfull {
+		return -2
+	} else if rcs == underfull {
 		// If this store has too few ranges but is overloaded on some other
 		// dimension, we need to strongly prioritize moving away replicas that are
 		// high in that dimension and accepting replicas that are low in it.
 		if rangeVal > percentiles.P90 {
-			return 4
+			return -4
 		} else if rangeVal > percentiles.P75 {
-			return 2
-		} else if rangeVal < percentiles.P10 {
-			return -3
-		} else if rangeVal < percentiles.P25 {
 			return -2
+		} else if rangeVal < percentiles.P10 {
+			return 3
+		} else if rangeVal < percentiles.P25 {
+			return 2
 		} else if rangeVal < percentiles.P50 {
-			return -1
-		} else {
-			return 0
+			return 1
 		}
+		return 0
 	}
-	panic(fmt.Sprintf("reached unreachable code: %+v; %+v; %+v", rangeCountStatus, percentiles, rangeVal))
-	return 0
+	panic(fmt.Sprintf("reached unreachable code: %+v; %+v; %+v", rcs, percentiles, rangeVal))
+}
+
+func rangeIsGoodFit(balanceScore float64) bool {
+	return balanceScore > 1
+}
+func rangeIsBadFit(balanceScore float64) bool {
+	return balanceScore < -1
+}
+
+func rangeIsPoorFit(balanceScore float64) bool {
+	return balanceScore < 0
 }
 
 func overfullThreshold(mean float64) float64 {

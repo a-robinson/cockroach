@@ -390,9 +390,7 @@ func (a Allocator) RemoveTarget(
 // rebalance. This helps prevent a stampeding herd targeting an abnormally
 // under-utilized store.
 func (a Allocator) RebalanceTarget(
-	ctx context.Context,
-	constraints config.Constraints,
-	rangeInfo RangeInfo,
+	ctx context.Context, constraints config.Constraints, rangeInfo RangeInfo,
 ) *roachpb.StoreDescriptor {
 	sl, _, _ := a.storePool.getStoreList(rangeInfo.Desc.RangeID, storeFilterThrottled)
 

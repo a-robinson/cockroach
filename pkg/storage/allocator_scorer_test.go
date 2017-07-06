@@ -101,7 +101,7 @@ func TestCandidateSelection(t *testing.T) {
 			if i != 0 {
 				buffer.WriteRune(',')
 			}
-			buffer.WriteString(fmt.Sprintf("%d:%d", int(c.constraintScore), c.balanceScore))
+			buffer.WriteString(fmt.Sprintf("%d:%.2f", int(c.constraintScore), c.balanceScore))
 		}
 		return buffer.String()
 	}
