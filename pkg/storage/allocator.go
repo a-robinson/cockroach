@@ -43,10 +43,10 @@ const (
 	// stores.
 	maxFractionUsedThreshold = 0.95
 
-	// baseRebalanceThreshold is the minimum ratio of a store's range/lease surplus to
-	// the mean range/lease count that permits rebalances/lease-transfers away from
-	// that store.
-	baseRebalanceThreshold = 0.05
+	// baseleaseRebalanceThreshold is the minimum ratio of a store's lease surplus
+	// to the mean range/lease count that permits rebalances/lease-transfers away
+	// from that store.
+	baseLeaseRebalanceThreshold = 0.05
 
 	// minReplicaWeight sets a floor for how low a replica weight can be. This is
 	// needed because a weight of zero doesn't work in the current lease scoring
@@ -377,9 +377,8 @@ func (a Allocator) RemoveTarget(
 // criteria. Namely, if chosen, it must further the goal of balancing the
 // cluster.
 //
-// The supplied parameters are the required attributes for the range, a list of
-// the existing replicas of the range, and the range ID of the replica being
-// allocated.
+// The supplied parameters are the required attributes for the range and
+// information about the range being considered for rebalancing.
 //
 // The existing replicas modulo any store with dead replicas are candidates for
 // rebalancing. Note that rebalancing is accomplished by first adding a new
@@ -718,7 +717,7 @@ func loadBasedLeaseRebalanceScore(
 	// Start with twice the base rebalance threshold in order to fight more
 	// strongly against thrashing caused by small variances in the distribution
 	// of request weights.
-	rebalanceThreshold := (2 * baseRebalanceThreshold) - rebalanceAdjustment
+	rebalanceThreshold := (2 * baseLeaseRebalanceThreshold) - rebalanceAdjustment
 
 	overfullLeaseThreshold := int32(math.Ceil(meanLeases * (1 + rebalanceThreshold)))
 	overfullScore := source.Capacity.LeaseCount - overfullLeaseThreshold
@@ -746,8 +745,8 @@ func (a Allocator) shouldTransferLeaseWithoutStats(
 	existing []roachpb.ReplicaDescriptor,
 ) bool {
 	// Allow lease transfer if we're above the overfull threshold, which is
-	// mean*(1+baseRebalanceThreshold).
-	overfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 + baseRebalanceThreshold)))
+	// mean*(1+baseLeaseRebalanceThreshold).
+	overfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 + baseLeaseRebalanceThreshold)))
 	minOverfullThreshold := int32(math.Ceil(sl.candidateLeases.mean + 5))
 	if overfullLeaseThreshold < minOverfullThreshold {
 		overfullLeaseThreshold = minOverfullThreshold
@@ -757,7 +756,7 @@ func (a Allocator) shouldTransferLeaseWithoutStats(
 	}
 
 	if float64(source.Capacity.LeaseCount) > sl.candidateLeases.mean {
-		underfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 - baseRebalanceThreshold)))
+		underfullLeaseThreshold := int32(math.Ceil(sl.candidateLeases.mean * (1 - baseLeaseRebalanceThreshold)))
 		minUnderfullThreshold := int32(math.Ceil(sl.candidateLeases.mean - 5))
 		if underfullLeaseThreshold > minUnderfullThreshold {
 			underfullLeaseThreshold = minUnderfullThreshold
