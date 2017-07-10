@@ -612,6 +612,17 @@ const (
 	underfull
 )
 
+func oppositeStatus(rcs rangeCountStatus) rangeCountStatus {
+	switch rcs {
+	case overfull:
+		return underfull
+	case underfull:
+		return overfull
+	default:
+		return balanced
+	}
+}
+
 // balanceScore returns an arbitrarily scaled score where higher scores are for
 // stores where the range is a better fit based on various balance factors
 // like range count, disk usage, and QPS.
@@ -656,7 +667,13 @@ func balanceContribution(
 	if storeVal > overfullThreshold(mean) {
 		return percentileScore(rcs, percentiles, rangeVal)
 	} else if storeVal < underfullThreshold(mean) {
-		return -percentileScore(rcs, percentiles, rangeVal)
+		// To ensure that we behave symmetrically when underfull compared to
+		// when we're overfull, inverse both the rangeCountStatus and the
+		// result returned by percentileScore. This makes it so that being
+		// overfull on ranges and on the given dimension behaves symmetrically to
+		// being underfull on ranges and the given dimension (and ditto for
+		// overfull on ranges and underfull on a dimension, etc.).
+		return -percentileScore(oppositeStatus(rcs), percentiles, rangeVal)
 	}
 	return 0
 }
@@ -687,7 +704,7 @@ func percentileScore(
 			return 1
 		} else if rangeVal > percentiles.P90 {
 			return -2
-		} else if rangeVal >= percentiles.P75 {
+		} else if rangeVal > percentiles.P75 {
 			return -1
 		}
 		// It may be better to return more than 0 here, since taking on an
@@ -699,11 +716,11 @@ func percentileScore(
 		// the range count and this metric. Moving extreme outliers may be
 		// undesirable, though.
 		if rangeVal < percentiles.P10 || rangeVal > percentiles.P90 {
-			return -2
+			return 2
 		} else if rangeVal <= percentiles.P25 || rangeVal >= percentiles.P75 {
 			return 0
 		}
-		return 2
+		return -2
 	} else if rcs == underfull {
 		// If this store has too few ranges but is overloaded on some other
 		// dimension, we need to strongly prioritize moving away replicas that are
@@ -711,13 +728,11 @@ func percentileScore(
 		if rangeVal < percentiles.P10 {
 			return 3
 		} else if rangeVal < percentiles.P25 {
-			return 2
-		} else if rangeVal <= percentiles.P50 {
-			return 1
+			return 1.5
 		} else if rangeVal > percentiles.P90 {
-			return -4
-		} else if rangeVal >= percentiles.P75 {
-			return -2
+			return -3
+		} else if rangeVal > percentiles.P75 {
+			return -1.5
 		}
 		return 0
 	}

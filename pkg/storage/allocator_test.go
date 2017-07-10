@@ -2310,6 +2310,136 @@ func TestAllocatorRebalanceAway(t *testing.T) {
 	}
 }
 
+func TestBalanceScore(t *testing.T) {
+	defer leaktest.AfterTest(t)()
+
+	storeList := StoreList{
+		candidateRanges:          stat{mean: 1000},
+		candidateDiskUsage:       stat{mean: 0.50},
+		candidateWritesPerSecond: stat{mean: 1000},
+	}
+
+	sMean := roachpb.StoreDescriptor{
+		Capacity: roachpb.StoreCapacity{
+			Capacity:        1024 * 1024 * 1024,
+			Available:       512 * 1024 * 1024,
+			RangeCount:      1000,
+			WritesPerSecond: 1000,
+			BytesPerReplica: roachpb.Percentiles{
+				P10: 100 * 1024,
+				P25: 250 * 1024,
+				P50: 500 * 1024,
+				P75: 750 * 1024,
+				P90: 1000 * 1024,
+			},
+			WritesPerReplica: roachpb.Percentiles{
+				P10: 1,
+				P25: 2.5,
+				P50: 5,
+				P75: 7.5,
+				P90: 10,
+			},
+		},
+	}
+	sRangesOverfull := sMean
+	sRangesOverfull.Capacity.RangeCount = 1500
+	sRangesUnderfull := sMean
+	sRangesUnderfull.Capacity.RangeCount = 500
+	sBytesOverfull := sMean
+	sBytesOverfull.Capacity.Available = 256 * 1024 * 1024
+	sBytesUnderfull := sMean
+	sBytesUnderfull.Capacity.Available = 768 * 1024 * 1024
+	sRangesOverfullBytesOverfull := sRangesOverfull
+	sRangesOverfullBytesOverfull.Capacity.Available = 256 * 1024 * 1024
+	sRangesUnderfullBytesUnderfull := sRangesUnderfull
+	sRangesUnderfullBytesUnderfull.Capacity.Available = 768 * 1024 * 1024
+	sRangesUnderfullBytesOverfull := sRangesUnderfull
+	sRangesUnderfullBytesOverfull.Capacity.Available = 256 * 1024 * 1024
+	sRangesOverfullBytesUnderfull := sRangesOverfull
+	sRangesOverfullBytesUnderfull.Capacity.Available = 768 * 1024 * 1024
+	sRangesUnderfullBytesOverfullWritesOverfull := sRangesUnderfullBytesOverfull
+	sRangesUnderfullBytesOverfullWritesOverfull.Capacity.WritesPerSecond = 1500
+	sRangesUnderfullBytesUnderfullWritesOverfull := sRangesUnderfullBytesUnderfull
+	sRangesUnderfullBytesUnderfullWritesOverfull.Capacity.WritesPerSecond = 1500
+
+	rMedian := RangeInfo{
+		LiveBytes:       500 * 1024,
+		WritesPerSecond: 5,
+	}
+	rHighBytes := rMedian
+	rHighBytes.LiveBytes = 2000 * 1024
+	rLowBytes := rMedian
+	rLowBytes.LiveBytes = 50 * 1024
+	rHighBytesHighWrites := rHighBytes
+	rHighBytesHighWrites.WritesPerSecond = 20
+	rHighBytesLowWrites := rHighBytes
+	rHighBytesLowWrites.WritesPerSecond = 0.5
+	rLowBytesHighWrites := rLowBytes
+	rLowBytesHighWrites.WritesPerSecond = 20
+	rLowBytesLowWrites := rLowBytes
+	rLowBytesLowWrites.WritesPerSecond = 0.5
+	rHighWrites := rMedian
+	rHighWrites.WritesPerSecond = 20
+	rLowWrites := rMedian
+	rLowWrites.WritesPerSecond = 0.5
+
+	testCases := []struct {
+		sl       StoreList
+		store    roachpb.StoreDescriptor
+		ri       RangeInfo
+		expected float64
+	}{
+		{storeList, sMean, rMedian, 0},
+		{storeList, sMean, rHighBytes, 0},
+		{storeList, sMean, rLowBytes, 0},
+		{storeList, sRangesOverfull, rMedian, -1},
+		{storeList, sRangesOverfull, rHighBytes, -1},
+		{storeList, sRangesOverfull, rLowBytes, -1},
+		{storeList, sRangesUnderfull, rMedian, 1},
+		{storeList, sRangesUnderfull, rHighBytes, 1},
+		{storeList, sRangesUnderfull, rLowBytes, 1},
+		{storeList, sBytesOverfull, rMedian, 0},
+		{storeList, sBytesOverfull, rHighBytes, -2},
+		{storeList, sBytesOverfull, rLowBytes, 2},
+		{storeList, sBytesUnderfull, rMedian, 0},
+		{storeList, sBytesUnderfull, rHighBytes, 2},
+		{storeList, sBytesUnderfull, rLowBytes, -2},
+		{storeList, sRangesOverfullBytesOverfull, rMedian, -3},
+		{storeList, sRangesOverfullBytesOverfull, rHighBytes, 1},
+		{storeList, sRangesOverfullBytesOverfull, rLowBytes, 1},
+		{storeList, sRangesUnderfullBytesUnderfull, rMedian, 3},
+		{storeList, sRangesUnderfullBytesUnderfull, rHighBytes, -1},
+		{storeList, sRangesUnderfullBytesUnderfull, rLowBytes, -1},
+		{storeList, sRangesUnderfullBytesOverfull, rMedian, 1},
+		{storeList, sRangesUnderfullBytesOverfull, rHighBytes, -2},
+		{storeList, sRangesUnderfullBytesOverfull, rLowBytes, 4},
+		{storeList, sRangesOverfullBytesUnderfull, rMedian, -1},
+		{storeList, sRangesOverfullBytesUnderfull, rHighBytes, 2},
+		{storeList, sRangesOverfullBytesUnderfull, rLowBytes, -4},
+		{storeList, sRangesUnderfullBytesOverfullWritesOverfull, rMedian, 1},
+		{storeList, sRangesUnderfullBytesOverfullWritesOverfull, rHighBytes, -2},
+		{storeList, sRangesUnderfullBytesOverfullWritesOverfull, rHighBytesHighWrites, -5},
+		{storeList, sRangesUnderfullBytesOverfullWritesOverfull, rHighBytesLowWrites, 1},
+		{storeList, sRangesUnderfullBytesOverfullWritesOverfull, rLowBytes, 4},
+		{storeList, sRangesUnderfullBytesOverfullWritesOverfull, rLowBytesHighWrites, 1},
+		{storeList, sRangesUnderfullBytesOverfullWritesOverfull, rLowBytesLowWrites, 7},
+		{storeList, sRangesUnderfullBytesUnderfullWritesOverfull, rMedian, 3},
+		{storeList, sRangesUnderfullBytesUnderfullWritesOverfull, rHighBytes, -1},
+		{storeList, sRangesUnderfullBytesUnderfullWritesOverfull, rHighBytesHighWrites, -4},
+		{storeList, sRangesUnderfullBytesUnderfullWritesOverfull, rHighBytesLowWrites, 2},
+		{storeList, sRangesUnderfullBytesUnderfullWritesOverfull, rLowBytes, -1},
+		{storeList, sRangesUnderfullBytesUnderfullWritesOverfull, rLowBytesHighWrites, -4},
+		{storeList, sRangesUnderfullBytesUnderfullWritesOverfull, rLowBytesLowWrites, 2},
+		{storeList, sRangesUnderfullBytesUnderfullWritesOverfull, rHighWrites, 0},
+		{storeList, sRangesUnderfullBytesUnderfullWritesOverfull, rLowWrites, 6},
+	}
+	for i, tc := range testCases {
+		if a, e := balanceScore(tc.sl, tc.store, tc.ri), tc.expected; a != e {
+			t.Errorf("%d: balanceScore(%+v, %+v, %+v) got %.2f; want %.2f", i, tc.sl, tc.store, tc.ri, a, e)
+		}
+	}
+}
+
 type testStore struct {
 	roachpb.StoreDescriptor
 }
