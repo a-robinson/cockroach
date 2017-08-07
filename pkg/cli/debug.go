@@ -22,6 +22,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"golang.org/x/net/context"
 
@@ -35,6 +36,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/storage/engine"
 	"github.com/cockroachdb/cockroach/pkg/storage/engine/enginepb"
 	"github.com/cockroachdb/cockroach/pkg/storage/storagebase"
+	"github.com/cockroachdb/cockroach/pkg/ts/tspb"
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
 	"github.com/cockroachdb/cockroach/pkg/util/envutil"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
@@ -888,6 +890,40 @@ func parseGossipValues(gossipInfo *gossip.InfoStatus) (string, error) {
 	return strings.Join(output, "\n"), nil
 }
 
+var debugTimeseriesCmd = &cobra.Command{
+	Use:   "timeseries",
+	Short: "TODO",
+	Long: `
+TODO
+`,
+	RunE: MaybeDecorateGRPCError(runDebugTimeseries),
+}
+
+func runDebugTimeseries(cmd *cobra.Command, args []string) error {
+	conn, _, stopper, err := getClientGRPCConn()
+	if err != nil {
+		return err
+	}
+	ctx := stopperContext(stopper)
+	defer stopper.Stop(ctx)
+
+	tsClient := tspb.NewTimeSeriesClient(conn)
+	now := timeutil.Now()
+	query := &tspb.TimeSeriesQueryRequest{
+		StartNanos: now.Add(-10 * time.Minute).UnixNano(),
+		EndNanos:   now.UnixNano(),
+		Queries: []tspb.Query{
+			{Name: "cr.node.sql.query.count"},
+		},
+	}
+	result, err := tsClient.Query(ctx, query)
+	if err != nil {
+		return errors.Wrap(err, "failed to query timeseries from server")
+	}
+	fmt.Println(result)
+	return nil
+}
+
 func init() {
 	debugCmd.AddCommand(debugCmds...)
 }
@@ -903,6 +939,7 @@ var debugCmds = []*cobra.Command{
 	debugCompactCmd,
 	debugSSTablesCmd,
 	debugGossipValuesCmd,
+	debugTimeseriesCmd,
 	rangeCmd,
 	debugEnvCmd,
 	debugZipCmd,
