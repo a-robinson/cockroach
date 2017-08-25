@@ -564,7 +564,13 @@ func (rq *replicateQueue) addReplica(
 	reason RangeLogEventReason,
 	details string,
 ) error {
-	return repl.changeReplicas(ctx, roachpb.ADD_REPLICA, target, desc, priority, reason, details)
+	err := repl.changeReplicas(ctx, roachpb.ADD_REPLICA, target, desc, priority, reason, details)
+	if err != nil {
+		return err
+	}
+	// TODO: Modify storePool?
+	//rq.allocator.storePool.
+	return nil
 }
 
 func (rq *replicateQueue) removeReplica(
@@ -575,7 +581,13 @@ func (rq *replicateQueue) removeReplica(
 	reason RangeLogEventReason,
 	details string,
 ) error {
-	return repl.ChangeReplicas(ctx, roachpb.REMOVE_REPLICA, target, desc, reason, details)
+	err := repl.ChangeReplicas(ctx, roachpb.REMOVE_REPLICA, target, desc, reason, details)
+	if err != nil {
+		return err
+	}
+	// TODO: Modify storePool?
+	//rq.allocator.storePool.
+	return nil
 }
 
 func (rq *replicateQueue) canTransferLease() bool {
