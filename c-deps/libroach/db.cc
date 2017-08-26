@@ -562,6 +562,9 @@ class DBBatchInserter : public rocksdb::WriteBatch::Handler {
   virtual void Merge(const rocksdb::Slice& key, const rocksdb::Slice& value) {
     batch_->Merge(key, value);
   }
+  virtual void LogData(const rocksdb::Slice& blob) {
+    batch_->PutLogData(blob);
+  }
   virtual rocksdb::Status DeleteRangeCF(
       uint32_t column_family_id,
       const rocksdb::Slice& begin_key,

@@ -566,6 +566,11 @@ func (r *RocksDB) Merge(key MVCCKey, value []byte) error {
 	return dbMerge(r.rdb, key, value)
 }
 
+// LogData ...
+func (r *RocksDB) LogData(data []byte) error {
+	panic("unimplemented")
+}
+
 // ApplyBatchRepr atomically applies a set of batched updates. Created by
 // calling Repr() on a batch. Using this method is equivalent to constructing
 // and committing a batch whose Repr() equals repr.
@@ -832,6 +837,10 @@ func (r *rocksDBReadOnly) Put(key MVCCKey, value []byte) error {
 	panic("not implemented")
 }
 
+func (r *rocksDBReadOnly) LogData(data []byte) error {
+	panic("not implemented")
+}
+
 // NewBatch returns a new batch wrapping this rocksdb engine.
 func (r *RocksDB) NewBatch() Batch {
 	return newRocksDBBatch(r, false /* writeOnly */)
@@ -1053,6 +1062,11 @@ func (r *distinctBatch) Merge(key MVCCKey, value []byte) error {
 	return nil
 }
 
+func (r *distinctBatch) LogData(data []byte) error {
+	r.builder.LogData(data)
+	return nil
+}
+
 func (r *distinctBatch) Clear(key MVCCKey) error {
 	r.builder.Clear(key)
 	return nil
@@ -1249,6 +1263,15 @@ func (r *rocksDBBatch) Merge(key MVCCKey, value []byte) error {
 	}
 	r.distinctNeedsFlush = true
 	r.builder.Merge(key, value)
+	return nil
+}
+
+func (r *rocksDBBatch) LogData(data []byte) error {
+	if r.distinctOpen {
+		panic("distinct batch open")
+	}
+	r.distinctNeedsFlush = true
+	r.builder.LogData(data)
 	return nil
 }
 
@@ -1475,12 +1498,12 @@ func (r *rocksDBBatch) commitInternal(sync bool) error {
 		}
 		r.batch = nil
 		count, size = r.flushedCount, r.flushedSize
-	} else if r.builder.count > 0 {
+	} else if len(r.builder.repr) > 0 {
 		count, size = r.builder.count, len(r.builder.repr)
 
 		// Fast-path which avoids flushing mutations to the C++ batch. Instead, we
 		// directly apply the mutations to the database.
-		if err := r.parent.ApplyBatchRepr(r.builder.Finish(), sync); err != nil {
+		if err := dbApplyBatchRepr(r.parent.rdb, r.builder.Finish(), sync); err != nil {
 			return err
 		}
 		if r.batch != nil {
