@@ -23,6 +23,7 @@ import (
 
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
+	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
 	"github.com/cockroachdb/cockroach/pkg/sql/parser"
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
@@ -108,6 +109,7 @@ const debugRowFetch = false
 // non-primary index, valNeededForCol can only be true for the columns in the
 // index.
 func (rf *RowFetcher) Init(
+	st *cluster.Settings,
 	desc *TableDescriptor,
 	colIdxMap map[ColumnID]int,
 	index *IndexDescriptor,
@@ -117,6 +119,7 @@ func (rf *RowFetcher) Init(
 	returnRangeInfo bool,
 	alloc *DatumAlloc,
 ) error {
+	rf.st = st
 	rf.desc = desc
 	rf.colIdxMap = colIdxMap
 	rf.index = index
@@ -200,7 +203,7 @@ func (rf *RowFetcher) StartScan(
 		firstBatchLimit++
 	}
 
-	f, err := makeKVFetcher(txn, spans, rf.reverse, limitBatches, firstBatchLimit, rf.returnRangeInfo)
+	f, err := makeKVFetcher(rf.st, txn, spans, rf.reverse, limitBatches, firstBatchLimit, rf.returnRangeInfo)
 	if err != nil {
 		return err
 	}

@@ -24,6 +24,13 @@ import (
 
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
+	"github.com/cockroachdb/cockroach/pkg/settings"
+	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
+)
+
+var kvBatchSize = settings.RegisterIntSetting("sql.kv.batch_size",
+	"maximum number of keys to request from the kv layer at a time when processing a SQL query",
+	10000,
 )
 
 // PrettyKey pretty-prints the specified key, skipping over the first `skip`
@@ -66,21 +73,9 @@ func PrettySpans(spans []roachpb.Span, skip int) string {
 	return buf.String()
 }
 
-// kvBatchSize is the number of keys we request at a time.
-// On a single node, 1000 was enough to avoid any performance degradation. On
-// multi-node clusters, we want bigger chunks to make up for the higher latency.
-// TODO(radu): parameters like this should be configurable
-var kvBatchSize int64 = 10000
-
-// SetKVBatchSize changes the kvFetcher batch size, and returns a function that restores it.
-func SetKVBatchSize(val int64) func() {
-	oldVal := kvBatchSize
-	kvBatchSize = val
-	return func() { kvBatchSize = oldVal }
-}
-
 // txnKVFetcher handles retrieval of key/values.
 type txnKVFetcher struct {
+	st *cluster.Settings
 	// "Constant" fields, provided by the caller.
 	txn             *client.Txn
 	spans           roachpb.Spans
@@ -116,8 +111,9 @@ func (f *txnKVFetcher) getBatchSize() int64 {
 	if !f.useBatchLimit {
 		return 0
 	}
-	if f.firstBatchLimit == 0 || f.firstBatchLimit >= kvBatchSize {
-		return kvBatchSize
+	maxBatchSize := kvBatchSize.Get(f.st.SV)
+	if f.firstBatchLimit == 0 || f.firstBatchLimit >= maxBatchSize {
+		return maxBatchSize
 	}
 
 	// We grab the first batch according to the limit. If it turns out that we
@@ -140,16 +136,16 @@ func (f *txnKVFetcher) getBatchSize() int64 {
 		//      1000    |    10,000     |     10,000
 		secondBatch := f.firstBatchLimit * 10
 		switch {
-		case secondBatch < kvBatchSize/10:
-			return kvBatchSize / 10
-		case secondBatch > kvBatchSize:
-			return kvBatchSize
+		case secondBatch < maxBatchSize/10:
+			return maxBatchSize / 10
+		case secondBatch > maxBatchSize:
+			return maxBatchSize
 		default:
 			return secondBatch
 		}
 
 	default:
-		return kvBatchSize
+		return maxBatchSize
 	}
 }
 
@@ -161,6 +157,7 @@ func (f *txnKVFetcher) getBatchSize() int64 {
 //
 // Batch limits can only be used if the spans are ordered.
 func makeKVFetcher(
+	st *cluster.Settings,
 	txn *client.Txn,
 	spans roachpb.Spans,
 	reverse bool,
@@ -194,6 +191,7 @@ func makeKVFetcher(
 	}
 
 	return txnKVFetcher{
+		st:              st,
 		txn:             txn,
 		spans:           copySpans,
 		reverse:         reverse,
