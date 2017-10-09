@@ -256,6 +256,7 @@ type Replica struct {
 	// TODO(peter): evaluate runtime overhead of the timed mutex.
 	raftMu struct {
 		timedMutex
+		//syncutil.Mutex
 
 		// Note that there are two replicaStateLoaders, in raftMu and mu,
 		// depending on which lock is being held.
@@ -604,7 +605,8 @@ func newReplica(rangeID roachpb.RangeID, store *Store) *Replica {
 
 	raftMuLogger := thresholdLogger(
 		r.AnnotateCtx(context.Background()),
-		defaultReplicaRaftMuWarnThreshold,
+		//defaultReplicaRaftMuWarnThreshold,
+		time.Millisecond,
 		func(ctx context.Context, msg string, args ...interface{}) {
 			log.Warningf(ctx, "raftMu: "+msg, args...)
 		},
@@ -2930,6 +2932,7 @@ func (r *Replica) propose(
 	if err := r.maybeAcquireProposalQuota(ctx, int64(proposal.command.Size())); err != nil {
 		return nil, nil, noop, roachpb.NewError(err)
 	}
+	log.Event(proposal.ctx, "acquired proposal quota")
 
 	// submitProposalLocked calls withRaftGroupLocked which requires that
 	// raftMu is held. In order to maintain our lock ordering we need to lock
@@ -2942,6 +2945,7 @@ func (r *Replica) propose(
 	// has a tiny (~1%) performance hit for single-node block_writer testing.
 	r.raftMu.Lock()
 	defer r.raftMu.Unlock()
+	log.Event(proposal.ctx, "acquired raftMu")
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	log.Event(proposal.ctx, "acquired {raft,replica}mu")
@@ -2993,6 +2997,7 @@ func (r *Replica) propose(
 		delete(r.mu.proposals, proposal.idKey)
 		return nil, nil, undoQuotaAcquisition, roachpb.NewError(err)
 	}
+	log.Event(proposal.ctx, "submitted proposal")
 	// Must not use `proposal` in the closure below as a proposal which is not
 	// present in r.mu.proposals is no longer protected by the mutex. Abandoning
 	// a command only abandons the associated context. As soon as we propose a
@@ -3183,10 +3188,13 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 ) (handleRaftReadyStats, string, error) {
 	var stats handleRaftReadyStats
 
+	start := timeutil.Now()
+
 	ctx := r.AnnotateCtx(context.TODO())
 	var hasReady bool
 	var rd raft.Ready
 	r.mu.Lock()
+	log.Infof(ctx, "handleRaftReadyRaftMuLocked r.mu.Lock(): %v", timeutil.Since(start))
 
 	lastIndex := r.mu.lastIndex // used for append below
 	lastTerm := r.mu.lastTerm
@@ -3222,16 +3230,19 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 		return hasReady /* unquiesceAndWakeLeader */, nil
 	})
 	r.mu.Unlock()
+	log.Infof(ctx, "handleRaftReadyRaftMuLocked got ready from raft: %v", timeutil.Since(start))
 	if err != nil {
 		const expl = "while checking raft group for Ready"
 		return stats, expl, errors.Wrap(err, expl)
 	}
 
 	if !hasReady {
+		log.Infof(ctx, "handleRaftReadyRaftMuLocked no ready to process; total time %v", timeutil.Since(start))
 		return stats, "", nil
 	}
 
 	logRaftReady(ctx, rd)
+	log.Infof(ctx, "handleRaftReadyRaftMuLocked logged raft ready: %v", timeutil.Since(start))
 
 	refreshReason := noReason
 	if rd.SoftState != nil && leaderID != roachpb.ReplicaID(rd.SoftState.Lead) {
@@ -3268,6 +3279,7 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 			const expl = "while applying snapshot"
 			return stats, expl, errors.Wrap(err, expl)
 		}
+		log.Infof(ctx, "handleRaftReadyRaftMuLocked applied snapshot: %v", timeutil.Since(start))
 
 		if err := func() error {
 			r.store.mu.Lock()
@@ -3281,6 +3293,7 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 			const expl = "could not processRangeDescriptorUpdate after applySnapshot"
 			return stats, expl, errors.Wrap(err, expl)
 		}
+		log.Infof(ctx, "handleRaftReadyRaftMuLocked updated range descriptor after snapshot: %v", timeutil.Since(start))
 
 		// r.mu.lastIndex and r.mu.lastTerm were updated in applySnapshot, but
 		// we also want to make sure we reflect these changes in the local
@@ -3291,6 +3304,7 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 			return stats, expl, errors.Wrap(err, expl)
 		}
 		lastTerm = invalidLastTerm
+		log.Infof(ctx, "handleRaftReadyRaftMuLocked loaded last index after snapshot: %v", timeutil.Since(start))
 
 		// We refresh pending commands after applying a snapshot because this
 		// replica may have been temporarily partitioned from the Raft group and
@@ -3309,6 +3323,7 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 	// which passes the reads through to the underlying DB.
 	batch := r.store.Engine().NewWriteOnlyBatch()
 	defer batch.Close()
+	log.Infof(ctx, "handleRaftReadyRaftMuLocked created write-only batch: %v", timeutil.Since(start))
 
 	// We know that all of the writes from here forward will be to distinct keys.
 	writer := batch.Distinct()
@@ -3328,14 +3343,17 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 			const expl = "during append"
 			return stats, expl, errors.Wrap(err, expl)
 		}
+		log.Infof(ctx, "handleRaftReadyRaftMuLocked appended entries: %v", timeutil.Since(start))
 	}
 	if !raft.IsEmptyHardState(rd.HardState) {
 		if err := r.raftMu.stateLoader.setHardState(ctx, writer, rd.HardState); err != nil {
 			const expl = "during setHardState"
 			return stats, expl, errors.Wrap(err, expl)
 		}
+		log.Infof(ctx, "handleRaftReadyRaftMuLocked set hard state: %v", timeutil.Since(start))
 	}
 	writer.Close()
+	log.Infof(ctx, "handleRaftReadyRaftMuLocked closed writer: %v", timeutil.Since(start))
 	// Synchronously commit the batch with the Raft log entries and Raft hard
 	// state as we're promising not to lose this data.
 	//
@@ -3349,13 +3367,14 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 	// uncommitted log entries, and even if they did include log entries that
 	// were not persisted to disk, it wouldn't be a problem because raft does not
 	// infer the that entries are persisted on the node that sends a snapshot.
-	start := timeutil.Now()
+	commitStart := timeutil.Now()
 	if err := batch.Commit(syncRaftLog.Get(&r.store.cfg.Settings.SV) && rd.MustSync); err != nil {
 		const expl = "while committing batch"
 		return stats, expl, errors.Wrap(err, expl)
 	}
-	elapsed := timeutil.Since(start)
+	elapsed := timeutil.Since(commitStart)
 	r.store.metrics.RaftLogCommitLatency.RecordValue(elapsed.Nanoseconds())
+	log.Infof(ctx, "handleRaftReadyRaftMuLocked committed log entries: %v", timeutil.Since(start))
 
 	if len(rd.Entries) > 0 {
 		// We may have just overwritten parts of the log which contain
@@ -3373,6 +3392,7 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 				return stats, expl, errors.Wrapf(err, expl, i)
 			}
 		}
+		log.Infof(ctx, "handleRaftReadyRaftMuLocked purged sideloaded entries: %v", timeutil.Since(start))
 	}
 
 	// Update protected state (last index, last term, raft log size and raft
@@ -3392,6 +3412,7 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 		r.setEstimatedCommitIndexLocked(rd.HardState.Commit)
 	}
 	r.mu.Unlock()
+	log.Infof(ctx, "handleRaftReadyRaftMuLocked added entries to cache and set estimated commit index: %v", timeutil.Since(start))
 
 	for _, message := range rd.Messages {
 		drop := false
@@ -3428,10 +3449,13 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 				}
 			}
 		}
+		log.Infof(ctx, "handleRaftReadyRaftMuLocked about to send raft message: %v", timeutil.Since(start))
 		if !drop {
 			r.sendRaftMessage(ctx, message)
 		}
+		log.Infof(ctx, "handleRaftReadyRaftMuLocked processed raft message: %v", timeutil.Since(start))
 	}
+	log.Infof(ctx, "handleRaftReadyRaftMuLocked processed all raft messages: %v", timeutil.Since(start))
 
 	for _, e := range rd.CommittedEntries {
 		switch e.Type {
@@ -3477,12 +3501,14 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 					return stats, expl, errors.Wrap(err, expl)
 				}
 			}
+			log.Infof(ctx, "handleRaftReadyRaftMuLocked decoded normal committed entry: %v", timeutil.Since(start))
 
 			if changedRepl := r.processRaftCommand(ctx, commandID, e.Term, e.Index, command); changedRepl {
 				log.Fatalf(ctx, "unexpected replication change from command %s", &command)
 			}
 			r.store.metrics.RaftCommandsApplied.Inc(1)
 			stats.processed++
+			log.Infof(ctx, "handleRaftReadyRaftMuLocked processed raft command for normal committed entry: %v", timeutil.Since(start))
 
 			r.mu.Lock()
 			if r.mu.replicaID == r.mu.leaderID {
@@ -3497,6 +3523,7 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 				}
 			}
 			r.mu.Unlock()
+			log.Infof(ctx, "handleRaftReadyRaftMuLocked processed normal committed entry: %v", timeutil.Since(start))
 
 		case raftpb.EntryConfChange:
 			var cc raftpb.ConfChange
@@ -3539,6 +3566,7 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 				const expl = "during ApplyConfChange"
 				return stats, expl, errors.Wrap(err, expl)
 			}
+			log.Infof(ctx, "handleRaftReadyRaftMuLocked processed conf change entry: %v", timeutil.Since(start))
 		default:
 			log.Fatalf(ctx, "unexpected Raft entry: %v", e)
 		}
@@ -3547,6 +3575,7 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 		r.mu.Lock()
 		r.refreshProposalsLocked(0, refreshReason)
 		r.mu.Unlock()
+		log.Infof(ctx, "handleRaftReadyRaftMuLocked refreshed proposals: %v", timeutil.Since(start))
 	}
 
 	// TODO(bdarnell): need to check replica id and not Advance if it
@@ -3559,6 +3588,7 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 	}); err != nil {
 		return stats, expl, errors.Wrap(err, expl)
 	}
+	log.Infof(ctx, "handleRaftReadyRaftMuLocked advanced raft group -- all done: %v", timeutil.Since(start))
 	return stats, "", nil
 }
 
@@ -4287,6 +4317,7 @@ func (r *Replica) processRaftCommand(
 	term, index uint64,
 	raftCmd storagebase.RaftCommand,
 ) bool {
+	start := timeutil.Now()
 	if index == 0 {
 		log.Fatalf(ctx, "processRaftCommand requires a non-zero index")
 	}
@@ -4306,6 +4337,7 @@ func (r *Replica) processRaftCommand(
 	}
 
 	r.mu.Lock()
+	log.Infof(ctx, "processRaftCommand acquired replica mu: %v", timeutil.Since(start))
 	proposal, proposedLocally := r.mu.proposals[idKey]
 
 	// TODO(tschottdorf): consider the Trace situation here.
@@ -4319,6 +4351,7 @@ func (r *Replica) processRaftCommand(
 	leaseIndex, proposalRetry, forcedErr := r.checkForcedErrLocked(ctx, idKey, raftCmd, proposal, proposedLocally)
 
 	r.mu.Unlock()
+	log.Infof(ctx, "processRaftCommand released replica mu: %v", timeutil.Since(start))
 
 	if forcedErr == nil {
 		forcedErr = roachpb.NewError(r.requestCanProceed(rSpan, ts))
@@ -4338,6 +4371,7 @@ func (r *Replica) processRaftCommand(
 			defer func() {
 				splitMergeUnlock(raftCmd.ReplicatedEvalResult)
 			}()
+			log.Infof(ctx, "processRaftCommand acquired split merge lock: %v", timeutil.Since(start))
 		}
 	}
 
@@ -4393,10 +4427,12 @@ func (r *Replica) processRaftCommand(
 			)
 			r.store.metrics.AddSSTableApplications.Inc(1)
 			raftCmd.ReplicatedEvalResult.AddSSTable = nil
+			log.Infof(ctx, "processRaftCommand pre-applied AddSSTable: %v", timeutil.Since(start))
 		}
 
 		raftCmd.ReplicatedEvalResult.Delta, pErr = r.applyRaftCommand(
 			ctx, idKey, raftCmd.ReplicatedEvalResult, writeBatch)
+		log.Infof(ctx, "processRaftCommand applied raft command: %v", timeutil.Since(start))
 
 		if filter := r.store.cfg.TestingKnobs.TestingPostApplyFilter; pErr == nil && filter != nil {
 			pErr = filter(storagebase.ApplyFilterArgs{
@@ -4437,6 +4473,7 @@ func (r *Replica) processRaftCommand(
 			response.Intents = proposal.Local.detachIntents(response.Err != nil)
 			lResult = proposal.Local
 		}
+		log.Infof(ctx, "processRaftCommand maybe set corrupt / detached intents: %v", timeutil.Since(start))
 
 		// Handle the EvalResult, executing any side effects of the last
 		// state machine transition.
@@ -4444,10 +4481,12 @@ func (r *Replica) processRaftCommand(
 		// Note that this must happen after committing (the engine.Batch), but
 		// before notifying a potentially waiting client.
 		r.handleEvalResultRaftMuLocked(ctx, lResult, raftCmd.ReplicatedEvalResult)
+		log.Infof(ctx, "processRaftCommand handled eval result: %v", timeutil.Since(start))
 	}
 
 	if proposedLocally {
 		proposal.finishRaftApplication(response)
+		log.Infof(ctx, "processRaftCommand finished raft application: %v", timeutil.Since(start))
 	} else if response.Err != nil {
 		log.VEventf(ctx, 1, "applying raft command resulted in error: %s", response.Err)
 	}
