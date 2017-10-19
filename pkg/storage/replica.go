@@ -3382,7 +3382,7 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 	// from other goroutines). Snapshots do not include either the HardState or
 	// uncommitted log entries, and even if they did include log entries that
 	// were not persisted to disk, it wouldn't be a problem because raft does not
-	// infer the that entries are persisted on the node that sends a snapshot.
+	// infer that the entries are persisted on the node that sends a snapshot.
 	start := timeutil.Now()
 	if err := batch.Commit(syncRaftLog.Get(&r.store.cfg.Settings.SV) && rd.MustSync); err != nil {
 		const expl = "while committing batch"
