@@ -1542,7 +1542,9 @@ func TestSystemZoneConfigs(t *testing.T) {
 		var conflictingID roachpb.RangeID
 		replicas := make(map[roachpb.RangeID]int)
 		for _, s := range tc.Servers {
+			storeReplicas := make([]roachpb.RangeID, 0)
 			if err := storage.IterateRangeDescriptors(ctx, s.Engines()[0], func(desc roachpb.RangeDescriptor) (bool, error) {
+				storeReplicas = append(storeReplicas, desc.RangeID)
 				if existing, ok := replicas[desc.RangeID]; ok && existing != len(desc.Replicas) {
 					conflictingID = desc.RangeID
 				}
@@ -1551,6 +1553,7 @@ func TestSystemZoneConfigs(t *testing.T) {
 			}); err != nil {
 				return err
 			}
+			log.Infof(ctx, "waitForReplicas n%d: %v", s.NodeID(), storeReplicas)
 		}
 		if conflictingID != 0 {
 			return fmt.Errorf("not all replicas agree on the range descriptor for r%d", conflictingID)

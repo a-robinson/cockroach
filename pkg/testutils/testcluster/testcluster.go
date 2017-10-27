@@ -143,6 +143,7 @@ func StartTestCluster(t testing.TB, nodes int, args base.TestClusterArgs) *TestC
 	tc.stopper = stop.NewStopper()
 
 	for i := 0; i < nodes; i++ {
+		log.Infof(context.TODO(), "testcluster starting node %d", i+1)
 		var serverArgs base.TestServerArgs
 		if perNodeServerArgs, ok := args.ServerArgsPerNode[i]; ok {
 			serverArgs = perNodeServerArgs
@@ -155,18 +156,23 @@ func StartTestCluster(t testing.TB, nodes int, args base.TestClusterArgs) *TestC
 		if err := tc.doAddServer(t, serverArgs); err != nil {
 			t.Fatal(err)
 		}
+		log.Infof(context.TODO(), "testcluster done starting node %d", i+1)
 	}
 
 	// Create a closer that will stop the individual server stoppers when the
 	// cluster stopper is stopped.
 	tc.stopper.AddCloser(stop.CloserFn(tc.stopServers))
 
+	log.Infof(context.TODO(), "testcluster waiting for stores via gossip")
 	tc.WaitForStores(t, tc.Servers[0].Gossip())
+	log.Infof(context.TODO(), "testcluster done waiting for stores via gossip")
 
 	if tc.replicationMode == base.ReplicationAuto {
+		log.Infof(context.TODO(), "testcluster waiting for full replication")
 		if err := tc.WaitForFullReplication(); err != nil {
 			t.Fatal(err)
 		}
+		log.Infof(context.TODO(), "testcluster done waiting for full replication")
 	}
 	return tc
 }
@@ -525,6 +531,7 @@ func (tc *TestCluster) WaitForFullReplication() error {
 					return err
 				}
 				if s.Metrics().UnderReplicatedRangeCount.Value() > 0 {
+					log.Infof(context.TODO(), "WaitForFullReplication s%d has UnderReplicatedRangeCount=%d", s.StoreID, s.Metrics().UnderReplicatedRangeCount.Value())
 					notReplicated = true
 				}
 				return nil
