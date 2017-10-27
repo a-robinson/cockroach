@@ -31,11 +31,14 @@ func wrap(ctx context.Context, cancel context.CancelFunc) (context.Context, cont
 	if !log.V(1) {
 		return ctx, cancel
 	}
+	stack := debug.Stack()
 	return ctx, func() {
 		if log.V(2) {
 			log.InfofDepth(ctx, 1, "canceling context:\n%s", debug.Stack())
+			log.InfofDepth(ctx, 1, "original stack:\n%s", stack)
 		} else if log.V(1) {
 			log.InfofDepth(ctx, 1, "canceling context")
+			log.InfofDepth(ctx, 1, "original stack:\n%s", stack)
 		}
 		cancel()
 	}

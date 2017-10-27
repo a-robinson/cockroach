@@ -43,6 +43,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/caller"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/leaktest"
+	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 )
@@ -1518,6 +1519,7 @@ func TestSystemZoneConfigs(t *testing.T) {
 		t.Skip("short flag")
 	}
 
+	log.Infof(context.TODO(), "waiting for test cluster start")
 	tc := testcluster.StartTestCluster(t, 5, base.TestClusterArgs{
 		ServerArgs: base.TestServerArgs{
 			// Scan like a bat out of hell to ensure replication and replica GC
@@ -1525,6 +1527,7 @@ func TestSystemZoneConfigs(t *testing.T) {
 			ScanInterval: 50 * time.Millisecond,
 		},
 	})
+	log.Infof(context.TODO(), "done waiting for test cluster start")
 	ctx := context.TODO()
 	defer tc.Stopper().Stop(ctx)
 
@@ -1567,7 +1570,9 @@ func TestSystemZoneConfigs(t *testing.T) {
 	// got removed during rebalancing of the initial ranges, since the testcluster
 	// waits until nothing is underreplicated but not until all rebalancing has
 	// settled down.
+	log.Infof(ctx, "waiting for initial down-replication")
 	testutils.SucceedsSoon(t, waitForReplicas)
+	log.Infof(ctx, "done waiting for initial down-replication")
 
 	// Allow for inserting zone configs without having to go through (or
 	// duplicate the logic from) the CLI.
@@ -1580,14 +1585,18 @@ func TestSystemZoneConfigs(t *testing.T) {
 	zoneConfig.NumReplicas += 2
 	config.TestingSetZoneConfig(keys.MetaRangesID, zoneConfig)
 	expectedReplicas += 2
+	log.Infof(ctx, "waiting for first up-replication")
 	testutils.SucceedsSoon(t, waitForReplicas)
+	log.Infof(ctx, "done waiting for first up-replication")
 
 	// Do the same thing, but down-replicating the timeseries range.
 	zoneConfig = config.DefaultZoneConfig()
 	zoneConfig.NumReplicas -= 2
 	config.TestingSetZoneConfig(keys.TimeseriesRangesID, zoneConfig)
 	expectedReplicas -= 2
+	log.Infof(ctx, "waiting for second down-replication")
 	testutils.SucceedsSoon(t, waitForReplicas)
+	log.Infof(ctx, "done waiting for second down-replication")
 
 	// Finally, verify the system ranges. Note that in a new cluster there are
 	// two system ranges, which we have to take into account here.
@@ -1595,5 +1604,7 @@ func TestSystemZoneConfigs(t *testing.T) {
 	zoneConfig.NumReplicas += 2
 	config.TestingSetZoneConfig(keys.SystemRangesID, zoneConfig)
 	expectedReplicas += 8
+	log.Infof(ctx, "waiting for second up-replication")
 	testutils.SucceedsSoon(t, waitForReplicas)
+	log.Infof(ctx, "done waiting for second up-replication")
 }

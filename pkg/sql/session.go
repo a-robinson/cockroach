@@ -17,6 +17,7 @@ package sql
 import (
 	"fmt"
 	"net"
+	"runtime/debug"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -492,6 +493,7 @@ func NewSession(
 	if traceSessionEventLogEnabled.Get(&e.cfg.Settings.SV) {
 		s.eventLog = trace.NewEventLog(fmt.Sprintf("sql [%s]", args.User), remoteStr)
 	}
+	debug.PrintStack()
 	s.context, s.cancel = contextutil.WithCancel(ctx)
 
 	e.cfg.SessionRegistry.register(s)

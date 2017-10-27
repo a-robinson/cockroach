@@ -423,11 +423,14 @@ func (e *Executor) Start(
 		}
 	})
 
-	ctx = log.WithLogTag(ctx, "startup", nil)
-	startupSession := NewSession(ctx, SessionArgs{}, e, nil, startupMemMetrics)
+	// Use a background context because the session will cancel its context when
+	// we Finish it below.
+	//startupCtx := log.WithLogTag(e.AnnotateCtx(context.Background()), "startup", nil)
+	startupCtx := log.WithLogTag(ctx, "startup", nil)
+	startupSession := NewSession(startupCtx, SessionArgs{}, e, nil, startupMemMetrics)
 	startupSession.StartUnlimitedMonitor()
-	if err := e.virtualSchemas.init(ctx, startupSession.newPlanner(e, nil)); err != nil {
-		log.Fatal(ctx, err)
+	if err := e.virtualSchemas.init(startupCtx, startupSession.newPlanner(e, nil)); err != nil {
+		log.Fatal(startupCtx, err)
 	}
 	startupSession.Finish(e)
 }

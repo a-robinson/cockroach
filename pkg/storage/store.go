@@ -4163,9 +4163,13 @@ func (s *Store) updateReplicationGauges(ctx context.Context) error {
 	s.metrics.RaftLogSelfBehindCount.Update(selfBehindCount)
 
 	if selfBehindCount > prohibitRebalancesBehindThreshold {
+		log.Infof(ctx, "temporarily disabling rebalances because RaftLogSelfBehindCount=%d", selfBehindCount)
 		atomic.StoreInt32(&s.rebalancesDisabled, 1)
 	} else {
-		atomic.StoreInt32(&s.rebalancesDisabled, 0)
+		prev := atomic.SwapInt32(&s.rebalancesDisabled, 0)
+		if prev == 1 {
+			log.Infof(ctx, "re-enabling rebalances because RaftLogSelfBehindCount=%d", selfBehindCount)
+		}
 	}
 	return nil
 }
