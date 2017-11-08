@@ -1761,8 +1761,10 @@ DBStatus DBCompact(DBEngine* db) {
 
 DBStatus DBImpl::Put(DBKey key, DBSlice value) {
   rocksdb::WriteOptions options;
-  //options.low_pri = true;
-  options.disableWAL = true;
+  if (rep->GetOptions().max_open_files == 128) {
+    //options.low_pri = true;
+    //options.disableWAL = true;
+  }
   return ToDBStatus(rep->Put(options, EncodeKey(key), ToSlice(value)));
 }
 
@@ -1788,8 +1790,10 @@ DBStatus DBPut(DBEngine* db, DBKey key, DBSlice value) {
 
 DBStatus DBImpl::Merge(DBKey key, DBSlice value) {
   rocksdb::WriteOptions options;
-  //options.low_pri = true;
-  options.disableWAL = true;
+  if (rep->GetOptions().max_open_files == 128) {
+    //options.low_pri = true;
+    //options.disableWAL = true;
+  }
   return ToDBStatus(rep->Merge(options, EncodeKey(key), ToSlice(value)));
 }
 
@@ -1847,8 +1851,10 @@ DBStatus DBGet(DBEngine* db, DBKey key, DBString* value) {
 
 DBStatus DBImpl::Delete(DBKey key) {
   rocksdb::WriteOptions options;
-  //options.low_pri = true;
-  options.disableWAL = true;
+  if (rep->GetOptions().max_open_files == 128) {
+    //options.low_pri = true;
+    //options.disableWAL = true;
+  }
   return ToDBStatus(rep->Delete(options, EncodeKey(key)));
 }
 
@@ -1870,8 +1876,10 @@ DBStatus DBSnapshot::Delete(DBKey key) {
 
 DBStatus DBImpl::DeleteRange(DBKey start, DBKey end) {
   rocksdb::WriteOptions options;
-  //options.low_pri = true;
-  options.disableWAL = true;
+  if (rep->GetOptions().max_open_files == 128) {
+    //options.low_pri = true;
+    //options.disableWAL = true;
+  }
   return ToDBStatus(rep->DeleteRange(
       options, rep->DefaultColumnFamily(), EncodeKey(start), EncodeKey(end)));
 }
@@ -1924,8 +1932,10 @@ DBStatus DBBatch::CommitBatch(bool sync) {
     return kSuccess;
   }
   rocksdb::WriteOptions options;
-  //options.low_pri = true;
-  options.disableWAL = true;
+  if (rep->GetOptions().max_open_files == 128) {
+    //options.low_pri = true;
+    //options.disableWAL = true;
+  }
   options.sync = sync;
   return ToDBStatus(rep->Write(options, batch.GetWriteBatch()));
 }
@@ -1935,8 +1945,10 @@ DBStatus DBWriteOnlyBatch::CommitBatch(bool sync) {
     return kSuccess;
   }
   rocksdb::WriteOptions options;
-  //options.low_pri = true;
-  options.disableWAL = true;
+  if (rep->GetOptions().max_open_files == 128) {
+    //options.low_pri = true;
+    //options.disableWAL = true;
+  }
   options.sync = sync;
   return ToDBStatus(rep->Write(options, &batch));
 }
@@ -1956,8 +1968,10 @@ DBStatus DBCommitAndCloseBatch(DBEngine* db, bool sync) {
 DBStatus DBImpl::ApplyBatchRepr(DBSlice repr, bool sync) {
   rocksdb::WriteBatch batch(ToString(repr));
   rocksdb::WriteOptions options;
-  //options.low_pri = true;
-  options.disableWAL = true;
+  if (rep->GetOptions().max_open_files == 128) {
+    //options.low_pri = true;
+    //options.disableWAL = true;
+  }
   options.sync = sync;
   return ToDBStatus(rep->Write(options, &batch));
 }

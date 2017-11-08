@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"math/rand"
 	"os"
 	"sync/atomic"
@@ -14,8 +13,10 @@ import (
 
 const (
 	storeDir        = "experiment-data"
+	syncDir         = "experiment-sync"
 	maxSizeBytes    = 20 * 1024 * 1024 * 1024 // 20 GiB
 	parallelWriters = 320
+	parallelSyncers = 100
 	batchSize       = 1024 * 1024
 	keySize         = 16
 	valSize         = 128
@@ -43,27 +44,37 @@ func main() {
 		}()
 	}
 
-	var numErr int
-	var prevNumWrites, prevNumBatches uint64
-	start := time.Now()
-	lastNow := start
-	fmt.Println("_elapsed___errors__ops/sec(inst)___ops/sec(cum)__batch/s(inst)___batch/s(cum)")
-	for range time.Tick(time.Second) {
-		newNumWrites := atomic.LoadUint64(&numWrites)
-		newNumBatches := atomic.LoadUint64(&numBatches)
-		now := time.Now()
-		elapsed := now.Sub(lastNow)
-		fmt.Printf("%8s %8d %14.1f %14.1f %14.1f %14.1f\n",
-			time.Duration(time.Since(start).Seconds()+0.5)*time.Second,
-			numErr,
-			float64(newNumWrites-prevNumWrites)/elapsed.Seconds(),
-			float64(newNumWrites)/time.Since(start).Seconds(),
-			float64(newNumBatches-prevNumBatches)/elapsed.Seconds(),
-			float64(newNumBatches)/time.Since(start).Seconds())
-		prevNumWrites = newNumWrites
-		prevNumBatches = newNumBatches
-		lastNow = now
+	err = Run(Options{
+		Dir:         syncDir,
+		Concurrency: parallelSyncers,
+	})
+	if err != nil {
+		panic(err)
 	}
+
+	/*
+		var numErr int
+		var prevNumWrites, prevNumBatches uint64
+		start := time.Now()
+		lastNow := start
+		fmt.Println("_elapsed___errors__ops/sec(inst)___ops/sec(cum)__batch/s(inst)___batch/s(cum)")
+		for range time.Tick(time.Second) {
+			newNumWrites := atomic.LoadUint64(&numWrites)
+			newNumBatches := atomic.LoadUint64(&numBatches)
+			now := time.Now()
+			elapsed := now.Sub(lastNow)
+			fmt.Printf("%8s %8d %14.1f %14.1f %14.1f %14.1f\n",
+				time.Duration(time.Since(start).Seconds()+0.5)*time.Second,
+				numErr,
+				float64(newNumWrites-prevNumWrites)/elapsed.Seconds(),
+				float64(newNumWrites)/time.Since(start).Seconds(),
+				float64(newNumBatches-prevNumBatches)/elapsed.Seconds(),
+				float64(newNumBatches)/time.Since(start).Seconds())
+			prevNumWrites = newNumWrites
+			prevNumBatches = newNumBatches
+			lastNow = now
+		}
+	*/
 }
 
 func loadDataToSort(ctx context.Context, tempStorage engine.Engine, batchSize int) error {
