@@ -13,11 +13,12 @@ import (
 )
 
 const (
-	storeDir     = "experiment-data"
-	maxSizeBytes = 20 * 1024 * 1024 * 1024 // 20 GiB
-	batchSize    = 16
-	keySize      = 16
-	valSize      = 128
+	storeDir        = "experiment-data"
+	maxSizeBytes    = 20 * 1024 * 1024 * 1024 // 20 GiB
+	parallelWriters = 320
+	batchSize       = 1024 * 1024
+	keySize         = 16
+	valSize         = 128
 )
 
 var numWrites uint64
@@ -35,10 +36,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	go func() {
-		err := loadDataToSort(ctx, tempStorage, batchSize)
-		panic(err)
-	}()
+	for i := 0; i < parallelWriters; i++ {
+		go func() {
+			err := loadDataToSort(ctx, tempStorage, batchSize)
+			panic(err)
+		}()
+	}
 
 	var numErr int
 	var prevNumWrites, prevNumBatches uint64
