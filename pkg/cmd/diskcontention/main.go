@@ -7,6 +7,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"golang.org/x/time/rate"
+
 	"github.com/cockroachdb/cockroach/pkg/base"
 	"github.com/cockroachdb/cockroach/pkg/storage/engine"
 )
@@ -77,6 +79,11 @@ func main() {
 	*/
 }
 
+const limit = 16 * 1024 * 1024
+const burst = 2 * 1024 * 1024
+
+var rateLimiter = rate.NewLimiter(rate.Limit(limit), burst)
+
 func loadDataToSort(ctx context.Context, tempStorage engine.Engine, batchSize int) error {
 	store := engine.NewRocksDBMultiMap(tempStorage)
 	defer store.Close(ctx)
@@ -88,6 +95,9 @@ func loadDataToSort(ctx context.Context, tempStorage engine.Engine, batchSize in
 		for i := 0; i < batchSize; i++ {
 			randomBlock(r, key)
 			randomBlock(r, val)
+			if err := rateLimiter.WaitN(ctx, keySize+valSize); err != nil {
+				panic(err)
+			}
 			if err := batch.Put(key, val); err != nil {
 				return err
 			}
