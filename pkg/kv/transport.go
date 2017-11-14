@@ -42,7 +42,7 @@ type SendOptions struct {
 type batchClient struct {
 	remoteAddr string
 	conn       *grpc.ClientConn
-	client     roachpb.InternalClient
+	streamPool *sync.Pool
 	args       roachpb.BatchRequest
 	healthy    bool
 	pending    bool
@@ -122,7 +122,7 @@ func grpcTransportFactoryImpl(
 		clients = append(clients, batchClient{
 			remoteAddr: remoteAddr,
 			conn:       conn,
-			client:     roachpb.NewInternalClient(conn),
+			streamPool: getStreamPool(replica.NodeDesc.Address.String(), conn),
 			args:       argsCopy,
 			healthy:    rpcContext.ConnHealth(remoteAddr) == nil,
 		})
@@ -136,6 +136,37 @@ func grpcTransportFactoryImpl(
 		rpcContext:     rpcContext,
 		orderedClients: clients,
 	}, nil
+}
+
+var sMu syncutil.RWMutex
+var streams = make(map[string]*sync.Pool)
+
+func getStreamPool(target string, conn *grpc.ClientConn) *sync.Pool {
+	sMu.RLock()
+	pool := streams[target]
+	sMu.RUnlock()
+
+	if pool != nil {
+		return pool
+	}
+
+	pool = &sync.Pool{
+		New: func() interface{} {
+			stream, err := roachpb.NewInternalClient(conn).Batch(context.TODO())
+			if err != nil {
+				panic(err)
+			}
+			return stream
+		},
+	}
+
+	sMu.Lock()
+	defer sMu.Unlock()
+	if newPool, ok := streams[target]; ok {
+		return newPool
+	}
+	streams[target] = pool
+	return pool
 }
 
 type grpcTransport struct {
@@ -219,7 +250,7 @@ func (gt *grpcTransport) send(
 		gt.opts.metrics.SentCount.Inc(1)
 
 		log.VEventf(ctx, 2, "sending request to %s", client.remoteAddr)
-		stream, err := client.client.Batch(ctx)
+		stream := client.streamPool.Get().(roachpb.Internal_BatchClient)
 		if err := stream.Send(&client.args); err != nil {
 			return nil, err
 		}
@@ -230,6 +261,9 @@ func (gt *grpcTransport) send(
 					log.Error(ctx, err)
 				}
 			}
+		}
+		if err == nil {
+			client.streamPool.Put(stream)
 		}
 		return reply, err
 	}()
