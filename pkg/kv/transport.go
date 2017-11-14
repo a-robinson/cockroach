@@ -219,7 +219,11 @@ func (gt *grpcTransport) send(
 		gt.opts.metrics.SentCount.Inc(1)
 
 		log.VEventf(ctx, 2, "sending request to %s", client.remoteAddr)
-		reply, err := client.client.Batch(ctx, &client.args)
+		stream, err := client.client.Batch(ctx)
+		if err := stream.Send(&client.args); err != nil {
+			return nil, err
+		}
+		reply, err := stream.Recv()
 		if reply != nil {
 			for i := range reply.Responses {
 				if err := reply.Responses[i].GetInner().Verify(client.args.Requests[i].GetInner()); err != nil {

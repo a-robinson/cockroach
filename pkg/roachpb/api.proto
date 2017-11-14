@@ -1278,7 +1278,7 @@ message BatchResponse {
 // internal-only RPC methods.
 
 service Internal {
-  rpc Batch (BatchRequest) returns (BatchResponse) {}
+  rpc Batch (stream BatchRequest) returns (stream BatchResponse) {}
 }
 
 service External {

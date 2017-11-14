@@ -864,8 +864,24 @@ func (n *Node) batchInternal(
 	return br, nil
 }
 
+func (n *Node) Batch(s roachpb.Internal_BatchServer) error {
+	for {
+		req, err := s.Recv()
+		if err != nil {
+			return err
+		}
+		reply, err := n.batch(context.TODO(), req)
+		if err != nil {
+			return err
+		}
+		if err := s.Send(reply); err != nil {
+			return err
+		}
+	}
+}
+
 // Batch implements the roachpb.InternalServer interface.
-func (n *Node) Batch(
+func (n *Node) batch(
 	ctx context.Context, args *roachpb.BatchRequest,
 ) (*roachpb.BatchResponse, error) {
 	growStack()
