@@ -26,7 +26,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/rpc"
-	"github.com/cockroachdb/cockroach/pkg/util/grpcutil"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
@@ -218,16 +217,6 @@ func (gt *grpcTransport) send(
 ) (*roachpb.BatchResponse, error) {
 	reply, err := func() (*roachpb.BatchResponse, error) {
 		gt.opts.metrics.SentCount.Inc(1)
-		if localServer := gt.rpcContext.GetLocalInternalServerForAddr(client.remoteAddr); localServer != nil {
-			log.VEvent(ctx, 2, "sending request to local server")
-
-			// Create a new context from the existing one with the "local request" field set.
-			// This tells the handler that this is an in-procress request, bypassing ctx.Peer checks.
-			localCtx := grpcutil.NewLocalRequestContext(ctx)
-
-			gt.opts.metrics.LocalSentCount.Inc(1)
-			return localServer.Batch(localCtx, &client.args)
-		}
 
 		log.VEventf(ctx, 2, "sending request to %s", client.remoteAddr)
 		reply, err := client.client.Batch(ctx, &client.args)
