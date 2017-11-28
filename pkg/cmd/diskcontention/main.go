@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"math/rand"
 	"os"
 	"sync/atomic"
@@ -12,7 +13,6 @@ import (
 )
 
 const (
-	storeDir        = "experiment-data"
 	syncDir         = "experiment-sync"
 	maxSizeBytes    = 20 * 1024 * 1024 * 1024 // 20 GiB
 	parallelWriters = 320
@@ -22,17 +22,20 @@ const (
 	valSize         = 128
 )
 
+var storeDir = flag.String("d", "experiment-data", "")
+
 var numWrites uint64
 var numBatches uint64
 
 func main() {
-	err := os.RemoveAll(storeDir)
+	flag.Parse()
+	err := os.RemoveAll(*storeDir)
 	if err != nil {
 		panic(err)
 	}
 	ctx := context.Background()
 	config := base.TempStorageConfigFromEnv(ctx, base.StoreSpec{}, "", maxSizeBytes)
-	config.Path = storeDir
+	config.Path = *storeDir
 	tempStorage, err := engine.NewTempEngine(config)
 	if err != nil {
 		panic(err)

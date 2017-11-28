@@ -22,6 +22,7 @@
 #include <rocksdb/ldb_tool.h>
 #include <rocksdb/merge_operator.h>
 #include <rocksdb/options.h>
+#include <rocksdb/rate_limiter.h>
 #include <rocksdb/slice_transform.h>
 #include <rocksdb/statistics.h>
 #include <rocksdb/sst_file_writer.h>
@@ -1564,7 +1565,13 @@ rocksdb::Options DBMakeOptions(DBOptions db_opts) {
 
   // Periodically sync sstables during compaction to smooth out
   // writes. Experimentally this has had no effect.
-  // options.bytes_per_sync = 4 << 20;
+  options.bytes_per_sync = 256 << 10;   // 256 KB
+
+  //options.max_background_jobs = std::max(db_opts.num_cpu, 1);
+
+  //options.use_fsync = true;
+
+  options.rate_limiter.reset(rocksdb::NewGenericRateLimiter(16 * 1024 * 1024));
 
   // The size reads should be performed in for compaction. The
   // internets claim this can speed up compactions, though RocksDB
@@ -1762,8 +1769,8 @@ DBStatus DBCompact(DBEngine* db) {
 DBStatus DBImpl::Put(DBKey key, DBSlice value) {
   rocksdb::WriteOptions options;
   if (rep->GetOptions().max_open_files == 128) {
-    //options.low_pri = true;
-    //options.disableWAL = true;
+    options.low_pri = true;
+    options.disableWAL = true;
   }
   return ToDBStatus(rep->Put(options, EncodeKey(key), ToSlice(value)));
 }
@@ -1791,8 +1798,8 @@ DBStatus DBPut(DBEngine* db, DBKey key, DBSlice value) {
 DBStatus DBImpl::Merge(DBKey key, DBSlice value) {
   rocksdb::WriteOptions options;
   if (rep->GetOptions().max_open_files == 128) {
-    //options.low_pri = true;
-    //options.disableWAL = true;
+    options.low_pri = true;
+    options.disableWAL = true;
   }
   return ToDBStatus(rep->Merge(options, EncodeKey(key), ToSlice(value)));
 }
@@ -1852,8 +1859,8 @@ DBStatus DBGet(DBEngine* db, DBKey key, DBString* value) {
 DBStatus DBImpl::Delete(DBKey key) {
   rocksdb::WriteOptions options;
   if (rep->GetOptions().max_open_files == 128) {
-    //options.low_pri = true;
-    //options.disableWAL = true;
+    options.low_pri = true;
+    options.disableWAL = true;
   }
   return ToDBStatus(rep->Delete(options, EncodeKey(key)));
 }
@@ -1877,8 +1884,8 @@ DBStatus DBSnapshot::Delete(DBKey key) {
 DBStatus DBImpl::DeleteRange(DBKey start, DBKey end) {
   rocksdb::WriteOptions options;
   if (rep->GetOptions().max_open_files == 128) {
-    //options.low_pri = true;
-    //options.disableWAL = true;
+    options.low_pri = true;
+    options.disableWAL = true;
   }
   return ToDBStatus(rep->DeleteRange(
       options, rep->DefaultColumnFamily(), EncodeKey(start), EncodeKey(end)));
@@ -1933,8 +1940,8 @@ DBStatus DBBatch::CommitBatch(bool sync) {
   }
   rocksdb::WriteOptions options;
   if (rep->GetOptions().max_open_files == 128) {
-    //options.low_pri = true;
-    //options.disableWAL = true;
+    options.low_pri = true;
+    options.disableWAL = true;
   }
   options.sync = sync;
   return ToDBStatus(rep->Write(options, batch.GetWriteBatch()));
@@ -1946,8 +1953,8 @@ DBStatus DBWriteOnlyBatch::CommitBatch(bool sync) {
   }
   rocksdb::WriteOptions options;
   if (rep->GetOptions().max_open_files == 128) {
-    //options.low_pri = true;
-    //options.disableWAL = true;
+    options.low_pri = true;
+    options.disableWAL = true;
   }
   options.sync = sync;
   return ToDBStatus(rep->Write(options, &batch));
@@ -1969,8 +1976,8 @@ DBStatus DBImpl::ApplyBatchRepr(DBSlice repr, bool sync) {
   rocksdb::WriteBatch batch(ToString(repr));
   rocksdb::WriteOptions options;
   if (rep->GetOptions().max_open_files == 128) {
-    //options.low_pri = true;
-    //options.disableWAL = true;
+    options.low_pri = true;
+    options.disableWAL = true;
   }
   options.sync = sync;
   return ToDBStatus(rep->Write(options, &batch));
