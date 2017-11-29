@@ -129,6 +129,9 @@ type Options struct {
 // Run a test of writing synchronously to the RocksDB WAL.
 func Run(opts Options) error {
 	fmt.Printf("writing to %s\n", opts.Dir)
+	if err := os.RemoveAll(opts.Dir); err != nil {
+		return err
+	}
 
 	db, err := engine.NewRocksDB(
 		engine.RocksDBConfig{
@@ -139,9 +142,6 @@ func Run(opts Options) error {
 	if err != nil {
 		return err
 	}
-	defer func() {
-		_ = os.RemoveAll(opts.Dir)
-	}()
 
 	workers := make([]*worker, opts.Concurrency)
 

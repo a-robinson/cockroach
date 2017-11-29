@@ -1443,7 +1443,7 @@ rocksdb::Options DBMakeOptions(DBOptions db_opts) {
   options.WAL_ttl_seconds = db_opts.wal_ttl_seconds;
   options.comparator = &kComparator;
   options.create_if_missing = !db_opts.must_exist;
-  options.info_log.reset(new DBLogger(db_opts.logging_enabled));
+  //options.info_log.reset(new DBLogger(db_opts.logging_enabled));
   options.merge_operator.reset(new DBMergeOperator);
   options.prefix_extractor.reset(new DBPrefixExtractor);
   options.statistics = rocksdb::CreateDBStatistics();
@@ -1478,7 +1478,7 @@ rocksdb::Options DBMakeOptions(DBOptions db_opts) {
 
   // We periodically report stats ourselves and by default the info
   // logger swallows log messages.
-  options.stats_dump_period_sec = 0;
+  options.stats_dump_period_sec = 10;
 
   // Use the TablePropertiesCollector hook to store the min and max MVCC
   // timestamps present in each sstable in the metadata for that sstable.

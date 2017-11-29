@@ -30,7 +30,7 @@ const (
 	BatchTypeDeletion BatchType = 0x0
 	BatchTypeValue              = 0x1
 	BatchTypeMerge              = 0x2
-	// BatchTypeLogData                              = 0x3
+	BatchTypeLogData            = 0x3
 	// BatchTypeColumnFamilyDeletion                 = 0x4
 	// BatchTypeColumnFamilyValue                    = 0x5
 	// BatchTypeColumnFamilyMerge                    = 0x6
