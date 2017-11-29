@@ -1546,19 +1546,22 @@ rocksdb::Options DBMakeOptions(DBOptions db_opts) {
   // num_cpu-1 low priority threads for compactions. Always use at
   // least 2 threads, otherwise compactions won't happen.
   //options.IncreaseParallelism(std::max(db_opts.num_cpu, 2));
-  options.max_background_jobs = std::max(db_opts.num_cpu, 2);
+  int parallelism = std::max(db_opts.num_cpu, 2);
+  options.max_background_jobs = parallelism;
+  options.env->SetBackgroundThreads(parallelism, rocksdb::Env::LOW);
+  options.env->SetBackgroundThreads(1, rocksdb::Env::HIGH);
   // Enable subcompactions which will use multiple threads to speed up
   // a single compaction. The value of num_cpu/2 has not been tuned.
   options.max_subcompactions = std::max(db_opts.num_cpu / 2, 1);
-  options.WAL_ttl_seconds = db_opts.wal_ttl_seconds;
-  options.comparator = &kComparator;
+  //options.WAL_ttl_seconds = db_opts.wal_ttl_seconds;
+  //options.comparator = &kComparator;
   options.create_if_missing = true;
   //options.info_log.reset(new DBLogger(db_opts.logging_enabled));
-  options.merge_operator.reset(new DBMergeOperator);
-  options.prefix_extractor.reset(new DBPrefixExtractor);
+  //options.merge_operator.reset(new DBMergeOperator);
+  //options.prefix_extractor.reset(new DBPrefixExtractor);
   options.statistics = rocksdb::CreateDBStatistics();
-  options.max_open_files = db_opts.max_open_files;
-  options.compaction_pri = rocksdb::kMinOverlappingRatio;
+  //options.max_open_files = db_opts.max_open_files;
+  //options.compaction_pri = rocksdb::kMinOverlappingRatio;
   // Periodically sync the WAL to smooth out writes. Not performing
   // such syncs can be faster but can cause performance blips when the
   // OS decides it needs to flush data.
@@ -1566,13 +1569,13 @@ rocksdb::Options DBMakeOptions(DBOptions db_opts) {
 
   // Periodically sync sstables during compaction to smooth out
   // writes. Experimentally this has had no effect.
-  options.bytes_per_sync = 256 << 10;   // 256 KB
+  options.bytes_per_sync = 512 << 10;   // 512 KB
 
   //options.max_background_jobs = std::max(db_opts.num_cpu, 1);
 
   //options.use_fsync = true;
 
-  options.rate_limiter.reset(rocksdb::NewGenericRateLimiter(16 * 1024 * 1024));
+  //options.rate_limiter.reset(rocksdb::NewGenericRateLimiter(16 * 1024 * 1024));
 
   // The size reads should be performed in for compaction. The
   // internets claim this can speed up compactions, though RocksDB
@@ -1580,6 +1583,7 @@ rocksdb::Options DBMakeOptions(DBOptions db_opts) {
   // has had no effect.
   // options.compaction_readahead_size = 2 << 20;
 
+  /*
   // Do not create bloom filters for the last level (i.e. the largest
   // level which contains data in the LSM store). Setting this option
   // reduces the size of the bloom filters by 10x. This is significant
@@ -1681,7 +1685,7 @@ rocksdb::Options DBMakeOptions(DBOptions db_opts) {
   // index lookup. The cost is an 4-bytes per key in memory during
   // compactions, which seems a small price to pay.
   table_options.filter_policy.reset(
-      rocksdb::NewBloomFilterPolicy(10, false /* !block_based */));
+      rocksdb::NewBloomFilterPolicy(10, false);
   table_options.format_version = 2;
 
   // Increasing block_size decreases memory usage at the cost of
@@ -1692,6 +1696,7 @@ rocksdb::Options DBMakeOptions(DBOptions db_opts) {
   // used to speed up Get operations which we don't use.
   table_options.whole_key_filtering = false;
   options.table_factory.reset(rocksdb::NewBlockBasedTableFactory(table_options));
+  */
   return options;
 }
 
@@ -1699,23 +1704,23 @@ DBStatus DBOpen(DBEngine **db, DBSlice dir, DBOptions db_opts) {
   rocksdb::Options options = DBMakeOptions(db_opts);
 
   // Register listener for tracking RocksDB stats.
-  std::shared_ptr<DBEventListener> event_listener(new DBEventListener);
-  options.listeners.emplace_back(event_listener);
+  //std::shared_ptr<DBEventListener> event_listener(new DBEventListener);
+  //options.listeners.emplace_back(event_listener);
 
-  std::unique_ptr<rocksdb::Env> memenv;
-  if (dir.len == 0) {
-    memenv.reset(rocksdb::NewMemEnv(rocksdb::Env::Default()));
-    options.env = memenv.get();
-  }
+  //std::unique_ptr<rocksdb::Env> memenv;
+  //if (dir.len == 0) {
+    //memenv.reset(rocksdb::NewMemEnv(rocksdb::Env::Default()));
+    //options.env = memenv.get();
+  //}
 
   rocksdb::DB *db_ptr;
   rocksdb::Status status = rocksdb::DB::Open(options, ToString(dir), &db_ptr);
   if (!status.ok()) {
     return ToDBStatus(status);
   }
-  *db = new DBImpl(db_ptr, memenv.release(),
+  *db = new DBImpl(db_ptr, options.env,
       db_opts.cache != nullptr ? db_opts.cache->rep : nullptr,
-      event_listener);
+      nullptr);
   return kSuccess;
 }
 
@@ -1769,10 +1774,6 @@ DBStatus DBCompact(DBEngine* db) {
 
 DBStatus DBImpl::Put(DBKey key, DBSlice value) {
   rocksdb::WriteOptions options;
-  if (rep->GetOptions().max_open_files == 128) {
-    options.low_pri = true;
-    options.disableWAL = true;
-  }
   return ToDBStatus(rep->Put(options, EncodeKey(key), ToSlice(value)));
 }
 
@@ -1798,10 +1799,6 @@ DBStatus DBPut(DBEngine* db, DBKey key, DBSlice value) {
 
 DBStatus DBImpl::Merge(DBKey key, DBSlice value) {
   rocksdb::WriteOptions options;
-  if (rep->GetOptions().max_open_files == 128) {
-    options.low_pri = true;
-    options.disableWAL = true;
-  }
   return ToDBStatus(rep->Merge(options, EncodeKey(key), ToSlice(value)));
 }
 
@@ -1976,10 +1973,6 @@ DBStatus DBCommitAndCloseBatch(DBEngine* db, bool sync) {
 DBStatus DBImpl::ApplyBatchRepr(DBSlice repr, bool sync) {
   rocksdb::WriteBatch batch(ToString(repr));
   rocksdb::WriteOptions options;
-  if (rep->GetOptions().max_open_files == 128) {
-    options.low_pri = true;
-    options.disableWAL = true;
-  }
   options.sync = sync;
   return ToDBStatus(rep->Write(options, &batch));
 }
@@ -2145,6 +2138,7 @@ DBString DBSnapshot::GetCompactionStats() {
 DBStatus DBImpl::EnvWriteFile(DBSlice path, DBSlice contents) {
   rocksdb::Status s;
 
+  assert(false);
   const rocksdb::EnvOptions soptions;
   rocksdb::unique_ptr<rocksdb::WritableFile> destfile;
   s = this->rep->GetEnv()->NewWritableFile(ToString(path), &destfile, soptions);

@@ -86,6 +86,32 @@ func prettyPrintKey(cKey C.DBKey) *C.char {
 	return C.CString(mvccKey.String())
 }
 
+type DB struct {
+	db *C.DBEngine
+}
+
+func DBOpen(storeDir string) DB {
+	cache := C.DBNewCache(C.uint64_t(0))
+	var db DB
+	status := C.DBOpen(&db.db, goToCSlice([]byte(storeDir)),
+		C.DBOptions{
+			cache:           cache,
+			block_size:      C.uint64_t(defaultBlockSize),
+			wal_ttl_seconds: C.uint64_t(0),
+			logging_enabled: C.bool(log.V(3)),
+			num_cpu:         C.int(runtime.NumCPU()),
+			max_open_files:  C.int(RecommendedMaxOpenFiles),
+		})
+	if status.data != nil {
+		panic(status)
+	}
+	return db
+}
+
+func (db *DB) Put(key []byte, val []byte) error {
+	return statusToError(C.DBPut(db.db, goToCKey(MVCCKey{Key: key}), goToCSlice(val)))
+}
+
 const (
 	// defaultBlockSize configures the size of a black. When reading a key-value
 	// pair from a table file, RocksDB loads an entire block into memory. The
