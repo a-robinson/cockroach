@@ -395,6 +395,9 @@ func (bq *baseQueue) requiresSplit(cfg config.SystemConfig, repl *Replica) bool 
 		return false
 	}
 	desc := repl.Desc()
+	if desc == nil {
+		return true
+	}
 	return cfg.NeedsSplit(desc.StartKey, desc.EndKey)
 }
 
