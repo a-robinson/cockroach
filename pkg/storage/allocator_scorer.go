@@ -442,7 +442,7 @@ func allocateCandidates(
 		if !preexistingReplicaCheck(s.Node.NodeID, existing) {
 			continue
 		}
-		constraintsOk, preferredMatched := constraintCheck(s, constraints)
+		constraintsOk, preferredMatched := allocateConstraintCheck(s, existing, constraints)
 		if !constraintsOk {
 			continue
 		}
@@ -480,7 +480,7 @@ func removeCandidates(
 ) candidateList {
 	var candidates candidateList
 	for _, s := range sl.stores {
-		constraintsOk, preferredMatched := constraintCheck(s, constraints)
+		constraintsOk, preferredMatched := removeConstraintCheck(s, existing, constraints)
 		if !constraintsOk {
 			candidates = append(candidates, candidate{
 				store:   s,
@@ -550,7 +550,9 @@ func rebalanceCandidates(
 	storeInfos := make(map[roachpb.StoreID]constraintInfo)
 	var rebalanceConstraintsCheck bool
 	for _, s := range sl.stores {
-		constraintsOk, preferredMatched := constraintCheck(s, constraints)
+		// TODO: Need to separate replicas (existing and hypothetical) into
+		// equivalence classes that can be fairly compared against each other.
+		constraintsOk, preferredMatched := rebalanceConstraintCheck(s, existing, constraints)
 		storeInfos[s.StoreID] = constraintInfo{ok: constraintsOk, matched: preferredMatched}
 		_, exists := existingStoreIDs[s.StoreID]
 		if constraintsOk {
@@ -804,6 +806,32 @@ func storeHasConstraint(store roachpb.StoreDescriptor, c config.Constraint) bool
 		}
 	}
 	return false
+}
+
+// allocateConstraintCheck returns true iff all required and prohibited constraints are
+// satisfied. Stores with attributes or localities that match the most positive
+// constraints return higher scores.
+func allocateConstraintCheck(
+	store roachpb.StoreDescriptor,
+	existing []roachpb.ReplicaDescriptor,
+	constraints config.Constraints,
+) (bool, int) {
+	if len(constraints.Constraints) == 0 {
+		return true, 0
+	}
+	positive := 0
+	for _, constraint := range constraints.Constraints {
+		hasConstraint := storeHasConstraint(store, constraint)
+		switch {
+		case constraint.Type == config.Constraint_REQUIRED && !hasConstraint:
+			return false, 0
+		case constraint.Type == config.Constraint_PROHIBITED && hasConstraint:
+			return false, 0
+		case (constraint.Type == config.Constraint_POSITIVE && hasConstraint):
+			positive++
+		}
+	}
+	return true, positive
 }
 
 // constraintCheck returns true iff all required and prohibited constraints are
