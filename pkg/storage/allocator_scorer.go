@@ -808,52 +808,147 @@ func storeHasConstraint(store roachpb.StoreDescriptor, c config.Constraint) bool
 	return false
 }
 
-// allocateConstraintCheck returns true iff all required and prohibited constraints are
-// satisfied. Stores with attributes or localities that match the most positive
-// constraints return higher scores.
+// longestReplicaConstraintsMatch returns the index in the provided slice of the
+// longest set of constraints matched by the provided store.
+//
+// Returns -1 if the store matches none of the constraints (or no constraints
+// are provided).
+func longestReplicaConstraintsMatch(
+	store roachpb.StoreDescriptor, perReplicaConstraints []config.Constraints,
+) int {
+	longest := 0
+	longestIdx := -1
+	for i, constraints := range perReplicaConstraints {
+		if len(constraints) <= longest {
+			continue
+		}
+		valid := true
+		for _, constraint := range constraints.Constraints {
+			if constraint.Type != config.Constraint_REQUIRED {
+				log.Errorf(context.TODO(),
+					"zone config has non-required constraint %v; this is not allowed", constraint)
+				continue
+			}
+			if !storeHasConstraint(store, constraint) {
+				valid = false
+				break
+			}
+		}
+		if valid && len(constraints) > longest {
+			longest = len(constraints)
+			longestIdx = i
+		}
+	}
+	return longestIdx
+}
+
+// TODO: Update comment
 func allocateConstraintCheck(
 	store roachpb.StoreDescriptor,
 	existing []roachpb.ReplicaDescriptor,
 	constraints config.Constraints,
 ) (bool, int) {
-	if len(constraints.Constraints) == 0 {
+	// Overarching (non-per-replica) constraints work the same when allocating a
+	// new replicas as they do any other time.
+	if len(constraints.Constraints) > 0 {
+		return constraintCheck(store, constraints)
+	}
+	if len(constraints.Replicas) == 0 {
 		return true, 0
 	}
-	positive := 0
-	for _, constraint := range constraints.Constraints {
-		hasConstraint := storeHasConstraint(store, constraint)
-		switch {
-		case constraint.Type == config.Constraint_REQUIRED && !hasConstraint:
-			return false, 0
-		case constraint.Type == config.Constraint_PROHIBITED && hasConstraint:
-			return false, 0
-		case (constraint.Type == config.Constraint_POSITIVE && hasConstraint):
-			positive++
+	// If we're using per-replica constraints, then we should only allocate to a
+	// constraint that hasn't already been met.
+	remaining := copy(constraints.Replicas)
+	for _, replica := range existing {
+		// TODO: Need to map from replica to store descriptor! Unfortunately the
+		// locality info isn't enough, because constraints can also match
+		// node/store attributes.
+		idx := longestReplicaConstraintsMatch(replica, remaining)
+		if remaining != -1 {
+			remaining = append(remaining[:idx], remaining[idx+1:])
+			if len(remaining) == 0 {
+				break
+			}
 		}
 	}
-	return true, positive
+	if len(remaining) == 0 {
+		return true, 0
+	}
+	// TODO: Should we properly support replica lists that are smaller than the
+	// zone config's numReplicas? If so, pass the zone config into here and
+	// determine if there are still any unused wildcard slots.
+	for _, replicaConstraints := range remaining {
+		if longestReplicaConstraintsMatch(store, replicaConstraint) != -1 {
+			return true, 0
+		}
+	}
+	return false, 0
+}
+
+// TODO: Update comment
+func removeConstraintCheck(
+	store roachpb.StoreDescriptor,
+	existing []roachpb.ReplicaDescriptor,
+	constraints config.Constraints,
+) (bool, int) {
+	// Overarching (non-per-replica) constraints work the same when removing
+	// replicas as they do any other time.
+	if len(constraints.Constraints) > 0 {
+		return constraintCheck(store, constraints)
+	}
+	if len(constraints.Replicas) == 0 {
+		return true, 0
+	}
+
+	// If we're using per-replica constraints, then we consider invalid any
+	// replica that either doesn't match any constraints or is part of a
+	// subset of replicas that match a subset of constraints where there
+	// are more replicas than constraints in the respective subsets.
+	//
+	// We have to do this to ensure that we prefer removing an unnecessary
+	// replica before a necessary one, where a "necessary" replica is one that is
+	// the only replica matching one of the lists of per-replica constraints.
+	// TODO: This doesn't jive with how the constraint-checking results are
+	// used -- we don't look at any other characteristics of an invalid node,
+	// we just remove it immediately. Do we need some other way to express this?
+	// TODO: Is this overthinking it?
 }
 
 // constraintCheck returns true iff all required and prohibited constraints are
 // satisfied. Stores with attributes or localities that match the most positive
 // constraints return higher scores.
 func constraintCheck(store roachpb.StoreDescriptor, constraints config.Constraints) (bool, int) {
-	if len(constraints.Constraints) == 0 {
+	switch {
+	case len(constraints.Constraints) > 0:
+		// A store must meet all overarching constraints to be considered valid.
+		if len(constraints.Constraints) > 0 && len(constraints.Replicas) > 0 {
+			log.Errorf(context.TODO(),
+				"zone config has both Constraints and Replicas set; this is not allowed")
+		}
+		positive := 0
+		for _, constraint := range constraints.Constraints {
+			hasConstraint := storeHasConstraint(store, constraint)
+			switch {
+			case constraint.Type == config.Constraint_REQUIRED && !hasConstraint:
+				return false, 0
+			case constraint.Type == config.Constraint_PROHIBITED && hasConstraint:
+				return false, 0
+			case (constraint.Type == config.Constraint_POSITIVE && hasConstraint):
+				positive++
+			}
+		}
+		return true, positive
+	case len(constraints.Replicas) > 0:
+		// A store must meet only one of the per-replica sets of contraints to be
+		// considered valid.
+		if longestReplicaConstraintsMatch(store, constraints.Replicas) != -1 {
+			return true, 0
+		}
+		return false, 0
+	default:
+		// If there are no constraints, all stores are trivially valid.
 		return true, 0
 	}
-	positive := 0
-	for _, constraint := range constraints.Constraints {
-		hasConstraint := storeHasConstraint(store, constraint)
-		switch {
-		case constraint.Type == config.Constraint_REQUIRED && !hasConstraint:
-			return false, 0
-		case constraint.Type == config.Constraint_PROHIBITED && hasConstraint:
-			return false, 0
-		case (constraint.Type == config.Constraint_POSITIVE && hasConstraint):
-			positive++
-		}
-	}
-	return true, positive
 }
 
 // rangeDiversityScore returns a value between 0 and 1 based on how diverse the
