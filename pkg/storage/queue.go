@@ -54,10 +54,6 @@ type purgatoryError interface {
 	purgatoryErrorMarker() // dummy method for unique interface
 }
 
-// processCallback is a hook that is called when a replica finishes processing.
-// It is called with the result of the process attempt.
-type processCallback func(error)
-
 // A replicaItem holds a replica and metadata about its queue state and
 // processing state.
 type replicaItem struct {
@@ -70,7 +66,10 @@ type replicaItem struct {
 	// fields used when a replicaItem is processing.
 	processing bool
 	requeue    bool // enqueue again after processing?
-	callbacks  []processCallback
+
+	// TODO(nvanbenschoten): we can hang callbacks off here so clients can
+	// register for notifications of processing completion. This can be
+	// used for writes to wait on ongoing splits to create split backpressure.
 }
 
 // setProcessing moves the item from an enqueued state to a processing state.
@@ -78,12 +77,6 @@ func (i *replicaItem) setProcessing() {
 	i.priority = 0
 	i.index = 0
 	i.processing = true
-}
-
-// registerCallback adds a new callback to be executed when the replicaItem
-// finishes processing.
-func (i *replicaItem) registerCallback(cb processCallback) {
-	i.callbacks = append(i.callbacks, cb)
 }
 
 // A priorityQueue implements heap.Interface and holds replicaItems.
@@ -527,20 +520,6 @@ func (bq *baseQueue) addInternalLocked(
 	return true, nil
 }
 
-// MaybeAddCallback adds a callback to be called when the specified range
-// finishes processing if the range is in the queue. If the range is not
-// in the queue (either waiting or processing), the method returns false.
-func (bq *baseQueue) MaybeAddCallback(rangeID roachpb.RangeID, cb processCallback) bool {
-	bq.mu.Lock()
-	defer bq.mu.Unlock()
-
-	if item, ok := bq.mu.replicas[rangeID]; ok {
-		item.registerCallback(cb)
-		return true
-	}
-	return false
-}
-
 // MaybeRemove removes the specified replica from the queue if enqueued.
 func (bq *baseQueue) MaybeRemove(rangeID roachpb.RangeID) {
 	bq.mu.Lock()
@@ -755,11 +734,6 @@ func (bq *baseQueue) finishProcessingReplica(
 	// back in down below.
 	item := bq.mu.replicas[repl.RangeID]
 	bq.removeFromReplicaSetLocked(repl.RangeID)
-
-	// Call any registered callbacks.
-	for _, cb := range item.callbacks {
-		cb(err)
-	}
 
 	if item.requeue {
 		// Maybe add replica back into queue.
