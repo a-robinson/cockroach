@@ -110,5 +110,15 @@ export default function (props: GraphDashboardProps) {
         <Metric name="cr.node.sys.fd.softlimit" title="Limit" />
       </Axis>
     </LineGraph>,
+
+    <LineGraph
+      title="Compactor Bytes Queued"
+      sources={storeSources}
+      tooltip={`The estimated bytes of storage that could be reclaimed by forcing RocksDB compactions ${tooltipSelection}.`}
+    >
+      <Axis units={AxisUnits.Bytes} label="queued bytes">
+        <Metric name="cr.store.compactor.suggestionbytes.queued" title="Queued" />
+      </Axis>
+    </LineGraph>,
   ];
 }

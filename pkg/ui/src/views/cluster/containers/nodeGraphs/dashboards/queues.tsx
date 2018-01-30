@@ -32,6 +32,7 @@ export default function (props: GraphDashboardProps) {
         <Metric name="cr.store.queue.raftlog.processingnanos" title="Raft Log" nonNegativeRate />
         <Metric name="cr.store.queue.raftsnapshot.processingnanos" title="Raft Snapshot" nonNegativeRate />
         <Metric name="cr.store.queue.tsmaintenance.processingnanos" title="Time Series Maintenance" nonNegativeRate />
+        <Metric name="cr.store.compactor.compactingnanos" title="Compaction" nonNegativeRate />
       </Axis>
     </LineGraph>,
 
