@@ -808,6 +808,49 @@ func storeHasConstraint(store roachpb.StoreDescriptor, c config.Constraint) bool
 	return false
 }
 
+type analyzedConstraints struct {
+	constraints      config.Constraints
+	existingReplicas []roachpb.ReplicaDescriptor
+	satisfiedBy      [][]roachpb.ReplicaDescriptor
+	satisfies        map[roachpb.ReplicaDescriptor][]int
+}
+
+func analyzeConstraints(
+	existing []roachpb.ReplicaDescriptor, constraints config.Constraints,
+) analyzedConstraints {
+	result := analyzedConstraints{
+		constraints:      constraints,
+		existingReplicas: existing,
+	}
+
+	if len(constraints.Replicas) > 0 {
+		result.satisfiedBy = make([][]roachpb.ReplicaDescriptor, len(constraints.Replicas))
+		result.satisfies = make(map[roachpb.ReplicaDescriptor]int)
+	}
+
+	for i, constraints := range constraints.Replicas {
+		for _, store := range existing {
+			valid := true
+			for _, constraint := range constraints.Constraints {
+				if constraint.Type != config.Constraint_REQUIRED {
+					log.Errorf(context.TODO(),
+						"zone config has non-required constraint %v; this is not allowed", constraint)
+					continue
+				}
+				if !storeHasConstraint(store, constraint) {
+					valid = false
+					break
+				}
+			}
+			if valid {
+				result.satisfiedBy[i] = append(result.satisfiedBy[i], store)
+				result.satisfies[store] = append(result.satisfies[store], i)
+			}
+		}
+	}
+	return result
+}
+
 // longestReplicaConstraintsMatch returns the index in the provided slice of the
 // longest set of constraints matched by the provided store.
 //
@@ -908,10 +951,45 @@ func removeConstraintCheck(
 	// We have to do this to ensure that we prefer removing an unnecessary
 	// replica before a necessary one, where a "necessary" replica is one that is
 	// the only replica matching one of the lists of per-replica constraints.
+
 	// TODO: This doesn't jive with how the constraint-checking results are
 	// used -- we don't look at any other characteristics of an invalid node,
 	// we just remove it immediately. Do we need some other way to express this?
+
 	// TODO: Is this overthinking it?
+
+	// TODO: Do some sort of pre-processing on the existing replicas that can be
+	// shared with rebalanceConstraintCheck that identifies which constraints are
+	// satisified by which replicas?
+
+	var satisfies []int
+	for i, constraints := range perReplicaConstraints {
+		valid := true
+		for _, constraint := range constraints.Constraints {
+			if constraint.Type != config.Constraint_REQUIRED {
+				log.Errorf(context.TODO(),
+					"zone config has non-required constraint %v; this is not allowed", constraint)
+				continue
+			}
+			if !storeHasConstraint(store, constraint) {
+				valid = false
+				break
+			}
+		}
+		if valid {
+			// TODO
+		}
+	}
+}
+
+// TODO: Update comment
+func rebalanceConstraintCheck(
+	store roachpb.StoreDescriptor,
+	existing []roachpb.ReplicaDescriptor,
+	constraints config.Constraints,
+) (bool, int) {
+	// TODO
+	return true, 0
 }
 
 // constraintCheck returns true iff all required and prohibited constraints are
