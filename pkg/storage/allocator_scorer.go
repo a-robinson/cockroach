@@ -811,8 +811,8 @@ func storeHasConstraint(store roachpb.StoreDescriptor, c config.Constraint) bool
 type analyzedConstraints struct {
 	constraints      config.Constraints
 	existingReplicas []roachpb.ReplicaDescriptor
-	satisfiedBy      [][]roachpb.ReplicaDescriptor
-	satisfies        map[roachpb.ReplicaDescriptor][]int
+	satisfiedBy      [][]roachpb.StoreID
+	satisfies        map[roachpb.StoreID][]int
 }
 
 func analyzeConstraints(
@@ -824,8 +824,8 @@ func analyzeConstraints(
 	}
 
 	if len(constraints.Replicas) > 0 {
-		result.satisfiedBy = make([][]roachpb.ReplicaDescriptor, len(constraints.Replicas))
-		result.satisfies = make(map[roachpb.ReplicaDescriptor]int)
+		result.satisfiedBy = make([][]roachpb.StoreID, len(constraints.Replicas))
+		result.satisfies = make(map[roachpb.StoreID]int)
 	}
 
 	for i, constraints := range constraints.Replicas {
@@ -843,8 +843,8 @@ func analyzeConstraints(
 				}
 			}
 			if valid {
-				result.satisfiedBy[i] = append(result.satisfiedBy[i], store)
-				result.satisfies[store] = append(result.satisfies[store], i)
+				result.satisfiedBy[i] = append(result.satisfiedBy[i], store.StoreID)
+				result.satisfies[store.StoreID] = append(result.satisfies[store.StoreID], i)
 			}
 		}
 	}
@@ -930,18 +930,27 @@ func allocateConstraintCheck(
 
 // TODO: Update comment
 func removeConstraintCheck(
-	store roachpb.StoreDescriptor,
-	existing []roachpb.ReplicaDescriptor,
-	constraints config.Constraints,
+	store roachpb.StoreDescriptor, analyzed analyzedConstraints,
 ) (bool, int) {
 	// Overarching (non-per-replica) constraints work the same when removing
 	// replicas as they do any other time.
-	if len(constraints.Constraints) > 0 {
-		return constraintCheck(store, constraints)
+	if len(analyzed.constraints.Constraints) > 0 {
+		return constraintCheck(store, analyzed.constraints)
 	}
-	if len(constraints.Replicas) == 0 {
+	if len(analyzed.constraints.Replicas) == 0 {
 		return true, 0
 	}
+
+	// TODO: This assumes that len(constraints.Replicas) == zoneConfig.numReplicas
+	if len(analyzed.satisfies[store.StoreID]) == 0 {
+		return false, 0
+	}
+	for _, constraintIdx := range analyzed.satisfies {
+		if len(analyzed.satisfiedBy[constraintIdx]) == 1 {
+			return true, 0
+		}
+	}
+	// TODO: Handle multiple matches and overlapping matches
 
 	// If we're using per-replica constraints, then we consider invalid any
 	// replica that either doesn't match any constraints or is part of a
