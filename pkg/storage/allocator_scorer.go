@@ -122,6 +122,7 @@ func (bd balanceDimensions) compactString(options scorerOptions) string {
 type candidate struct {
 	store          roachpb.StoreDescriptor
 	valid          bool
+	necessary      bool
 	fullDisk       bool
 	diversityScore float64
 	preferredScore int
@@ -136,10 +137,10 @@ func (c candidate) localityScore() float64 {
 }
 
 func (c candidate) String() string {
-	str := fmt.Sprintf("s%d, valid:%t, fulldisk:%t, locality:%.2f, converges:%d, balance:%s, "+
-		"rangeCount:%d, logicalBytes:%s, writesPerSecond:%.2f",
-		c.store.StoreID, c.valid, c.fullDisk, c.localityScore(), c.convergesScore, c.balanceScore,
-		c.rangeCount, humanizeutil.IBytes(c.store.Capacity.LogicalBytes),
+	str := fmt.Sprintf("s%d, valid:%t, necessary:%t, fulldisk:%t, constraint:%.2f, converges:%d, "+
+		"balance:%s, rangeCount:%d, logicalBytes:%s, writesPerSecond:%.2f",
+		c.store.StoreID, c.valid, c.necessary, c.fullDisk, c.constraintScore(), c.convergesScore,
+		c.balanceScore, c.rangeCount, humanizeutil.IBytes(c.store.Capacity.LogicalBytes),
 		c.store.Capacity.WritesPerSecond)
 	if c.details != "" {
 		return fmt.Sprintf("%s, details:(%s)", str, c.details)
@@ -152,6 +153,9 @@ func (c candidate) compactString(options scorerOptions) string {
 	fmt.Fprintf(&buf, "s%d", c.store.StoreID)
 	if !c.valid {
 		fmt.Fprintf(&buf, ", valid:%t", c.valid)
+	}
+	if c.necessary {
+		fmt.Fprintf(&buf, ", necessary:%t", c.necessary)
 	}
 	if c.fullDisk {
 		fmt.Fprintf(&buf, ", fullDisk:%t", c.fullDisk)
@@ -182,6 +186,9 @@ func (c candidate) less(o candidate) bool {
 	if !c.valid {
 		return true
 	}
+	if c.necessary != o.necessary {
+		return o.necessary
+	}
 	if o.fullDisk {
 		return false
 	}
@@ -208,6 +215,10 @@ func (c candidate) worthRebalancingTo(o candidate, options scorerOptions) bool {
 	}
 	if !c.valid {
 		return true
+	}
+	// TODO: revisit this
+	if c.necessary != o.necessary {
+		return o.necessary
 	}
 	if o.fullDisk {
 		return false
@@ -292,7 +303,8 @@ func (c byScoreAndID) Less(i, j int) bool {
 		c[i].balanceScore.totalScore() == c[j].balanceScore.totalScore() &&
 		c[i].rangeCount == c[j].rangeCount &&
 		c[i].fullDisk == c[j].fullDisk &&
-		c[i].valid == c[j].valid {
+		c[i].valid == c[j].valid &&
+		c[i].necessary == c[j].necessary {
 		return c[i].store.StoreID < c[j].store.StoreID
 	}
 	return c[i].less(c[j])
@@ -303,6 +315,7 @@ func (c byScoreAndID) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
 // candidate list that are valid and not nearly full.
 func (cl candidateList) onlyValidAndNotFull() candidateList {
 	for i := len(cl) - 1; i >= 0; i-- {
+		// TODO: Update this to use `necessary` field as well
 		if cl[i].valid && !cl[i].fullDisk {
 			return cl[:i+1]
 		}
@@ -334,6 +347,7 @@ func (cl candidateList) worst() candidateList {
 		return cl
 	}
 	// Are there invalid candidates? If so, pick those.
+	// TODO: Update this to use `necessary` field as well
 	if !cl[len(cl)-1].valid {
 		for i := len(cl) - 2; i >= 0; i-- {
 			if cl[i].valid {
@@ -480,12 +494,13 @@ func removeCandidates(
 ) candidateList {
 	var candidates candidateList
 	for _, s := range sl.stores {
-		constraintsOk, preferredMatched := removeConstraintCheck(s, existing, constraints)
+		constraintsOk, necessary, preferredMatched := removeConstraintCheck(s, existing, constraints)
 		if !constraintsOk {
 			candidates = append(candidates, candidate{
-				store:   s,
-				valid:   false,
-				details: "constraint check fail",
+				store:     s,
+				valid:     false,
+				necessary: necessary,
+				details:   "constraint check fail",
 			})
 			continue
 		}
@@ -503,6 +518,7 @@ func removeCandidates(
 		candidates = append(candidates, candidate{
 			store:          s,
 			valid:          true,
+			necessary:      necessary,
 			fullDisk:       !maxCapacityCheck(s),
 			diversityScore: diversityScore,
 			preferredScore: preferredMatched,
@@ -886,6 +902,7 @@ func longestReplicaConstraintsMatch(
 }
 
 // TODO: Update comment
+// TODO: Rewrite this to use analyzedConstraints?
 func allocateConstraintCheck(
 	store roachpb.StoreDescriptor,
 	existing []roachpb.ReplicaDescriptor,
@@ -931,25 +948,35 @@ func allocateConstraintCheck(
 // TODO: Update comment
 func removeConstraintCheck(
 	store roachpb.StoreDescriptor, analyzed analyzedConstraints,
-) (bool, int) {
+) (valid bool, necessary bool, preferredScore int) {
 	// Overarching (non-per-replica) constraints work the same when removing
 	// replicas as they do any other time.
 	if len(analyzed.constraints.Constraints) > 0 {
-		return constraintCheck(store, analyzed.constraints)
+		valid, preferredScore := constraintCheck(store, analyzed.constraints)
+		return valid, false, preferredScore
 	}
 	if len(analyzed.constraints.Replicas) == 0 {
-		return true, 0
+		return true, false, 0
 	}
 
 	// TODO: This assumes that len(constraints.Replicas) == zoneConfig.numReplicas
+	// The store satisfies none of the constraints.
 	if len(analyzed.satisfies[store.StoreID]) == 0 {
-		return false, 0
+		return false, false, 0
 	}
+	// The store satisfies a constraint that isn't satisfied by any other existing
+	// replica.
 	for _, constraintIdx := range analyzed.satisfies {
 		if len(analyzed.satisfiedBy[constraintIdx]) == 1 {
-			return true, 0
+			return true, true, 0
 		}
 	}
+	// If neither of the above is true, then the store is valid but nonessential.
+	// NOTE: We could be more precise here by trying to find the least essential
+	// existing replica and only considering that one nonessential, but this is
+	// sufficient to avoid violating constraints.
+	return true, false, 0
+
 	// TODO: Handle multiple matches and overlapping matches
 
 	// If we're using per-replica constraints, then we consider invalid any
@@ -971,24 +998,26 @@ func removeConstraintCheck(
 	// shared with rebalanceConstraintCheck that identifies which constraints are
 	// satisified by which replicas?
 
-	var satisfies []int
-	for i, constraints := range perReplicaConstraints {
-		valid := true
-		for _, constraint := range constraints.Constraints {
-			if constraint.Type != config.Constraint_REQUIRED {
-				log.Errorf(context.TODO(),
-					"zone config has non-required constraint %v; this is not allowed", constraint)
-				continue
+	/*
+		var satisfies []int
+		for i, constraints := range perReplicaConstraints {
+			valid := true
+			for _, constraint := range constraints.Constraints {
+				if constraint.Type != config.Constraint_REQUIRED {
+					log.Errorf(context.TODO(),
+						"zone config has non-required constraint %v; this is not allowed", constraint)
+					continue
+				}
+				if !storeHasConstraint(store, constraint) {
+					valid = false
+					break
+				}
 			}
-			if !storeHasConstraint(store, constraint) {
-				valid = false
-				break
+			if valid {
+				// TODO
 			}
 		}
-		if valid {
-			// TODO
-		}
-	}
+	*/
 }
 
 // TODO: Update comment
