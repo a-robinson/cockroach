@@ -563,6 +563,8 @@ func rebalanceCandidates(
 		ok      bool
 		matched int
 	}
+	TODO := rebalanceConstraintCheck(sl.stores, existing, constraints)
+	// TODO: Remove the below loop?
 	storeInfos := make(map[roachpb.StoreID]constraintInfo)
 	var rebalanceConstraintsCheck bool
 	for _, s := range sl.stores {
@@ -903,6 +905,7 @@ func longestReplicaConstraintsMatch(
 
 // TODO: Update comment
 // TODO: Rewrite this to use analyzedConstraints?
+// TODO: Does this need `valid` and `necessary` concepts as well?
 func allocateConstraintCheck(
 	store roachpb.StoreDescriptor,
 	existing []roachpb.ReplicaDescriptor,
@@ -977,8 +980,7 @@ func removeConstraintCheck(
 	// sufficient to avoid violating constraints.
 	return true, false, 0
 
-	// TODO: Handle multiple matches and overlapping matches
-
+	// --------- TODO: Remove everything below here ----------
 	// If we're using per-replica constraints, then we consider invalid any
 	// replica that either doesn't match any constraints or is part of a
 	// subset of replicas that match a subset of constraints where there
@@ -993,10 +995,6 @@ func removeConstraintCheck(
 	// we just remove it immediately. Do we need some other way to express this?
 
 	// TODO: Is this overthinking it?
-
-	// TODO: Do some sort of pre-processing on the existing replicas that can be
-	// shared with rebalanceConstraintCheck that identifies which constraints are
-	// satisified by which replicas?
 
 	/*
 		var satisfies []int
@@ -1022,10 +1020,54 @@ func removeConstraintCheck(
 
 // TODO: Update comment
 func rebalanceConstraintCheck(
-	store roachpb.StoreDescriptor,
+	stores []roachpb.StoreDescriptor,
 	existing []roachpb.ReplicaDescriptor,
-	constraints config.Constraints,
-) (bool, int) {
+	analyzed analyzedConstraints,
+) TODO {
+	// General process:
+	// 1. Determine wether existing replicas are valid and/or necessary.
+	// 2. Group potential rebalance targets by locality.
+	// 3. Determine which groups of rebalance targets are valid and which
+	//		existing replicas each could legally replace.
+
+	existingStores := make(map[roachpb.StoreID]candidate)
+	for _, repl := range existing {
+		existingStores[repl.StoreID] = candidate{}
+	}
+	for _, store := range stores {
+		if _, ok := existingStores[store.StoreID]; ok {
+			valid, necessary, preferredScore := removeConstraintCheck(store, existing, analyzed)
+			diversityScore := diversityRemovalScore(s.Node.NodeID, existingNodeLocalities)
+			existingStores[store.StoreID] = candidate{
+				store:          store,
+				valid:          valid,
+				necessary:      necessary,
+				diversityScore: diversityScore,
+				preferredScore: preferred,
+			}
+		}
+	}
+
+	localityStores := make(map[string][]roachpb.StoreDescriptor)
+	for _, store := range stores {
+		// TODO: plumb the StorePool and/or a function pointer here
+		localityStr := sp.getNodeLocalityString(store.Node.NodeID)
+		localityStores[localityStr] = append(localities[localityStr], store)
+	}
+
+	// TODO: Also need to take store/node attributes into account here
+	localityAttrs := make(map[string]candidate)
+	for localityStr, stores := range localityStores {
+		// TODO: How should `necessary` work here?
+		localityAttrs[localityStr] = candidate{
+			store:          stores[0], // just use the first as a representative example
+			valid:          valid,
+			necessary:      necessary,
+			diversityScore: diversityScore,
+			preferredScore: preferredScore,
+		}
+	}
+
 	// TODO
 	return true, 0
 }
