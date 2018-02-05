@@ -903,9 +903,6 @@ func longestReplicaConstraintsMatch(
 	return longestIdx
 }
 
-// TODO: Update comment
-// TODO: Rewrite this to use analyzedConstraints?
-// TODO: Does this need `valid` and `necessary` concepts as well?
 func allocateConstraintCheck(
 	store roachpb.StoreDescriptor, analyzed analyzedConstraints,
 ) (valid bool, necessary bool, preferredScore int) {
@@ -941,7 +938,6 @@ func allocateConstraintCheck(
 	return false, false, 0
 }
 
-// TODO: Update comment
 func removeConstraintCheck(
 	store roachpb.StoreDescriptor, analyzed analyzedConstraints,
 ) (valid bool, necessary bool, preferredScore int) {
@@ -974,18 +970,12 @@ func removeConstraintCheck(
 	return true, false, 0
 }
 
-// TODO: Update comment
 func rebalanceConstraintCheck(
 	stores []roachpb.StoreDescriptor,
 	existing []roachpb.ReplicaDescriptor,
 	analyzed analyzedConstraints,
 ) TODO {
-	// General process:
-	// 1. Determine wether existing replicas are valid and/or necessary.
-	// 2. Group potential rebalance targets by locality.
-	// 3. Determine which groups of rebalance targets are valid and which
-	//		existing replicas each could legally replace.
-
+	// 1. Determine whether existing replicas are valid and/or necessary.
 	existingStores := make(map[roachpb.StoreID]candidate)
 	for _, repl := range existing {
 		existingStores[repl.StoreID] = candidate{}
@@ -1004,6 +994,7 @@ func rebalanceConstraintCheck(
 		}
 	}
 
+	// 2. Group potential rebalance targets by locality.
 	localityStores := make(map[string][]roachpb.StoreDescriptor)
 	for _, store := range stores {
 		// TODO: plumb the StorePool and/or a function pointer here
@@ -1011,6 +1002,8 @@ func rebalanceConstraintCheck(
 		localityStores[localityStr] = append(localities[localityStr], store)
 	}
 
+	// 3. Determine which groups of rebalance targets are valid and which
+	//		existing replicas each could legally replace.
 	// TODO: Also need to take store/node attributes into account here
 	localityAttrs := make(map[string]candidate)
 	for localityStr, stores := range localityStores {
