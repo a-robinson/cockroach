@@ -548,12 +548,63 @@ func rebalanceCandidates(
 	existingNodeLocalities map[roachpb.NodeID]roachpb.Locality,
 	options scorerOptions,
 ) (candidateList, candidateList) {
-	// Load the exiting storesIDs into a map to eliminate having to loop
-	// through the existing descriptors more than once.
-	existingStoreIDs := make(map[roachpb.StoreID]struct{})
+	// TODO: get an analyzedConstraints object here somehow
+	// 1. Determine whether existing replicas are valid and/or necessary.
+	existingStores := make(map[roachpb.StoreID]candidate)
 	for _, repl := range existing {
-		existingStoreIDs[repl.StoreID] = struct{}{}
+		existingStores[repl.StoreID] = candidate{}
 	}
+	var needRebalance bool
+	var unnecessaryRepls []roachpb.StoreID
+	for _, store := range stores {
+		if _, ok := existingStores[store.StoreID]; ok {
+			valid, necessary, preferredScore := removeConstraintCheck(store, existing, analyzed)
+			if !valid {
+				needRebalance = true
+			}
+			if !necessary {
+				unnecessaryRepls = append(unnecessaryRepls, store.StoreID)
+			}
+			existingStores[store.StoreID] = candidate{
+				store:          store,
+				valid:          valid,
+				necessary:      necessary,
+				preferredScore: preferred,
+			}
+		}
+	}
+
+	// 2. Group potential rebalance targets by locality.
+	localityStores := make(map[string][]roachpb.StoreDescriptor)
+	for _, store := range stores {
+		// TODO: plumb the StorePool and/or a function pointer here
+		localityStr := sp.getNodeLocalityString(store.Node.NodeID)
+		localityStores[localityStr] = append(localities[localityStr], store)
+	}
+
+	// 3. Determine which groups of rebalance targets are valid and which
+	//		existing replicas each could legally replace.
+	// TODO: Also need to take store/node attributes into account here
+	localityAttrs := make(map[string]candidate)
+	var needRebalanceTo bool
+	for localityStr, stores := range localityStores {
+		valid, necessary, preferredScore := allocateConstraintScore(stores[0], analyzedConstraints)
+		if valid && necessary {
+			needRebalanceTo = true
+		}
+		localityAttrs[localityStr] = candidate{
+			store:          stores[0], // just use the first as a representative example
+			valid:          valid,
+			necessary:      necessary,
+			preferredScore: preferredScore,
+		}
+	}
+
+	if !(needRebalance || needsRebalanceTo) {
+		// TODO: shouldRebalance logic
+	}
+
+	// -------------------- TODO -----------------------
 
 	// Go through all the stores and find all that match the constraints so that
 	// we can have accurate stats for rebalance calculations.
@@ -975,46 +1026,6 @@ func rebalanceConstraintCheck(
 	existing []roachpb.ReplicaDescriptor,
 	analyzed analyzedConstraints,
 ) TODO {
-	// 1. Determine whether existing replicas are valid and/or necessary.
-	existingStores := make(map[roachpb.StoreID]candidate)
-	for _, repl := range existing {
-		existingStores[repl.StoreID] = candidate{}
-	}
-	for _, store := range stores {
-		if _, ok := existingStores[store.StoreID]; ok {
-			valid, necessary, preferredScore := removeConstraintCheck(store, existing, analyzed)
-			existingStores[store.StoreID] = candidate{
-				store:          store,
-				valid:          valid,
-				necessary:      necessary,
-				preferredScore: preferred,
-			}
-		}
-	}
-
-	// 2. Group potential rebalance targets by locality.
-	localityStores := make(map[string][]roachpb.StoreDescriptor)
-	for _, store := range stores {
-		// TODO: plumb the StorePool and/or a function pointer here
-		localityStr := sp.getNodeLocalityString(store.Node.NodeID)
-		localityStores[localityStr] = append(localities[localityStr], store)
-	}
-
-	// 3. Determine which groups of rebalance targets are valid and which
-	//		existing replicas each could legally replace.
-	// TODO: Also need to take store/node attributes into account here
-	localityAttrs := make(map[string]candidate)
-	for localityStr, stores := range localityStores {
-		// TODO: How should `necessary` work here?
-		valid, necessary, preferredScore := allocateConstraintScore(stores[0], analyzedConstraints)
-		localityAttrs[localityStr] = candidate{
-			store:          stores[0], // just use the first as a representative example
-			valid:          valid,
-			necessary:      necessary,
-			preferredScore: preferredScore,
-		}
-	}
-
 	// TODO
 	return true, 0
 }
