@@ -983,12 +983,10 @@ func rebalanceConstraintCheck(
 	for _, store := range stores {
 		if _, ok := existingStores[store.StoreID]; ok {
 			valid, necessary, preferredScore := removeConstraintCheck(store, existing, analyzed)
-			diversityScore := diversityRemovalScore(s.Node.NodeID, existingNodeLocalities)
 			existingStores[store.StoreID] = candidate{
 				store:          store,
 				valid:          valid,
 				necessary:      necessary,
-				diversityScore: diversityScore,
 				preferredScore: preferred,
 			}
 		}
@@ -1008,11 +1006,11 @@ func rebalanceConstraintCheck(
 	localityAttrs := make(map[string]candidate)
 	for localityStr, stores := range localityStores {
 		// TODO: How should `necessary` work here?
+		valid, necessary, preferredScore := allocateConstraintScore(stores[0], analyzedConstraints)
 		localityAttrs[localityStr] = candidate{
 			store:          stores[0], // just use the first as a representative example
 			valid:          valid,
 			necessary:      necessary,
-			diversityScore: diversityScore,
 			preferredScore: preferredScore,
 		}
 	}
