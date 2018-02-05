@@ -907,45 +907,38 @@ func longestReplicaConstraintsMatch(
 // TODO: Rewrite this to use analyzedConstraints?
 // TODO: Does this need `valid` and `necessary` concepts as well?
 func allocateConstraintCheck(
-	store roachpb.StoreDescriptor,
-	existing []roachpb.ReplicaDescriptor,
-	constraints config.Constraints,
-) (bool, int) {
+	store roachpb.StoreDescriptor, analyzed analyzedConstraints,
+) (valid bool, necessary bool, preferredScore int) {
 	// Overarching (non-per-replica) constraints work the same when allocating a
 	// new replicas as they do any other time.
-	if len(constraints.Constraints) > 0 {
-		return constraintCheck(store, constraints)
+	if len(analyzed.constraints.Constraints) > 0 {
+		valid, preferredScore := constraintCheck(store, analyzed.constraints)
+		return valid, false, preferredScore
 	}
-	if len(constraints.Replicas) == 0 {
-		return true, 0
+	if len(analyzed.constraints.Replicas) == 0 {
+		return true, false, 0
 	}
-	// If we're using per-replica constraints, then we should only allocate to a
+
+	// If this matches a per-replica constraint that hasn't been satisfied,
+	// the store is both valid and necessary.
 	// constraint that hasn't already been met.
-	remaining := copy(constraints.Replicas)
-	for _, replica := range existing {
-		// TODO: Need to map from replica to store descriptor! Unfortunately the
-		// locality info isn't enough, because constraints can also match
-		// node/store attributes.
-		idx := longestReplicaConstraintsMatch(replica, remaining)
-		if remaining != -1 {
-			remaining = append(remaining[:idx], remaining[idx+1:])
-			if len(remaining) == 0 {
-				break
-			}
+	// TODO: This doesn't handle duplicated per-replica constraints
+	for i, stores := range analyzed.satisfiedBy {
+		if len(stores) == 0 && constraintCheck(store, analyzed.constraints.Replicas[i]) {
+			return true, true, 0
 		}
 	}
-	if len(remaining) == 0 {
-		return true, 0
-	}
-	// TODO: Should we properly support replica lists that are smaller than the
-	// zone config's numReplicas? If so, pass the zone config into here and
-	// determine if there are still any unused wildcard slots.
-	for _, replicaConstraints := range remaining {
-		if longestReplicaConstraintsMatch(store, replicaConstraint) != -1 {
-			return true, 0
+	// If it matches a per-replica constraint that has already been satisfied,
+	// it's valid but not necessary.
+	for _, constraints := range analyzed.constraints.Replicas {
+		if constraintCheck(store, constraints) {
+			return true, false, 0
 		}
 	}
-	return false, 0
+
+	// The store satisfies none of the per-replica constraints.
+	// TODO: This assumes that len(constraints.Replicas) == zoneConfig.numReplicas
+	return false, false, 0
 }
 
 // TODO: Update comment
