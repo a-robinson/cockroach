@@ -972,43 +972,6 @@ func removeConstraintCheck(
 	// existing replica and only considering that one nonessential, but this is
 	// sufficient to avoid violating constraints.
 	return true, false, 0
-
-	// --------- TODO: Remove everything below here ----------
-	// If we're using per-replica constraints, then we consider invalid any
-	// replica that either doesn't match any constraints or is part of a
-	// subset of replicas that match a subset of constraints where there
-	// are more replicas than constraints in the respective subsets.
-	//
-	// We have to do this to ensure that we prefer removing an unnecessary
-	// replica before a necessary one, where a "necessary" replica is one that is
-	// the only replica matching one of the lists of per-replica constraints.
-
-	// TODO: This doesn't jive with how the constraint-checking results are
-	// used -- we don't look at any other characteristics of an invalid node,
-	// we just remove it immediately. Do we need some other way to express this?
-
-	// TODO: Is this overthinking it?
-
-	/*
-		var satisfies []int
-		for i, constraints := range perReplicaConstraints {
-			valid := true
-			for _, constraint := range constraints.Constraints {
-				if constraint.Type != config.Constraint_REQUIRED {
-					log.Errorf(context.TODO(),
-						"zone config has non-required constraint %v; this is not allowed", constraint)
-					continue
-				}
-				if !storeHasConstraint(store, constraint) {
-					valid = false
-					break
-				}
-			}
-			if valid {
-				// TODO
-			}
-		}
-	*/
 }
 
 // TODO: Update comment
