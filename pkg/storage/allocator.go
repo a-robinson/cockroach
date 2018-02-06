@@ -582,6 +582,7 @@ func (a Allocator) RebalanceTarget(
 	return &target.store, string(detailsBytes)
 }
 
+// TODO: how do all the constraint changes affect this function?
 // shouldRebalanceBetween returns whether it's a good idea to rebalance to the
 // given `add` candidate if the replica that will be removed after adding it is
 // `remove`. This is a last failsafe to ensure that we don't take unnecessary

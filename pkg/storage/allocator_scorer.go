@@ -549,34 +549,48 @@ func rebalanceCandidates(
 	options scorerOptions,
 ) (candidateList, candidateList) {
 	// TODO: get an analyzedConstraints object here somehow
-	// 1. Determine whether existing replicas are valid and/or necessary.
+
+	type existingStore struct {
+		cand        candidate
+		localityStr string
+	}
 	existingStores := make(map[roachpb.StoreID]candidate)
 	for _, repl := range existing {
 		existingStores[repl.StoreID] = candidate{}
 	}
+
+	// 1. Determine whether existing replicas are valid and/or necessary.
 	var needRebalance bool
 	var unnecessaryRepls []roachpb.StoreID
-	for _, store := range stores {
+	curDiversityScore := rangeDiversityScore(existingNodeLocalities)
+	for _, store := range sl.stores {
 		if _, ok := existingStores[store.StoreID]; ok {
 			valid, necessary, preferredScore := removeConstraintCheck(store, existing, analyzed)
-			if !valid {
+			fullDisk := !maxCapacityCheck(store)
+			if !valid || fullDisk {
 				needRebalance = true
 			}
 			if !necessary {
 				unnecessaryRepls = append(unnecessaryRepls, store.StoreID)
 			}
-			existingStores[store.StoreID] = candidate{
-				store:          store,
-				valid:          valid,
-				necessary:      necessary,
-				preferredScore: preferred,
+			existingStores[store.StoreID] = existingStore{
+				cand: candidate{
+					store:          store,
+					valid:          valid,
+					necessary:      necessary,
+					fullDisk:       fullDisk,
+					preferredScore: preferred,
+					diversityScore: curDiversityScore,
+				},
+				localityStr: sp.getNodeLocalityString(store.Node.NodeID),
 			}
 		}
 	}
 
 	// 2. Group potential rebalance targets by locality.
+	// Note that sl.stores includes the existing replicas' stores.
 	localityStores := make(map[string][]roachpb.StoreDescriptor)
-	for _, store := range stores {
+	for _, store := range sl.stores {
 		// TODO: plumb the StorePool and/or a function pointer here
 		localityStr := sp.getNodeLocalityString(store.Node.NodeID)
 		localityStores[localityStr] = append(localities[localityStr], store)
@@ -587,9 +601,10 @@ func rebalanceCandidates(
 	// TODO: Also need to take store/node attributes into account here
 	localityAttrs := make(map[string]candidate)
 	var needRebalanceTo bool
+	var necessaryLocalities []string
 	for localityStr, stores := range localityStores {
 		valid, necessary, preferredScore := allocateConstraintScore(stores[0], analyzedConstraints)
-		if valid && necessary {
+		if valid && necessary && len(unnecessaryRepls) > 0 {
 			needRebalanceTo = true
 		}
 		localityAttrs[localityStr] = candidate{
@@ -600,57 +615,51 @@ func rebalanceCandidates(
 		}
 	}
 
-	if !(needRebalance || needsRebalanceTo) {
-		// TODO: shouldRebalance logic
-	}
-
-	// -------------------- TODO -----------------------
-
-	// Go through all the stores and find all that match the constraints so that
-	// we can have accurate stats for rebalance calculations.
-	var constraintsOkStoreDescriptors []roachpb.StoreDescriptor
-
-	type constraintInfo struct {
-		ok      bool
-		matched int
-	}
-	TODO := rebalanceConstraintCheck(sl.stores, existing, constraints)
-	// TODO: Remove the below loop?
-	storeInfos := make(map[roachpb.StoreID]constraintInfo)
-	var rebalanceConstraintsCheck bool
-	for _, s := range sl.stores {
-		// TODO: Need to separate replicas (existing and hypothetical) into
-		// equivalence classes that can be fairly compared against each other.
-		constraintsOk, preferredMatched := rebalanceConstraintCheck(s, existing, constraints)
-		storeInfos[s.StoreID] = constraintInfo{ok: constraintsOk, matched: preferredMatched}
-		_, exists := existingStoreIDs[s.StoreID]
-		if constraintsOk {
-			constraintsOkStoreDescriptors = append(constraintsOkStoreDescriptors, s)
-		} else if exists {
-			rebalanceConstraintsCheck = true
-			log.VEventf(ctx, 2, "must rebalance from s%d due to constraint check", s.StoreID)
+	// Map from the existing replica's localities to StoreLists with the stores
+	// that are valid to compare to them.
+	var comparableStores map[localityStr]StoreList
+	var needRebalanceForDiversity bool
+	for _, existing := range existingStores {
+		if _, ok := comparableStores[existing.localityStr]; ok {
+			// Multiple existing replicas are in the same locality. No need to
+			// do the work twice.
+			continue
 		}
+		var comparable []roachpb.StoreDescriptor
+		for localityStr, cand := range localityAttrs {
+			score := diversityRebalanceFromScore(
+				cand.store, existing.cand.store.Node.NodeID, existingNodeLocalities)
+			// If we can improve the diversity of the range, we should rebalance.
+			if score > curDiversityScore {
+				needRebalanceForDiversity = true
+			}
+			// If the hypothetical diversity score is at least as good as the current
+			// score, the stores in the locality would be valid targets.
+			if score >= curDiversityScore {
+				if stores, ok := localityStores[localityStr]; ok && stores != nil {
+					comparable = append(comparable, stores...)
+				}
+			}
+		}
+		comparableStores[existing.localityStr] = makeStoreList(comparable)
 	}
 
-	constraintsOkStoreList := makeStoreList(constraintsOkStoreDescriptors)
-	var shouldRebalanceCheck bool
-	if !rebalanceConstraintsCheck {
-		for _, store := range sl.stores {
-			if _, ok := existingStoreIDs[store.StoreID]; ok {
-				if shouldRebalance(ctx, store, constraintsOkStoreList, rangeInfo, existingNodeLocalities, options) {
-					shouldRebalanceCheck = true
-					break
-				}
+	// TODO: (re-)add verbose logging explaining why we're rebalancing if we are
+	shouldRebalanceCheck := needRebalance || needsRebalanceTo || needRebalanceForDiversity
+	if !shouldRebalanceCheck {
+		for _, existing := range existingStores {
+			if shouldRebalance(ctx, existing.cand.store, comparableStores[existing.localityStr], rangeInfo, options) {
+				shouldRebalanceCheck = true
+				break
 			}
 		}
 	}
 
-	// Only rebalance away if the constraints don't match or shouldRebalance
-	// indicated that we should consider moving the range away from one of its
-	// existing stores.
-	if !rebalanceConstraintsCheck && !shouldRebalanceCheck {
+	if !shouldRebalanceCheck {
 		return nil, nil
 	}
+
+	// -------------------- TODO -----------------------
 
 	var existingCandidates candidateList
 	var candidates candidateList
@@ -736,30 +745,8 @@ func shouldRebalance(
 	store roachpb.StoreDescriptor,
 	sl StoreList,
 	rangeInfo RangeInfo,
-	existingNodeLocalities map[roachpb.NodeID]roachpb.Locality,
 	options scorerOptions,
 ) bool {
-	// Rebalance if this store is too full.
-	if !maxCapacityCheck(store) {
-		log.VEventf(ctx, 2, "s%d: should-rebalance(disk-full): fraction-used=%.2f, capacity=(%v)",
-			store.StoreID, store.Capacity.FractionUsed(), store.Capacity)
-		return true
-	}
-
-	diversityScore := rangeDiversityScore(existingNodeLocalities)
-	for _, desc := range sl.stores {
-		if !preexistingReplicaCheck(desc.Node.NodeID, rangeInfo.Desc.Replicas) {
-			continue
-		}
-		otherScore := diversityRebalanceFromScore(desc, store.Node.NodeID, existingNodeLocalities)
-		if otherScore > diversityScore {
-			log.VEventf(ctx, 2,
-				"s%d: should-rebalance(better-diversity=s%d): diversityScore=%.5f, otherScore=%.5f",
-				store.StoreID, desc.StoreID, diversityScore, otherScore)
-			return true
-		}
-	}
-
 	if !options.statsBasedRebalancingEnabled {
 		return shouldRebalanceNoStats(ctx, store, sl, options)
 	}
