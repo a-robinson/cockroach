@@ -42,13 +42,26 @@ type InternalTimeSeriesData struct {
 	// The duration of each sample interval, expressed in nanoseconds.
 	SampleDurationNanos int64 `protobuf:"varint,2,opt,name=sample_duration_nanos,json=sampleDurationNanos" json:"sample_duration_nanos"`
 	// The actual data samples for this metric.
-	Samples []InternalTimeSeriesSample `protobuf:"bytes,3,rep,name=samples" json:"samples"`
+	Samples              []InternalTimeSeriesSample `protobuf:"bytes,3,rep,name=samples" json:"samples"`
+	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
+	XXX_sizecache        int32                      `json:"-"`
 }
 
 func (m *InternalTimeSeriesData) Reset()                    { *m = InternalTimeSeriesData{} }
 func (m *InternalTimeSeriesData) String() string            { return proto.CompactTextString(m) }
 func (*InternalTimeSeriesData) ProtoMessage()               {}
 func (*InternalTimeSeriesData) Descriptor() ([]byte, []int) { return fileDescriptorInternal, []int{0} }
+func (dst *InternalTimeSeriesData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InternalTimeSeriesData.Merge(dst, src)
+}
+func (m *InternalTimeSeriesData) XXX_Size() int {
+	return xxx_messageInfo_InternalTimeSeriesData.Size(m)
+}
+func (m *InternalTimeSeriesData) XXX_DiscardUnknown() {
+	xxx_messageInfo_InternalTimeSeriesData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InternalTimeSeriesData proto.InternalMessageInfo
 
 // A InternalTimeSeriesSample represents data gathered from multiple
 // measurements of a variable value over a given period of time. The
@@ -82,13 +95,26 @@ type InternalTimeSeriesSample struct {
 	// Maximum encountered measurement in this sample.
 	Max *float64 `protobuf:"fixed64,8,opt,name=max" json:"max,omitempty"`
 	// Minimum encountered measurement in this sample.
-	Min *float64 `protobuf:"fixed64,9,opt,name=min" json:"min,omitempty"`
+	Min                  *float64 `protobuf:"fixed64,9,opt,name=min" json:"min,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *InternalTimeSeriesSample) Reset()                    { *m = InternalTimeSeriesSample{} }
 func (m *InternalTimeSeriesSample) String() string            { return proto.CompactTextString(m) }
 func (*InternalTimeSeriesSample) ProtoMessage()               {}
 func (*InternalTimeSeriesSample) Descriptor() ([]byte, []int) { return fileDescriptorInternal, []int{1} }
+func (dst *InternalTimeSeriesSample) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InternalTimeSeriesSample.Merge(dst, src)
+}
+func (m *InternalTimeSeriesSample) XXX_Size() int {
+	return xxx_messageInfo_InternalTimeSeriesSample.Size(m)
+}
+func (m *InternalTimeSeriesSample) XXX_DiscardUnknown() {
+	xxx_messageInfo_InternalTimeSeriesSample.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InternalTimeSeriesSample proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*InternalTimeSeriesData)(nil), "cockroach.roachpb.InternalTimeSeriesData")

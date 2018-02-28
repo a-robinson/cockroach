@@ -31,13 +31,26 @@ const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 // / UnresolvedAddr is an unresolved version of net.Addr.
 type UnresolvedAddr struct {
-	NetworkField string `protobuf:"bytes,1,opt,name=network_field,json=networkField" json:"network_field"`
-	AddressField string `protobuf:"bytes,2,opt,name=address_field,json=addressField" json:"address_field"`
+	NetworkField         string   `protobuf:"bytes,1,opt,name=network_field,json=networkField" json:"network_field"`
+	AddressField         string   `protobuf:"bytes,2,opt,name=address_field,json=addressField" json:"address_field"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *UnresolvedAddr) Reset()                    { *m = UnresolvedAddr{} }
 func (*UnresolvedAddr) ProtoMessage()               {}
 func (*UnresolvedAddr) Descriptor() ([]byte, []int) { return fileDescriptorUnresolvedAddr, []int{0} }
+func (dst *UnresolvedAddr) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UnresolvedAddr.Merge(dst, src)
+}
+func (m *UnresolvedAddr) XXX_Size() int {
+	return xxx_messageInfo_UnresolvedAddr.Size(m)
+}
+func (m *UnresolvedAddr) XXX_DiscardUnknown() {
+	xxx_messageInfo_UnresolvedAddr.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UnresolvedAddr proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*UnresolvedAddr)(nil), "cockroach.util.UnresolvedAddr")

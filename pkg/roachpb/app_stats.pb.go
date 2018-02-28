@@ -49,13 +49,26 @@ type StatementStatistics struct {
 	// OverheadLat is the difference between ServiceLat and the sum of parse+plan+run latencies.
 	// We store it separately (as opposed to computing it post-hoc) because the combined
 	// variance for the overhead cannot be derived from the variance of the separate latencies.
-	OverheadLat NumericStat `protobuf:"bytes,10,opt,name=overhead_lat,json=overheadLat" json:"overhead_lat"`
+	OverheadLat          NumericStat `protobuf:"bytes,10,opt,name=overhead_lat,json=overheadLat" json:"overhead_lat"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
 func (m *StatementStatistics) Reset()                    { *m = StatementStatistics{} }
 func (m *StatementStatistics) String() string            { return proto.CompactTextString(m) }
 func (*StatementStatistics) ProtoMessage()               {}
 func (*StatementStatistics) Descriptor() ([]byte, []int) { return fileDescriptorAppStats, []int{0} }
+func (dst *StatementStatistics) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StatementStatistics.Merge(dst, src)
+}
+func (m *StatementStatistics) XXX_Size() int {
+	return xxx_messageInfo_StatementStatistics.Size(m)
+}
+func (m *StatementStatistics) XXX_DiscardUnknown() {
+	xxx_messageInfo_StatementStatistics.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StatementStatistics proto.InternalMessageInfo
 
 type NumericStat struct {
 	// NumericStat keeps track of two running values --- the running mean and
@@ -64,31 +77,59 @@ type NumericStat struct {
 	// method. This is more reliable than keeping track of the sum of
 	// squared values, which is liable to overflow. See
 	// https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
-	Mean         float64 `protobuf:"fixed64,1,opt,name=mean" json:"mean"`
-	SquaredDiffs float64 `protobuf:"fixed64,2,opt,name=squared_diffs,json=squaredDiffs" json:"squared_diffs"`
+	Mean                 float64  `protobuf:"fixed64,1,opt,name=mean" json:"mean"`
+	SquaredDiffs         float64  `protobuf:"fixed64,2,opt,name=squared_diffs,json=squaredDiffs" json:"squared_diffs"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *NumericStat) Reset()                    { *m = NumericStat{} }
 func (m *NumericStat) String() string            { return proto.CompactTextString(m) }
 func (*NumericStat) ProtoMessage()               {}
 func (*NumericStat) Descriptor() ([]byte, []int) { return fileDescriptorAppStats, []int{1} }
+func (dst *NumericStat) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NumericStat.Merge(dst, src)
+}
+func (m *NumericStat) XXX_Size() int {
+	return xxx_messageInfo_NumericStat.Size(m)
+}
+func (m *NumericStat) XXX_DiscardUnknown() {
+	xxx_messageInfo_NumericStat.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NumericStat proto.InternalMessageInfo
 
 type StatementStatisticsKey struct {
-	Query   string `protobuf:"bytes,1,opt,name=query" json:"query"`
-	App     string `protobuf:"bytes,2,opt,name=app" json:"app"`
-	DistSQL bool   `protobuf:"varint,3,opt,name=distSQL" json:"distSQL"`
-	Failed  bool   `protobuf:"varint,4,opt,name=failed" json:"failed"`
+	Query                string   `protobuf:"bytes,1,opt,name=query" json:"query"`
+	App                  string   `protobuf:"bytes,2,opt,name=app" json:"app"`
+	DistSQL              bool     `protobuf:"varint,3,opt,name=distSQL" json:"distSQL"`
+	Failed               bool     `protobuf:"varint,4,opt,name=failed" json:"failed"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *StatementStatisticsKey) Reset()                    { *m = StatementStatisticsKey{} }
 func (m *StatementStatisticsKey) String() string            { return proto.CompactTextString(m) }
 func (*StatementStatisticsKey) ProtoMessage()               {}
 func (*StatementStatisticsKey) Descriptor() ([]byte, []int) { return fileDescriptorAppStats, []int{2} }
+func (dst *StatementStatisticsKey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StatementStatisticsKey.Merge(dst, src)
+}
+func (m *StatementStatisticsKey) XXX_Size() int {
+	return xxx_messageInfo_StatementStatisticsKey.Size(m)
+}
+func (m *StatementStatisticsKey) XXX_DiscardUnknown() {
+	xxx_messageInfo_StatementStatisticsKey.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StatementStatisticsKey proto.InternalMessageInfo
 
 // CollectedStats wraps collected timings and metadata for some query's execution.
 type CollectedStatementStatistics struct {
-	Key   StatementStatisticsKey `protobuf:"bytes,1,opt,name=key" json:"key"`
-	Stats StatementStatistics    `protobuf:"bytes,2,opt,name=stats" json:"stats"`
+	Key                  StatementStatisticsKey `protobuf:"bytes,1,opt,name=key" json:"key"`
+	Stats                StatementStatistics    `protobuf:"bytes,2,opt,name=stats" json:"stats"`
+	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
+	XXX_sizecache        int32                  `json:"-"`
 }
 
 func (m *CollectedStatementStatistics) Reset()         { *m = CollectedStatementStatistics{} }
@@ -97,6 +138,17 @@ func (*CollectedStatementStatistics) ProtoMessage()    {}
 func (*CollectedStatementStatistics) Descriptor() ([]byte, []int) {
 	return fileDescriptorAppStats, []int{3}
 }
+func (dst *CollectedStatementStatistics) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CollectedStatementStatistics.Merge(dst, src)
+}
+func (m *CollectedStatementStatistics) XXX_Size() int {
+	return xxx_messageInfo_CollectedStatementStatistics.Size(m)
+}
+func (m *CollectedStatementStatistics) XXX_DiscardUnknown() {
+	xxx_messageInfo_CollectedStatementStatistics.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CollectedStatementStatistics proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*StatementStatistics)(nil), "cockroach.sql.StatementStatistics")

@@ -40,24 +40,50 @@ type Error struct {
 	Hint    string        `protobuf:"bytes,4,opt,name=hint,proto3" json:"hint,omitempty"`
 	Source  *Error_Source `protobuf:"bytes,5,opt,name=source" json:"source,omitempty"`
 	// "Internal query: the text of a failed internally-generated command."
-	InternalCommand string `protobuf:"bytes,6,opt,name=internalCommand,proto3" json:"internalCommand,omitempty"`
+	InternalCommand      string   `protobuf:"bytes,6,opt,name=internalCommand,proto3" json:"internalCommand,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Error) Reset()                    { *m = Error{} }
 func (m *Error) String() string            { return proto.CompactTextString(m) }
 func (*Error) ProtoMessage()               {}
 func (*Error) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{0} }
+func (dst *Error) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Error.Merge(dst, src)
+}
+func (m *Error) XXX_Size() int {
+	return xxx_messageInfo_Error.Size(m)
+}
+func (m *Error) XXX_DiscardUnknown() {
+	xxx_messageInfo_Error.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Error proto.InternalMessageInfo
 
 type Error_Source struct {
-	File     string `protobuf:"bytes,1,opt,name=file,proto3" json:"file,omitempty"`
-	Line     int32  `protobuf:"varint,2,opt,name=line,proto3" json:"line,omitempty"`
-	Function string `protobuf:"bytes,3,opt,name=function,proto3" json:"function,omitempty"`
+	File                 string   `protobuf:"bytes,1,opt,name=file,proto3" json:"file,omitempty"`
+	Line                 int32    `protobuf:"varint,2,opt,name=line,proto3" json:"line,omitempty"`
+	Function             string   `protobuf:"bytes,3,opt,name=function,proto3" json:"function,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Error_Source) Reset()                    { *m = Error_Source{} }
 func (m *Error_Source) String() string            { return proto.CompactTextString(m) }
 func (*Error_Source) ProtoMessage()               {}
 func (*Error_Source) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{0, 0} }
+func (dst *Error_Source) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Error_Source.Merge(dst, src)
+}
+func (m *Error_Source) XXX_Size() int {
+	return xxx_messageInfo_Error_Source.Size(m)
+}
+func (m *Error_Source) XXX_DiscardUnknown() {
+	xxx_messageInfo_Error_Source.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Error_Source proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*Error)(nil), "cockroach.pgerror.Error")

@@ -35,13 +35,26 @@ type LeaseVal struct {
 	// owns the lease.
 	Owner string `protobuf:"bytes,1,opt,name=owner" json:"owner"`
 	// The expiration time of the lease.
-	Expiration cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=expiration" json:"expiration"`
+	Expiration           cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=expiration" json:"expiration"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *LeaseVal) Reset()                    { *m = LeaseVal{} }
 func (m *LeaseVal) String() string            { return proto.CompactTextString(m) }
 func (*LeaseVal) ProtoMessage()               {}
 func (*LeaseVal) Descriptor() ([]byte, []int) { return fileDescriptorLease, []int{0} }
+func (dst *LeaseVal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LeaseVal.Merge(dst, src)
+}
+func (m *LeaseVal) XXX_Size() int {
+	return xxx_messageInfo_LeaseVal.Size(m)
+}
+func (m *LeaseVal) XXX_DiscardUnknown() {
+	xxx_messageInfo_LeaseVal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LeaseVal proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*LeaseVal)(nil), "cockroach.client.LeaseVal")

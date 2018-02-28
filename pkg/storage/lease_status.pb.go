@@ -63,13 +63,26 @@ type LeaseStatus struct {
 	// State of the lease at timestamp.
 	State LeaseState `protobuf:"varint,3,opt,name=state,proto3,enum=cockroach.storage.LeaseState" json:"state,omitempty"`
 	// Liveness if this is an epoch-based lease.
-	Liveness *Liveness `protobuf:"bytes,4,opt,name=liveness" json:"liveness,omitempty"`
+	Liveness             *Liveness `protobuf:"bytes,4,opt,name=liveness" json:"liveness,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
 }
 
 func (m *LeaseStatus) Reset()                    { *m = LeaseStatus{} }
 func (m *LeaseStatus) String() string            { return proto.CompactTextString(m) }
 func (*LeaseStatus) ProtoMessage()               {}
 func (*LeaseStatus) Descriptor() ([]byte, []int) { return fileDescriptorLeaseStatus, []int{0} }
+func (dst *LeaseStatus) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LeaseStatus.Merge(dst, src)
+}
+func (m *LeaseStatus) XXX_Size() int {
+	return xxx_messageInfo_LeaseStatus.Size(m)
+}
+func (m *LeaseStatus) XXX_DiscardUnknown() {
+	xxx_messageInfo_LeaseStatus.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LeaseStatus proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*LeaseStatus)(nil), "cockroach.storage.LeaseStatus")

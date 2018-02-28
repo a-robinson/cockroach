@@ -22,43 +22,95 @@ type UserLoginRequest struct {
 	// A username which must correspond to a database user on the cluster.
 	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	// A password for the provided username.
-	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *UserLoginRequest) Reset()                    { *m = UserLoginRequest{} }
 func (m *UserLoginRequest) String() string            { return proto.CompactTextString(m) }
 func (*UserLoginRequest) ProtoMessage()               {}
 func (*UserLoginRequest) Descriptor() ([]byte, []int) { return fileDescriptorAuthentication, []int{0} }
+func (dst *UserLoginRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserLoginRequest.Merge(dst, src)
+}
+func (m *UserLoginRequest) XXX_Size() int {
+	return xxx_messageInfo_UserLoginRequest.Size(m)
+}
+func (m *UserLoginRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserLoginRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserLoginRequest proto.InternalMessageInfo
 
 // UserLoginResponse is currently empty. If a login is successful, an HTTP
 // Set-Cookie header will be added to the response with a session
 // cookie identifying the created session.
 type UserLoginResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *UserLoginResponse) Reset()                    { *m = UserLoginResponse{} }
 func (m *UserLoginResponse) String() string            { return proto.CompactTextString(m) }
 func (*UserLoginResponse) ProtoMessage()               {}
 func (*UserLoginResponse) Descriptor() ([]byte, []int) { return fileDescriptorAuthentication, []int{1} }
+func (dst *UserLoginResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserLoginResponse.Merge(dst, src)
+}
+func (m *UserLoginResponse) XXX_Size() int {
+	return xxx_messageInfo_UserLoginResponse.Size(m)
+}
+func (m *UserLoginResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserLoginResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserLoginResponse proto.InternalMessageInfo
 
 // UserLogoutRequest will terminate the current session in use. The request
 // is empty because the current session is identified by an HTTP cookie on the
 // incoming request.
 type UserLogoutRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *UserLogoutRequest) Reset()                    { *m = UserLogoutRequest{} }
 func (m *UserLogoutRequest) String() string            { return proto.CompactTextString(m) }
 func (*UserLogoutRequest) ProtoMessage()               {}
 func (*UserLogoutRequest) Descriptor() ([]byte, []int) { return fileDescriptorAuthentication, []int{2} }
+func (dst *UserLogoutRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserLogoutRequest.Merge(dst, src)
+}
+func (m *UserLogoutRequest) XXX_Size() int {
+	return xxx_messageInfo_UserLogoutRequest.Size(m)
+}
+func (m *UserLogoutRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserLogoutRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserLogoutRequest proto.InternalMessageInfo
 
 type UserLogoutResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *UserLogoutResponse) Reset()                    { *m = UserLogoutResponse{} }
 func (m *UserLogoutResponse) String() string            { return proto.CompactTextString(m) }
 func (*UserLogoutResponse) ProtoMessage()               {}
 func (*UserLogoutResponse) Descriptor() ([]byte, []int) { return fileDescriptorAuthentication, []int{3} }
+func (dst *UserLogoutResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserLogoutResponse.Merge(dst, src)
+}
+func (m *UserLogoutResponse) XXX_Size() int {
+	return xxx_messageInfo_UserLogoutResponse.Size(m)
+}
+func (m *UserLogoutResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserLogoutResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserLogoutResponse proto.InternalMessageInfo
 
 // SessionCookie is a message used to encode the authentication cookie returned
 // from successful login requests.
@@ -66,13 +118,26 @@ type SessionCookie struct {
 	// The unique ID of the session.
 	ID int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// The secret needed to verify ownership of a session.
-	Secret []byte `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"`
+	Secret               []byte   `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *SessionCookie) Reset()                    { *m = SessionCookie{} }
 func (m *SessionCookie) String() string            { return proto.CompactTextString(m) }
 func (*SessionCookie) ProtoMessage()               {}
 func (*SessionCookie) Descriptor() ([]byte, []int) { return fileDescriptorAuthentication, []int{4} }
+func (dst *SessionCookie) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SessionCookie.Merge(dst, src)
+}
+func (m *SessionCookie) XXX_Size() int {
+	return xxx_messageInfo_SessionCookie.Size(m)
+}
+func (m *SessionCookie) XXX_DiscardUnknown() {
+	xxx_messageInfo_SessionCookie.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SessionCookie proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*UserLoginRequest)(nil), "cockroach.server.serverpb.UserLoginRequest")

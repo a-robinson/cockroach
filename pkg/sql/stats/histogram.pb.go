@@ -34,13 +34,26 @@ const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 type HistogramData struct {
 	// Histogram buckets. Note that NULL values are excluded from the
 	// histogram.
-	Buckets []HistogramData_Bucket `protobuf:"bytes,1,rep,name=buckets" json:"buckets"`
+	Buckets              []HistogramData_Bucket `protobuf:"bytes,1,rep,name=buckets" json:"buckets"`
+	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
+	XXX_sizecache        int32                  `json:"-"`
 }
 
 func (m *HistogramData) Reset()                    { *m = HistogramData{} }
 func (m *HistogramData) String() string            { return proto.CompactTextString(m) }
 func (*HistogramData) ProtoMessage()               {}
 func (*HistogramData) Descriptor() ([]byte, []int) { return fileDescriptorHistogram, []int{0} }
+func (dst *HistogramData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HistogramData.Merge(dst, src)
+}
+func (m *HistogramData) XXX_Size() int {
+	return xxx_messageInfo_HistogramData.Size(m)
+}
+func (m *HistogramData) XXX_DiscardUnknown() {
+	xxx_messageInfo_HistogramData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HistogramData proto.InternalMessageInfo
 
 type HistogramData_Bucket struct {
 	// The estimated number of values that are equal to upper_bound.
@@ -56,13 +69,26 @@ type HistogramData_Bucket struct {
 	NumRange int64 `protobuf:"varint,2,opt,name=num_range,json=numRange,proto3" json:"num_range,omitempty"`
 	// The upper boundary of the bucket. The column values for the
 	// upper bound are encoded using the ascending key encoding.
-	UpperBound []byte `protobuf:"bytes,3,opt,name=upper_bound,json=upperBound,proto3" json:"upper_bound,omitempty"`
+	UpperBound           []byte   `protobuf:"bytes,3,opt,name=upper_bound,json=upperBound,proto3" json:"upper_bound,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *HistogramData_Bucket) Reset()                    { *m = HistogramData_Bucket{} }
 func (m *HistogramData_Bucket) String() string            { return proto.CompactTextString(m) }
 func (*HistogramData_Bucket) ProtoMessage()               {}
 func (*HistogramData_Bucket) Descriptor() ([]byte, []int) { return fileDescriptorHistogram, []int{0, 0} }
+func (dst *HistogramData_Bucket) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HistogramData_Bucket.Merge(dst, src)
+}
+func (m *HistogramData_Bucket) XXX_Size() int {
+	return xxx_messageInfo_HistogramData_Bucket.Size(m)
+}
+func (m *HistogramData_Bucket) XXX_DiscardUnknown() {
+	xxx_messageInfo_HistogramData_Bucket.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HistogramData_Bucket proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*HistogramData)(nil), "cockroach.sql.stats.HistogramData")

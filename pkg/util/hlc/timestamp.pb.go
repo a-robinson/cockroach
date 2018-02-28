@@ -23,12 +23,25 @@ type Timestamp struct {
 	// times are equal. It is effectively bounded by (maximum clock
 	// skew)/(minimal ns between events) and nearly impossible to
 	// overflow.
-	Logical int32 `protobuf:"varint,2,opt,name=logical,proto3" json:"logical,omitempty"`
+	Logical              int32    `protobuf:"varint,2,opt,name=logical,proto3" json:"logical,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Timestamp) Reset()                    { *m = Timestamp{} }
 func (*Timestamp) ProtoMessage()               {}
 func (*Timestamp) Descriptor() ([]byte, []int) { return fileDescriptorTimestamp, []int{0} }
+func (dst *Timestamp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Timestamp.Merge(dst, src)
+}
+func (m *Timestamp) XXX_Size() int {
+	return xxx_messageInfo_Timestamp.Size(m)
+}
+func (m *Timestamp) XXX_DiscardUnknown() {
+	xxx_messageInfo_Timestamp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Timestamp proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*Timestamp)(nil), "cockroach.util.hlc.Timestamp")

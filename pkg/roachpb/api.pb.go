@@ -362,14 +362,27 @@ func (ResponseHeader_ResumeReason) EnumDescriptor() ([]byte, []int) {
 // RangeInfo describes a range which executed a request. It contains
 // the range descriptor and lease information at the time of execution.
 type RangeInfo struct {
-	Desc  RangeDescriptor `protobuf:"bytes,1,opt,name=desc" json:"desc"`
-	Lease Lease           `protobuf:"bytes,2,opt,name=lease" json:"lease"`
+	Desc                 RangeDescriptor `protobuf:"bytes,1,opt,name=desc" json:"desc"`
+	Lease                Lease           `protobuf:"bytes,2,opt,name=lease" json:"lease"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
 }
 
 func (m *RangeInfo) Reset()                    { *m = RangeInfo{} }
 func (m *RangeInfo) String() string            { return proto.CompactTextString(m) }
 func (*RangeInfo) ProtoMessage()               {}
 func (*RangeInfo) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{0} }
+func (dst *RangeInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeInfo.Merge(dst, src)
+}
+func (m *RangeInfo) XXX_Size() int {
+	return xxx_messageInfo_RangeInfo.Size(m)
+}
+func (m *RangeInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeInfo proto.InternalMessageInfo
 
 // ResponseHeader is returned with every storage node response.
 type ResponseHeader struct {
@@ -396,23 +409,49 @@ type ResponseHeader struct {
 	NumKeys int64 `protobuf:"varint,5,opt,name=num_keys,json=numKeys,proto3" json:"num_keys,omitempty"`
 	// Range or list of ranges used to execute the request. Multiple
 	// ranges may be returned for Scan, ReverseScan or DeleteRange.
-	RangeInfos []RangeInfo `protobuf:"bytes,6,rep,name=range_infos,json=rangeInfos" json:"range_infos"`
+	RangeInfos           []RangeInfo `protobuf:"bytes,6,rep,name=range_infos,json=rangeInfos" json:"range_infos"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
 func (m *ResponseHeader) Reset()                    { *m = ResponseHeader{} }
 func (m *ResponseHeader) String() string            { return proto.CompactTextString(m) }
 func (*ResponseHeader) ProtoMessage()               {}
 func (*ResponseHeader) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{1} }
+func (dst *ResponseHeader) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ResponseHeader.Merge(dst, src)
+}
+func (m *ResponseHeader) XXX_Size() int {
+	return xxx_messageInfo_ResponseHeader.Size(m)
+}
+func (m *ResponseHeader) XXX_DiscardUnknown() {
+	xxx_messageInfo_ResponseHeader.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ResponseHeader proto.InternalMessageInfo
 
 // A GetRequest is the argument for the Get() method.
 type GetRequest struct {
-	Span `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *GetRequest) Reset()                    { *m = GetRequest{} }
 func (m *GetRequest) String() string            { return proto.CompactTextString(m) }
 func (*GetRequest) ProtoMessage()               {}
 func (*GetRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{2} }
+func (dst *GetRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRequest.Merge(dst, src)
+}
+func (m *GetRequest) XXX_Size() int {
+	return xxx_messageInfo_GetRequest.Size(m)
+}
+func (m *GetRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetRequest proto.InternalMessageInfo
 
 // A GetResponse is the return value from the Get() method.
 // If the key doesn't exist, returns nil for Value.Bytes.
@@ -420,13 +459,26 @@ type GetResponse struct {
 	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
 	Value          *Value `protobuf:"bytes,2,opt,name=value" json:"value,omitempty"`
 	// The intent seen, if any, when using the READ_UNCOMMITTED consistency level.
-	IntentValue *Value `protobuf:"bytes,3,opt,name=intent_value,json=intentValue" json:"intent_value,omitempty"`
+	IntentValue          *Value   `protobuf:"bytes,3,opt,name=intent_value,json=intentValue" json:"intent_value,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *GetResponse) Reset()                    { *m = GetResponse{} }
 func (m *GetResponse) String() string            { return proto.CompactTextString(m) }
 func (*GetResponse) ProtoMessage()               {}
 func (*GetResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{3} }
+func (dst *GetResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetResponse.Merge(dst, src)
+}
+func (m *GetResponse) XXX_Size() int {
+	return xxx_messageInfo_GetResponse.Size(m)
+}
+func (m *GetResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetResponse proto.InternalMessageInfo
 
 // A PutRequest is the argument to the Put() method.
 type PutRequest struct {
@@ -439,23 +491,49 @@ type PutRequest struct {
 	// NOTE: For internal use only! Set to indicate that the put is
 	// writing to virgin keyspace and no reads are necessary to
 	// rationalize MVCC.
-	Blind bool `protobuf:"varint,4,opt,name=blind,proto3" json:"blind,omitempty"`
+	Blind                bool     `protobuf:"varint,4,opt,name=blind,proto3" json:"blind,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *PutRequest) Reset()                    { *m = PutRequest{} }
 func (m *PutRequest) String() string            { return proto.CompactTextString(m) }
 func (*PutRequest) ProtoMessage()               {}
 func (*PutRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{4} }
+func (dst *PutRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PutRequest.Merge(dst, src)
+}
+func (m *PutRequest) XXX_Size() int {
+	return xxx_messageInfo_PutRequest.Size(m)
+}
+func (m *PutRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_PutRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PutRequest proto.InternalMessageInfo
 
 // A PutResponse is the return value from the Put() method.
 type PutResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *PutResponse) Reset()                    { *m = PutResponse{} }
 func (m *PutResponse) String() string            { return proto.CompactTextString(m) }
 func (*PutResponse) ProtoMessage()               {}
 func (*PutResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{5} }
+func (dst *PutResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PutResponse.Merge(dst, src)
+}
+func (m *PutResponse) XXX_Size() int {
+	return xxx_messageInfo_PutResponse.Size(m)
+}
+func (m *PutResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_PutResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PutResponse proto.InternalMessageInfo
 
 // A ConditionalPutRequest is the argument to the ConditionalPut() method.
 //
@@ -474,24 +552,50 @@ type ConditionalPutRequest struct {
 	// NOTE: For internal use only! Set to indicate that the put is
 	// writing to virgin keyspace and no reads are necessary to
 	// rationalize MVCC.
-	Blind bool `protobuf:"varint,4,opt,name=blind,proto3" json:"blind,omitempty"`
+	Blind                bool     `protobuf:"varint,4,opt,name=blind,proto3" json:"blind,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ConditionalPutRequest) Reset()                    { *m = ConditionalPutRequest{} }
 func (m *ConditionalPutRequest) String() string            { return proto.CompactTextString(m) }
 func (*ConditionalPutRequest) ProtoMessage()               {}
 func (*ConditionalPutRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{6} }
+func (dst *ConditionalPutRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConditionalPutRequest.Merge(dst, src)
+}
+func (m *ConditionalPutRequest) XXX_Size() int {
+	return xxx_messageInfo_ConditionalPutRequest.Size(m)
+}
+func (m *ConditionalPutRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConditionalPutRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ConditionalPutRequest proto.InternalMessageInfo
 
 // A ConditionalPutResponse is the return value from the
 // ConditionalPut() method.
 type ConditionalPutResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ConditionalPutResponse) Reset()                    { *m = ConditionalPutResponse{} }
 func (m *ConditionalPutResponse) String() string            { return proto.CompactTextString(m) }
 func (*ConditionalPutResponse) ProtoMessage()               {}
 func (*ConditionalPutResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{7} }
+func (dst *ConditionalPutResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConditionalPutResponse.Merge(dst, src)
+}
+func (m *ConditionalPutResponse) XXX_Size() int {
+	return xxx_messageInfo_ConditionalPutResponse.Size(m)
+}
+func (m *ConditionalPutResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConditionalPutResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ConditionalPutResponse proto.InternalMessageInfo
 
 // An InitPutRequest is the argument to the InitPut() method.
 //
@@ -507,23 +611,49 @@ type InitPutRequest struct {
 	// rationalize MVCC.
 	Blind bool `protobuf:"varint,3,opt,name=blind,proto3" json:"blind,omitempty"`
 	// If true, tombstones cause ConditionFailedErrors.
-	FailOnTombstones bool `protobuf:"varint,4,opt,name=failOnTombstones,proto3" json:"failOnTombstones,omitempty"`
+	FailOnTombstones     bool     `protobuf:"varint,4,opt,name=failOnTombstones,proto3" json:"failOnTombstones,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *InitPutRequest) Reset()                    { *m = InitPutRequest{} }
 func (m *InitPutRequest) String() string            { return proto.CompactTextString(m) }
 func (*InitPutRequest) ProtoMessage()               {}
 func (*InitPutRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{8} }
+func (dst *InitPutRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InitPutRequest.Merge(dst, src)
+}
+func (m *InitPutRequest) XXX_Size() int {
+	return xxx_messageInfo_InitPutRequest.Size(m)
+}
+func (m *InitPutRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_InitPutRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InitPutRequest proto.InternalMessageInfo
 
 // A InitPutResponse is the return value from the InitPut() method.
 type InitPutResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *InitPutResponse) Reset()                    { *m = InitPutResponse{} }
 func (m *InitPutResponse) String() string            { return proto.CompactTextString(m) }
 func (*InitPutResponse) ProtoMessage()               {}
 func (*InitPutResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{9} }
+func (dst *InitPutResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InitPutResponse.Merge(dst, src)
+}
+func (m *InitPutResponse) XXX_Size() int {
+	return xxx_messageInfo_InitPutResponse.Size(m)
+}
+func (m *InitPutResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_InitPutResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InitPutResponse proto.InternalMessageInfo
 
 // An IncrementRequest is the argument to the Increment() method. It
 // increments the value for key, and returns the new value. If no
@@ -532,47 +662,99 @@ func (*InitPutResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi,
 // by Put() or ConditionalPut(). Similarly, Put() and ConditionalPut()
 // cannot be invoked on an incremented key.
 type IncrementRequest struct {
-	Span      `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	Increment int64 `protobuf:"varint,2,opt,name=increment,proto3" json:"increment,omitempty"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Increment            int64    `protobuf:"varint,2,opt,name=increment,proto3" json:"increment,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *IncrementRequest) Reset()                    { *m = IncrementRequest{} }
 func (m *IncrementRequest) String() string            { return proto.CompactTextString(m) }
 func (*IncrementRequest) ProtoMessage()               {}
 func (*IncrementRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{10} }
+func (dst *IncrementRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IncrementRequest.Merge(dst, src)
+}
+func (m *IncrementRequest) XXX_Size() int {
+	return xxx_messageInfo_IncrementRequest.Size(m)
+}
+func (m *IncrementRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_IncrementRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IncrementRequest proto.InternalMessageInfo
 
 // An IncrementResponse is the return value from the Increment
 // method. The new value after increment is specified in NewValue. If
 // the value could not be decoded as specified, Error will be set.
 type IncrementResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	NewValue       int64 `protobuf:"varint,2,opt,name=new_value,json=newValue,proto3" json:"new_value,omitempty"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	NewValue             int64    `protobuf:"varint,2,opt,name=new_value,json=newValue,proto3" json:"new_value,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *IncrementResponse) Reset()                    { *m = IncrementResponse{} }
 func (m *IncrementResponse) String() string            { return proto.CompactTextString(m) }
 func (*IncrementResponse) ProtoMessage()               {}
 func (*IncrementResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{11} }
+func (dst *IncrementResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IncrementResponse.Merge(dst, src)
+}
+func (m *IncrementResponse) XXX_Size() int {
+	return xxx_messageInfo_IncrementResponse.Size(m)
+}
+func (m *IncrementResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_IncrementResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IncrementResponse proto.InternalMessageInfo
 
 // A DeleteRequest is the argument to the Delete() method.
 type DeleteRequest struct {
-	Span `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DeleteRequest) Reset()                    { *m = DeleteRequest{} }
 func (m *DeleteRequest) String() string            { return proto.CompactTextString(m) }
 func (*DeleteRequest) ProtoMessage()               {}
 func (*DeleteRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{12} }
+func (dst *DeleteRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteRequest.Merge(dst, src)
+}
+func (m *DeleteRequest) XXX_Size() int {
+	return xxx_messageInfo_DeleteRequest.Size(m)
+}
+func (m *DeleteRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteRequest proto.InternalMessageInfo
 
 // A DeleteResponse is the return value from the Delete() method.
 type DeleteResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DeleteResponse) Reset()                    { *m = DeleteResponse{} }
 func (m *DeleteResponse) String() string            { return proto.CompactTextString(m) }
 func (*DeleteResponse) ProtoMessage()               {}
 func (*DeleteResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{13} }
+func (dst *DeleteResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteResponse.Merge(dst, src)
+}
+func (m *DeleteResponse) XXX_Size() int {
+	return xxx_messageInfo_DeleteResponse.Size(m)
+}
+func (m *DeleteResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteResponse proto.InternalMessageInfo
 
 // A DeleteRangeRequest is the argument to the DeleteRange() method. It
 // specifies the range of keys to delete.
@@ -591,26 +773,52 @@ type DeleteRangeRequest struct {
 	//
 	// Inline values cannot be deleted transactionally; a DeleteRange with
 	// "inline" set to true will fail if it is executed within a transaction.
-	Inline bool `protobuf:"varint,4,opt,name=inline,proto3" json:"inline,omitempty"`
+	Inline               bool     `protobuf:"varint,4,opt,name=inline,proto3" json:"inline,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DeleteRangeRequest) Reset()                    { *m = DeleteRangeRequest{} }
 func (m *DeleteRangeRequest) String() string            { return proto.CompactTextString(m) }
 func (*DeleteRangeRequest) ProtoMessage()               {}
 func (*DeleteRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{14} }
+func (dst *DeleteRangeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteRangeRequest.Merge(dst, src)
+}
+func (m *DeleteRangeRequest) XXX_Size() int {
+	return xxx_messageInfo_DeleteRangeRequest.Size(m)
+}
+func (m *DeleteRangeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteRangeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteRangeRequest proto.InternalMessageInfo
 
 // A DeleteRangeResponse is the return value from the DeleteRange()
 // method.
 type DeleteRangeResponse struct {
 	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
 	// All the deleted keys if return_keys is set.
-	Keys []Key `protobuf:"bytes,2,rep,name=keys,casttype=Key" json:"keys,omitempty"`
+	Keys                 []Key    `protobuf:"bytes,2,rep,name=keys,casttype=Key" json:"keys,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DeleteRangeResponse) Reset()                    { *m = DeleteRangeResponse{} }
 func (m *DeleteRangeResponse) String() string            { return proto.CompactTextString(m) }
 func (*DeleteRangeResponse) ProtoMessage()               {}
 func (*DeleteRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{15} }
+func (dst *DeleteRangeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteRangeResponse.Merge(dst, src)
+}
+func (m *DeleteRangeResponse) XXX_Size() int {
+	return xxx_messageInfo_DeleteRangeResponse.Size(m)
+}
+func (m *DeleteRangeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteRangeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteRangeResponse proto.InternalMessageInfo
 
 // A ClearRangeRequest is the argument to the ClearRange() method. It
 // specifies a range of keys to clear from the underlying engine. Note
@@ -627,23 +835,49 @@ func (*DeleteRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptor
 // range which is guaranteed to be both inactive and not see future
 // writes. Ignoring this warning may result in data loss.
 type ClearRangeRequest struct {
-	Span `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ClearRangeRequest) Reset()                    { *m = ClearRangeRequest{} }
 func (m *ClearRangeRequest) String() string            { return proto.CompactTextString(m) }
 func (*ClearRangeRequest) ProtoMessage()               {}
 func (*ClearRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{16} }
+func (dst *ClearRangeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ClearRangeRequest.Merge(dst, src)
+}
+func (m *ClearRangeRequest) XXX_Size() int {
+	return xxx_messageInfo_ClearRangeRequest.Size(m)
+}
+func (m *ClearRangeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ClearRangeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ClearRangeRequest proto.InternalMessageInfo
 
 // A ClearRangeResponse is the return value from the ClearRange() method.
 type ClearRangeResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ClearRangeResponse) Reset()                    { *m = ClearRangeResponse{} }
 func (m *ClearRangeResponse) String() string            { return proto.CompactTextString(m) }
 func (*ClearRangeResponse) ProtoMessage()               {}
 func (*ClearRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{17} }
+func (dst *ClearRangeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ClearRangeResponse.Merge(dst, src)
+}
+func (m *ClearRangeResponse) XXX_Size() int {
+	return xxx_messageInfo_ClearRangeResponse.Size(m)
+}
+func (m *ClearRangeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ClearRangeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ClearRangeResponse proto.InternalMessageInfo
 
 // ScanOptions is a collection of options for a batch of scans. The options
 // apply to all the scans in the batch.
@@ -682,13 +916,26 @@ type ScanOptions struct {
 	// This can only be set if stop_at_range_boundary is set. If
 	// header.max_span_request_keys is set, min_results needs to be <=
 	// header.max_span_request_keys.
-	MinResults int64 `protobuf:"varint,2,opt,name=min_results,json=minResults,proto3" json:"min_results,omitempty"`
+	MinResults           int64    `protobuf:"varint,2,opt,name=min_results,json=minResults,proto3" json:"min_results,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ScanOptions) Reset()                    { *m = ScanOptions{} }
 func (m *ScanOptions) String() string            { return proto.CompactTextString(m) }
 func (*ScanOptions) ProtoMessage()               {}
 func (*ScanOptions) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{18} }
+func (dst *ScanOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScanOptions.Merge(dst, src)
+}
+func (m *ScanOptions) XXX_Size() int {
+	return xxx_messageInfo_ScanOptions.Size(m)
+}
+func (m *ScanOptions) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScanOptions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScanOptions proto.InternalMessageInfo
 
 // A ScanRequest is the argument to the Scan() method. It specifies the
 // start and end keys for an ascending scan of [start,end) and the maximum
@@ -696,13 +943,26 @@ func (*ScanOptions) Descriptor() ([]byte, []int) { return fileDescriptorApi, []i
 type ScanRequest struct {
 	Span `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
 	// Replaced by the READ_UNCOMMITTED consistency level.
-	DeprecatedReturnIntents bool `protobuf:"varint,3,opt,name=deprecated_return_intents,json=deprecatedReturnIntents,proto3" json:"deprecated_return_intents,omitempty"`
+	DeprecatedReturnIntents bool     `protobuf:"varint,3,opt,name=deprecated_return_intents,json=deprecatedReturnIntents,proto3" json:"deprecated_return_intents,omitempty"`
+	XXX_NoUnkeyedLiteral    struct{} `json:"-"`
+	XXX_sizecache           int32    `json:"-"`
 }
 
 func (m *ScanRequest) Reset()                    { *m = ScanRequest{} }
 func (m *ScanRequest) String() string            { return proto.CompactTextString(m) }
 func (*ScanRequest) ProtoMessage()               {}
 func (*ScanRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{19} }
+func (dst *ScanRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScanRequest.Merge(dst, src)
+}
+func (m *ScanRequest) XXX_Size() int {
+	return xxx_messageInfo_ScanRequest.Size(m)
+}
+func (m *ScanRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScanRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScanRequest proto.InternalMessageInfo
 
 // A ScanResponse is the return value from the Scan() method.
 type ScanResponse struct {
@@ -712,13 +972,26 @@ type ScanResponse struct {
 	// The intent rows seen when performing a scan at the READ_UNCOMMITTED
 	// consistency level. These rows do not count against the MaxSpanRequestKeys
 	// count.
-	IntentRows []KeyValue `protobuf:"bytes,3,rep,name=intent_rows,json=intentRows" json:"intent_rows"`
+	IntentRows           []KeyValue `protobuf:"bytes,3,rep,name=intent_rows,json=intentRows" json:"intent_rows"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
 }
 
 func (m *ScanResponse) Reset()                    { *m = ScanResponse{} }
 func (m *ScanResponse) String() string            { return proto.CompactTextString(m) }
 func (*ScanResponse) ProtoMessage()               {}
 func (*ScanResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{20} }
+func (dst *ScanResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScanResponse.Merge(dst, src)
+}
+func (m *ScanResponse) XXX_Size() int {
+	return xxx_messageInfo_ScanResponse.Size(m)
+}
+func (m *ScanResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScanResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScanResponse proto.InternalMessageInfo
 
 // A ReverseScanRequest is the argument to the ReverseScan() method. It specifies the
 // start and end keys for a descending scan of [start,end) and the maximum
@@ -726,13 +999,26 @@ func (*ScanResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []
 type ReverseScanRequest struct {
 	Span `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
 	// Replaced by the READ_UNCOMMITTED consistency level.
-	DeprecatedReturnIntents bool `protobuf:"varint,3,opt,name=deprecated_return_intents,json=deprecatedReturnIntents,proto3" json:"deprecated_return_intents,omitempty"`
+	DeprecatedReturnIntents bool     `protobuf:"varint,3,opt,name=deprecated_return_intents,json=deprecatedReturnIntents,proto3" json:"deprecated_return_intents,omitempty"`
+	XXX_NoUnkeyedLiteral    struct{} `json:"-"`
+	XXX_sizecache           int32    `json:"-"`
 }
 
 func (m *ReverseScanRequest) Reset()                    { *m = ReverseScanRequest{} }
 func (m *ReverseScanRequest) String() string            { return proto.CompactTextString(m) }
 func (*ReverseScanRequest) ProtoMessage()               {}
 func (*ReverseScanRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{21} }
+func (dst *ReverseScanRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReverseScanRequest.Merge(dst, src)
+}
+func (m *ReverseScanRequest) XXX_Size() int {
+	return xxx_messageInfo_ReverseScanRequest.Size(m)
+}
+func (m *ReverseScanRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReverseScanRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReverseScanRequest proto.InternalMessageInfo
 
 // A ReverseScanResponse is the return value from the ReverseScan() method.
 type ReverseScanResponse struct {
@@ -742,13 +1028,26 @@ type ReverseScanResponse struct {
 	// The intent rows seen when performing a scan at the READ_UNCOMMITTED
 	// consistency level. These rows do not count against the MaxSpanRequestKeys
 	// count.
-	IntentRows []KeyValue `protobuf:"bytes,3,rep,name=intent_rows,json=intentRows" json:"intent_rows"`
+	IntentRows           []KeyValue `protobuf:"bytes,3,rep,name=intent_rows,json=intentRows" json:"intent_rows"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
 }
 
 func (m *ReverseScanResponse) Reset()                    { *m = ReverseScanResponse{} }
 func (m *ReverseScanResponse) String() string            { return proto.CompactTextString(m) }
 func (*ReverseScanResponse) ProtoMessage()               {}
 func (*ReverseScanResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{22} }
+func (dst *ReverseScanResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReverseScanResponse.Merge(dst, src)
+}
+func (m *ReverseScanResponse) XXX_Size() int {
+	return xxx_messageInfo_ReverseScanResponse.Size(m)
+}
+func (m *ReverseScanResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReverseScanResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReverseScanResponse proto.InternalMessageInfo
 
 // A CheckConsistencyRequest is the argument to the CheckConsistency() method.
 // It specifies the start and end keys for a span of ranges to which a
@@ -757,24 +1056,50 @@ func (*ReverseScanResponse) Descriptor() ([]byte, []int) { return fileDescriptor
 type CheckConsistencyRequest struct {
 	Span `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
 	// log a diff of inconsistencies if such inconsistencies are found.
-	WithDiff bool `protobuf:"varint,2,opt,name=with_diff,json=withDiff,proto3" json:"with_diff,omitempty"`
+	WithDiff             bool     `protobuf:"varint,2,opt,name=with_diff,json=withDiff,proto3" json:"with_diff,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *CheckConsistencyRequest) Reset()                    { *m = CheckConsistencyRequest{} }
 func (m *CheckConsistencyRequest) String() string            { return proto.CompactTextString(m) }
 func (*CheckConsistencyRequest) ProtoMessage()               {}
 func (*CheckConsistencyRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{23} }
+func (dst *CheckConsistencyRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CheckConsistencyRequest.Merge(dst, src)
+}
+func (m *CheckConsistencyRequest) XXX_Size() int {
+	return xxx_messageInfo_CheckConsistencyRequest.Size(m)
+}
+func (m *CheckConsistencyRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CheckConsistencyRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CheckConsistencyRequest proto.InternalMessageInfo
 
 // A CheckConsistencyResponse is the return value from the CheckConsistency() method.
 // If a replica finds itself to be inconsistent with its lease holder it will panic.
 type CheckConsistencyResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *CheckConsistencyResponse) Reset()                    { *m = CheckConsistencyResponse{} }
 func (m *CheckConsistencyResponse) String() string            { return proto.CompactTextString(m) }
 func (*CheckConsistencyResponse) ProtoMessage()               {}
 func (*CheckConsistencyResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{24} }
+func (dst *CheckConsistencyResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CheckConsistencyResponse.Merge(dst, src)
+}
+func (m *CheckConsistencyResponse) XXX_Size() int {
+	return xxx_messageInfo_CheckConsistencyResponse.Size(m)
+}
+func (m *CheckConsistencyResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CheckConsistencyResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CheckConsistencyResponse proto.InternalMessageInfo
 
 // An RecomputeStatsRequest triggers a stats recomputation on the Range addressed by
 // the request.
@@ -792,45 +1117,97 @@ type RecomputeStatsRequest struct {
 	// When dry_run is true, the stats delta is computed, but no stats adjustment
 	// is performed. This isn't useful outside of testing since RecomputeStats is
 	// safe and idempotent.
-	DryRun bool `protobuf:"varint,2,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
+	DryRun               bool     `protobuf:"varint,2,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RecomputeStatsRequest) Reset()                    { *m = RecomputeStatsRequest{} }
 func (m *RecomputeStatsRequest) String() string            { return proto.CompactTextString(m) }
 func (*RecomputeStatsRequest) ProtoMessage()               {}
 func (*RecomputeStatsRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{25} }
+func (dst *RecomputeStatsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RecomputeStatsRequest.Merge(dst, src)
+}
+func (m *RecomputeStatsRequest) XXX_Size() int {
+	return xxx_messageInfo_RecomputeStatsRequest.Size(m)
+}
+func (m *RecomputeStatsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RecomputeStatsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RecomputeStatsRequest proto.InternalMessageInfo
 
 // An RecomputeStatsResponse is the response to an RecomputeStatsRequest.
 type RecomputeStatsResponse struct {
 	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
 	// added_delta is the adjustment made to the range's stats, i.e. `new_stats = old_stats + added_delta`.
-	AddedDelta cockroach_storage_engine_enginepb.MVCCNetworkStats `protobuf:"bytes,2,opt,name=added_delta,json=addedDelta" json:"added_delta"`
+	AddedDelta           cockroach_storage_engine_enginepb.MVCCNetworkStats `protobuf:"bytes,2,opt,name=added_delta,json=addedDelta" json:"added_delta"`
+	XXX_NoUnkeyedLiteral struct{}                                           `json:"-"`
+	XXX_sizecache        int32                                              `json:"-"`
 }
 
 func (m *RecomputeStatsResponse) Reset()                    { *m = RecomputeStatsResponse{} }
 func (m *RecomputeStatsResponse) String() string            { return proto.CompactTextString(m) }
 func (*RecomputeStatsResponse) ProtoMessage()               {}
 func (*RecomputeStatsResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{26} }
+func (dst *RecomputeStatsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RecomputeStatsResponse.Merge(dst, src)
+}
+func (m *RecomputeStatsResponse) XXX_Size() int {
+	return xxx_messageInfo_RecomputeStatsResponse.Size(m)
+}
+func (m *RecomputeStatsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RecomputeStatsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RecomputeStatsResponse proto.InternalMessageInfo
 
 // A BeginTransactionRequest is the argument to the BeginTransaction() method.
 type BeginTransactionRequest struct {
-	Span `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *BeginTransactionRequest) Reset()                    { *m = BeginTransactionRequest{} }
 func (m *BeginTransactionRequest) String() string            { return proto.CompactTextString(m) }
 func (*BeginTransactionRequest) ProtoMessage()               {}
 func (*BeginTransactionRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{27} }
+func (dst *BeginTransactionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BeginTransactionRequest.Merge(dst, src)
+}
+func (m *BeginTransactionRequest) XXX_Size() int {
+	return xxx_messageInfo_BeginTransactionRequest.Size(m)
+}
+func (m *BeginTransactionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_BeginTransactionRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BeginTransactionRequest proto.InternalMessageInfo
 
 // A BeginTransactionResponse is the return value from the BeginTransaction() method.
 type BeginTransactionResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *BeginTransactionResponse) Reset()                    { *m = BeginTransactionResponse{} }
 func (m *BeginTransactionResponse) String() string            { return proto.CompactTextString(m) }
 func (*BeginTransactionResponse) ProtoMessage()               {}
 func (*BeginTransactionResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{28} }
+func (dst *BeginTransactionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BeginTransactionResponse.Merge(dst, src)
+}
+func (m *BeginTransactionResponse) XXX_Size() int {
+	return xxx_messageInfo_BeginTransactionResponse.Size(m)
+}
+func (m *BeginTransactionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_BeginTransactionResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BeginTransactionResponse proto.InternalMessageInfo
 
 // An EndTransactionRequest is the argument to the EndTransaction() method. It
 // specifies whether to commit or roll back an extant transaction.
@@ -866,13 +1243,26 @@ type EndTransactionRequest struct {
 	// Set to true if this transaction is serializable isolation but has
 	// accummulated no refresh spans. This allows the executing server
 	// to retry it locally on the fast path.
-	NoRefreshSpans bool `protobuf:"varint,8,opt,name=no_refresh_spans,json=noRefreshSpans,proto3" json:"no_refresh_spans,omitempty"`
+	NoRefreshSpans       bool     `protobuf:"varint,8,opt,name=no_refresh_spans,json=noRefreshSpans,proto3" json:"no_refresh_spans,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *EndTransactionRequest) Reset()                    { *m = EndTransactionRequest{} }
 func (m *EndTransactionRequest) String() string            { return proto.CompactTextString(m) }
 func (*EndTransactionRequest) ProtoMessage()               {}
 func (*EndTransactionRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{29} }
+func (dst *EndTransactionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EndTransactionRequest.Merge(dst, src)
+}
+func (m *EndTransactionRequest) XXX_Size() int {
+	return xxx_messageInfo_EndTransactionRequest.Size(m)
+}
+func (m *EndTransactionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_EndTransactionRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EndTransactionRequest proto.InternalMessageInfo
 
 // An EndTransactionResponse is the return value from the
 // EndTransaction() method. The final transaction record is returned
@@ -886,13 +1276,26 @@ type EndTransactionResponse struct {
 	// True if the transaction committed on the one phase commit path.
 	// This means that all writes which were part of the transaction
 	// were written as a single, atomic write batch to just one range.
-	OnePhaseCommit bool `protobuf:"varint,4,opt,name=one_phase_commit,json=onePhaseCommit,proto3" json:"one_phase_commit,omitempty"`
+	OnePhaseCommit       bool     `protobuf:"varint,4,opt,name=one_phase_commit,json=onePhaseCommit,proto3" json:"one_phase_commit,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *EndTransactionResponse) Reset()                    { *m = EndTransactionResponse{} }
 func (m *EndTransactionResponse) String() string            { return proto.CompactTextString(m) }
 func (*EndTransactionResponse) ProtoMessage()               {}
 func (*EndTransactionResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{30} }
+func (dst *EndTransactionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EndTransactionResponse.Merge(dst, src)
+}
+func (m *EndTransactionResponse) XXX_Size() int {
+	return xxx_messageInfo_EndTransactionResponse.Size(m)
+}
+func (m *EndTransactionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_EndTransactionResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EndTransactionResponse proto.InternalMessageInfo
 
 // An AdminSplitRequest is the argument to the AdminSplit() method. The
 // existing range which contains header.key is split by
@@ -915,25 +1318,51 @@ func (*EndTransactionResponse) Descriptor() ([]byte, []int) { return fileDescrip
 // metadata (e.g. sequence cache and range stats must be copied or
 // recomputed).
 type AdminSplitRequest struct {
-	Span     `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	SplitKey Key `protobuf:"bytes,2,opt,name=split_key,json=splitKey,proto3,casttype=Key" json:"split_key,omitempty"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	SplitKey             Key      `protobuf:"bytes,2,opt,name=split_key,json=splitKey,proto3,casttype=Key" json:"split_key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AdminSplitRequest) Reset()                    { *m = AdminSplitRequest{} }
 func (m *AdminSplitRequest) String() string            { return proto.CompactTextString(m) }
 func (*AdminSplitRequest) ProtoMessage()               {}
 func (*AdminSplitRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{31} }
+func (dst *AdminSplitRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AdminSplitRequest.Merge(dst, src)
+}
+func (m *AdminSplitRequest) XXX_Size() int {
+	return xxx_messageInfo_AdminSplitRequest.Size(m)
+}
+func (m *AdminSplitRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AdminSplitRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AdminSplitRequest proto.InternalMessageInfo
 
 // An AdminSplitResponse is the return value from the AdminSplit()
 // method.
 type AdminSplitResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AdminSplitResponse) Reset()                    { *m = AdminSplitResponse{} }
 func (m *AdminSplitResponse) String() string            { return proto.CompactTextString(m) }
 func (*AdminSplitResponse) ProtoMessage()               {}
 func (*AdminSplitResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{32} }
+func (dst *AdminSplitResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AdminSplitResponse.Merge(dst, src)
+}
+func (m *AdminSplitResponse) XXX_Size() int {
+	return xxx_messageInfo_AdminSplitResponse.Size(m)
+}
+func (m *AdminSplitResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AdminSplitResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AdminSplitResponse proto.InternalMessageInfo
 
 // An AdminMergeRequest is the argument to the AdminMerge() method. A
 // merge is performed by calling AdminMerge on the left-hand range of
@@ -945,70 +1374,148 @@ func (*AdminSplitResponse) Descriptor() ([]byte, []int) { return fileDescriptorA
 // of the subsumed range. If AdminMerge is called on the final range
 // in the key space, it is a noop.
 type AdminMergeRequest struct {
-	Span `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AdminMergeRequest) Reset()                    { *m = AdminMergeRequest{} }
 func (m *AdminMergeRequest) String() string            { return proto.CompactTextString(m) }
 func (*AdminMergeRequest) ProtoMessage()               {}
 func (*AdminMergeRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{33} }
+func (dst *AdminMergeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AdminMergeRequest.Merge(dst, src)
+}
+func (m *AdminMergeRequest) XXX_Size() int {
+	return xxx_messageInfo_AdminMergeRequest.Size(m)
+}
+func (m *AdminMergeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AdminMergeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AdminMergeRequest proto.InternalMessageInfo
 
 // An AdminMergeResponse is the return value from the AdminMerge()
 // method.
 type AdminMergeResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AdminMergeResponse) Reset()                    { *m = AdminMergeResponse{} }
 func (m *AdminMergeResponse) String() string            { return proto.CompactTextString(m) }
 func (*AdminMergeResponse) ProtoMessage()               {}
 func (*AdminMergeResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{34} }
+func (dst *AdminMergeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AdminMergeResponse.Merge(dst, src)
+}
+func (m *AdminMergeResponse) XXX_Size() int {
+	return xxx_messageInfo_AdminMergeResponse.Size(m)
+}
+func (m *AdminMergeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AdminMergeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AdminMergeResponse proto.InternalMessageInfo
 
 // An AdminTransferLeaseRequest is the argument to the AdminTransferLease()
 // method. A lease transfer allows an external entity to control the lease
 // holder for a range. The target of the lease transfer needs to be a valid
 // replica of the range.
 type AdminTransferLeaseRequest struct {
-	Span   `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	Target StoreID `protobuf:"varint,2,opt,name=target,proto3,casttype=StoreID" json:"target,omitempty"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Target               StoreID  `protobuf:"varint,2,opt,name=target,proto3,casttype=StoreID" json:"target,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AdminTransferLeaseRequest) Reset()                    { *m = AdminTransferLeaseRequest{} }
 func (m *AdminTransferLeaseRequest) String() string            { return proto.CompactTextString(m) }
 func (*AdminTransferLeaseRequest) ProtoMessage()               {}
 func (*AdminTransferLeaseRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{35} }
+func (dst *AdminTransferLeaseRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AdminTransferLeaseRequest.Merge(dst, src)
+}
+func (m *AdminTransferLeaseRequest) XXX_Size() int {
+	return xxx_messageInfo_AdminTransferLeaseRequest.Size(m)
+}
+func (m *AdminTransferLeaseRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AdminTransferLeaseRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AdminTransferLeaseRequest proto.InternalMessageInfo
 
 type AdminTransferLeaseResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AdminTransferLeaseResponse) Reset()                    { *m = AdminTransferLeaseResponse{} }
 func (m *AdminTransferLeaseResponse) String() string            { return proto.CompactTextString(m) }
 func (*AdminTransferLeaseResponse) ProtoMessage()               {}
 func (*AdminTransferLeaseResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{36} }
+func (dst *AdminTransferLeaseResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AdminTransferLeaseResponse.Merge(dst, src)
+}
+func (m *AdminTransferLeaseResponse) XXX_Size() int {
+	return xxx_messageInfo_AdminTransferLeaseResponse.Size(m)
+}
+func (m *AdminTransferLeaseResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AdminTransferLeaseResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AdminTransferLeaseResponse proto.InternalMessageInfo
 
 // An AdminChangeReplicasRequest is the argument to the AdminChangeReplicas()
 // method. A change replicas operation allows adding or removing a set of
 // replicas for a range.
 type AdminChangeReplicasRequest struct {
-	Span       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	ChangeType ReplicaChangeType   `protobuf:"varint,2,opt,name=change_type,json=changeType,proto3,enum=cockroach.roachpb.ReplicaChangeType" json:"change_type,omitempty"`
-	Targets    []ReplicationTarget `protobuf:"bytes,3,rep,name=targets" json:"targets"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ChangeType           ReplicaChangeType   `protobuf:"varint,2,opt,name=change_type,json=changeType,proto3,enum=cockroach.roachpb.ReplicaChangeType" json:"change_type,omitempty"`
+	Targets              []ReplicationTarget `protobuf:"bytes,3,rep,name=targets" json:"targets"`
+	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
+	XXX_sizecache        int32               `json:"-"`
 }
 
 func (m *AdminChangeReplicasRequest) Reset()                    { *m = AdminChangeReplicasRequest{} }
 func (m *AdminChangeReplicasRequest) String() string            { return proto.CompactTextString(m) }
 func (*AdminChangeReplicasRequest) ProtoMessage()               {}
 func (*AdminChangeReplicasRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{37} }
+func (dst *AdminChangeReplicasRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AdminChangeReplicasRequest.Merge(dst, src)
+}
+func (m *AdminChangeReplicasRequest) XXX_Size() int {
+	return xxx_messageInfo_AdminChangeReplicasRequest.Size(m)
+}
+func (m *AdminChangeReplicasRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AdminChangeReplicasRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AdminChangeReplicasRequest proto.InternalMessageInfo
 
 type AdminChangeReplicasResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AdminChangeReplicasResponse) Reset()                    { *m = AdminChangeReplicasResponse{} }
 func (m *AdminChangeReplicasResponse) String() string            { return proto.CompactTextString(m) }
 func (*AdminChangeReplicasResponse) ProtoMessage()               {}
 func (*AdminChangeReplicasResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{38} }
+func (dst *AdminChangeReplicasResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AdminChangeReplicasResponse.Merge(dst, src)
+}
+func (m *AdminChangeReplicasResponse) XXX_Size() int {
+	return xxx_messageInfo_AdminChangeReplicasResponse.Size(m)
+}
+func (m *AdminChangeReplicasResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AdminChangeReplicasResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AdminChangeReplicasResponse proto.InternalMessageInfo
 
 // A DeprecatedRangeLookupRequest is arguments to the LegacyRangeLookup()
 // method. It has been deprecated in favor of using ScanRequest to perform the
@@ -1029,22 +1536,37 @@ type DeprecatedRangeLookupRequest struct {
 	MaxRanges int32 `protobuf:"varint,2,opt,name=max_ranges,json=maxRanges,proto3" json:"max_ranges,omitempty"`
 	// Use a reverse scan to pre-fill the range descriptor cache instead
 	// of an ascending scan.
-	Reverse bool `protobuf:"varint,4,opt,name=reverse,proto3" json:"reverse,omitempty"`
+	Reverse              bool     `protobuf:"varint,4,opt,name=reverse,proto3" json:"reverse,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DeprecatedRangeLookupRequest) Reset()                    { *m = DeprecatedRangeLookupRequest{} }
 func (m *DeprecatedRangeLookupRequest) String() string            { return proto.CompactTextString(m) }
 func (*DeprecatedRangeLookupRequest) ProtoMessage()               {}
 func (*DeprecatedRangeLookupRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{39} }
+func (dst *DeprecatedRangeLookupRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeprecatedRangeLookupRequest.Merge(dst, src)
+}
+func (m *DeprecatedRangeLookupRequest) XXX_Size() int {
+	return xxx_messageInfo_DeprecatedRangeLookupRequest.Size(m)
+}
+func (m *DeprecatedRangeLookupRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeprecatedRangeLookupRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeprecatedRangeLookupRequest proto.InternalMessageInfo
 
 // A DeprecatedRangeLookupResponse is the return value from the
 // LegacyRangeLookup() method. It returns metadata for the range containing the
 // requested key, optionally returning the metadata for additional consecutive
 // ranges beyond the requested range to pre-fill the range descriptor cache.
 type DeprecatedRangeLookupResponse struct {
-	ResponseHeader   `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	Ranges           []RangeDescriptor `protobuf:"bytes,2,rep,name=ranges" json:"ranges"`
-	PrefetchedRanges []RangeDescriptor `protobuf:"bytes,3,rep,name=prefetched_ranges,json=prefetchedRanges" json:"prefetched_ranges"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Ranges               []RangeDescriptor `protobuf:"bytes,2,rep,name=ranges" json:"ranges"`
+	PrefetchedRanges     []RangeDescriptor `protobuf:"bytes,3,rep,name=prefetched_ranges,json=prefetchedRanges" json:"prefetched_ranges"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
 }
 
 func (m *DeprecatedRangeLookupResponse) Reset()         { *m = DeprecatedRangeLookupResponse{} }
@@ -1053,6 +1575,17 @@ func (*DeprecatedRangeLookupResponse) ProtoMessage()    {}
 func (*DeprecatedRangeLookupResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptorApi, []int{40}
 }
+func (dst *DeprecatedRangeLookupResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeprecatedRangeLookupResponse.Merge(dst, src)
+}
+func (m *DeprecatedRangeLookupResponse) XXX_Size() int {
+	return xxx_messageInfo_DeprecatedRangeLookupResponse.Size(m)
+}
+func (m *DeprecatedRangeLookupResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeprecatedRangeLookupResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeprecatedRangeLookupResponse proto.InternalMessageInfo
 
 // A HeartbeatTxnRequest is arguments to the HeartbeatTxn()
 // method. It's sent by transaction coordinators to let the system
@@ -1060,27 +1593,53 @@ func (*DeprecatedRangeLookupResponse) Descriptor() ([]byte, []int) {
 // heartbeat message is different from the heartbeat message in the
 // gossip protocol.
 type HeartbeatTxnRequest struct {
-	Span `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	Now  cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=now" json:"now"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Now                  cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=now" json:"now"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *HeartbeatTxnRequest) Reset()                    { *m = HeartbeatTxnRequest{} }
 func (m *HeartbeatTxnRequest) String() string            { return proto.CompactTextString(m) }
 func (*HeartbeatTxnRequest) ProtoMessage()               {}
 func (*HeartbeatTxnRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{41} }
+func (dst *HeartbeatTxnRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HeartbeatTxnRequest.Merge(dst, src)
+}
+func (m *HeartbeatTxnRequest) XXX_Size() int {
+	return xxx_messageInfo_HeartbeatTxnRequest.Size(m)
+}
+func (m *HeartbeatTxnRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_HeartbeatTxnRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HeartbeatTxnRequest proto.InternalMessageInfo
 
 // A HeartbeatTxnResponse is the return value from the HeartbeatTxn()
 // method. It returns the transaction info in the response header. The
 // returned transaction lets the coordinator know the disposition of
 // the transaction (i.e. aborted, committed, or pending).
 type HeartbeatTxnResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *HeartbeatTxnResponse) Reset()                    { *m = HeartbeatTxnResponse{} }
 func (m *HeartbeatTxnResponse) String() string            { return proto.CompactTextString(m) }
 func (*HeartbeatTxnResponse) ProtoMessage()               {}
 func (*HeartbeatTxnResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{42} }
+func (dst *HeartbeatTxnResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HeartbeatTxnResponse.Merge(dst, src)
+}
+func (m *HeartbeatTxnResponse) XXX_Size() int {
+	return xxx_messageInfo_HeartbeatTxnResponse.Size(m)
+}
+func (m *HeartbeatTxnResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_HeartbeatTxnResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HeartbeatTxnResponse proto.InternalMessageInfo
 
 // A GCRequest is arguments to the GC() method. It's sent by range
 // lease holders after scanning range data to find expired MVCC values.
@@ -1091,33 +1650,72 @@ type GCRequest struct {
 	Threshold cockroach_util_hlc.Timestamp `protobuf:"bytes,4,opt,name=threshold" json:"threshold"`
 	// TxnSpanGCThreshold is the timestamp below which inactive transactions were
 	// considered for GC (and thus might have been removed).
-	TxnSpanGCThreshold cockroach_util_hlc.Timestamp `protobuf:"bytes,5,opt,name=txn_span_gc_threshold,json=txnSpanGcThreshold" json:"txn_span_gc_threshold"`
+	TxnSpanGCThreshold   cockroach_util_hlc.Timestamp `protobuf:"bytes,5,opt,name=txn_span_gc_threshold,json=txnSpanGcThreshold" json:"txn_span_gc_threshold"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *GCRequest) Reset()                    { *m = GCRequest{} }
 func (m *GCRequest) String() string            { return proto.CompactTextString(m) }
 func (*GCRequest) ProtoMessage()               {}
 func (*GCRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{43} }
+func (dst *GCRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GCRequest.Merge(dst, src)
+}
+func (m *GCRequest) XXX_Size() int {
+	return xxx_messageInfo_GCRequest.Size(m)
+}
+func (m *GCRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GCRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GCRequest proto.InternalMessageInfo
 
 type GCRequest_GCKey struct {
-	Key       Key                          `protobuf:"bytes,1,opt,name=key,proto3,casttype=Key" json:"key,omitempty"`
-	Timestamp cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=timestamp" json:"timestamp"`
+	Key                  Key                          `protobuf:"bytes,1,opt,name=key,proto3,casttype=Key" json:"key,omitempty"`
+	Timestamp            cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=timestamp" json:"timestamp"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *GCRequest_GCKey) Reset()                    { *m = GCRequest_GCKey{} }
 func (m *GCRequest_GCKey) String() string            { return proto.CompactTextString(m) }
 func (*GCRequest_GCKey) ProtoMessage()               {}
 func (*GCRequest_GCKey) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{43, 0} }
+func (dst *GCRequest_GCKey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GCRequest_GCKey.Merge(dst, src)
+}
+func (m *GCRequest_GCKey) XXX_Size() int {
+	return xxx_messageInfo_GCRequest_GCKey.Size(m)
+}
+func (m *GCRequest_GCKey) XXX_DiscardUnknown() {
+	xxx_messageInfo_GCRequest_GCKey.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GCRequest_GCKey proto.InternalMessageInfo
 
 // A GCResponse is the return value from the GC() method.
 type GCResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *GCResponse) Reset()                    { *m = GCResponse{} }
 func (m *GCResponse) String() string            { return proto.CompactTextString(m) }
 func (*GCResponse) ProtoMessage()               {}
 func (*GCResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{44} }
+func (dst *GCResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GCResponse.Merge(dst, src)
+}
+func (m *GCResponse) XXX_Size() int {
+	return xxx_messageInfo_GCResponse.Size(m)
+}
+func (m *GCResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GCResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GCResponse proto.InternalMessageInfo
 
 // A PushTxnRequest is arguments to the PushTxn() method. It's sent by
 // readers or writers which have encountered an "intent" laid down by
@@ -1161,13 +1759,26 @@ type PushTxnRequest struct {
 	PushType PushTxnType `protobuf:"varint,6,opt,name=push_type,json=pushType,proto3,enum=cockroach.roachpb.PushTxnType" json:"push_type,omitempty"`
 	// Forces the push by overriding the normal checks in PushTxn to
 	// either abort or push the timestamp.
-	Force bool `protobuf:"varint,7,opt,name=force,proto3" json:"force,omitempty"`
+	Force                bool     `protobuf:"varint,7,opt,name=force,proto3" json:"force,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *PushTxnRequest) Reset()                    { *m = PushTxnRequest{} }
 func (m *PushTxnRequest) String() string            { return proto.CompactTextString(m) }
 func (*PushTxnRequest) ProtoMessage()               {}
 func (*PushTxnRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{45} }
+func (dst *PushTxnRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PushTxnRequest.Merge(dst, src)
+}
+func (m *PushTxnRequest) XXX_Size() int {
+	return xxx_messageInfo_PushTxnRequest.Size(m)
+}
+func (m *PushTxnRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_PushTxnRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PushTxnRequest proto.InternalMessageInfo
 
 // A PushTxnResponse is the return value from the PushTxn() method. It
 // returns success and the resulting state of PusheeTxn if the
@@ -1180,13 +1791,26 @@ type PushTxnResponse struct {
 	// the current value of the transaction.
 	// TODO(tschottdorf): Maybe this can be a TxnMeta instead; probably requires
 	// factoring out the new Priority.
-	PusheeTxn Transaction `protobuf:"bytes,2,opt,name=pushee_txn,json=pusheeTxn" json:"pushee_txn"`
+	PusheeTxn            Transaction `protobuf:"bytes,2,opt,name=pushee_txn,json=pusheeTxn" json:"pushee_txn"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
 func (m *PushTxnResponse) Reset()                    { *m = PushTxnResponse{} }
 func (m *PushTxnResponse) String() string            { return proto.CompactTextString(m) }
 func (*PushTxnResponse) ProtoMessage()               {}
 func (*PushTxnResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{46} }
+func (dst *PushTxnResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PushTxnResponse.Merge(dst, src)
+}
+func (m *PushTxnResponse) XXX_Size() int {
+	return xxx_messageInfo_PushTxnResponse.Size(m)
+}
+func (m *PushTxnResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_PushTxnResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PushTxnResponse proto.InternalMessageInfo
 
 // A QueryTxnResponse is arguments to the QueryTxn() method. It's sent
 // by transactions which are waiting to push another transaction because
@@ -1200,13 +1824,26 @@ type QueryTxnRequest struct {
 	// transaction status or priority -OR- to the set of dependent transactions.
 	WaitForUpdate bool `protobuf:"varint,3,opt,name=wait_for_update,json=waitForUpdate,proto3" json:"wait_for_update,omitempty"`
 	// Set of known dependent transactions.
-	KnownWaitingTxns []github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,4,rep,name=known_waiting_txns,json=knownWaitingTxns,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"known_waiting_txns,omitempty"`
+	KnownWaitingTxns     []github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,4,rep,name=known_waiting_txns,json=knownWaitingTxns,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"known_waiting_txns,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                              `json:"-"`
+	XXX_sizecache        int32                                                 `json:"-"`
 }
 
 func (m *QueryTxnRequest) Reset()                    { *m = QueryTxnRequest{} }
 func (m *QueryTxnRequest) String() string            { return proto.CompactTextString(m) }
 func (*QueryTxnRequest) ProtoMessage()               {}
 func (*QueryTxnRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{47} }
+func (dst *QueryTxnRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTxnRequest.Merge(dst, src)
+}
+func (m *QueryTxnRequest) XXX_Size() int {
+	return xxx_messageInfo_QueryTxnRequest.Size(m)
+}
+func (m *QueryTxnRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTxnRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryTxnRequest proto.InternalMessageInfo
 
 // A QueryTxnResponse is the return value from the QueryTxn() method.
 type QueryTxnResponse struct {
@@ -1215,13 +1852,26 @@ type QueryTxnResponse struct {
 	// transaction record does not exist, this will be empty.
 	QueriedTxn Transaction `protobuf:"bytes,2,opt,name=queried_txn,json=queriedTxn" json:"queried_txn"`
 	// Specifies a list of transaction IDs which are waiting on the txn.
-	WaitingTxns []github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,3,rep,name=waiting_txns,json=waitingTxns,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"waiting_txns,omitempty"`
+	WaitingTxns          []github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,3,rep,name=waiting_txns,json=waitingTxns,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"waiting_txns,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                              `json:"-"`
+	XXX_sizecache        int32                                                 `json:"-"`
 }
 
 func (m *QueryTxnResponse) Reset()                    { *m = QueryTxnResponse{} }
 func (m *QueryTxnResponse) String() string            { return proto.CompactTextString(m) }
 func (*QueryTxnResponse) ProtoMessage()               {}
 func (*QueryTxnResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{48} }
+func (dst *QueryTxnResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTxnResponse.Merge(dst, src)
+}
+func (m *QueryTxnResponse) XXX_Size() int {
+	return xxx_messageInfo_QueryTxnResponse.Size(m)
+}
+func (m *QueryTxnResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTxnResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryTxnResponse proto.InternalMessageInfo
 
 // A ResolveIntentRequest is arguments to the ResolveIntent()
 // method. It is sent by transaction coordinators after success
@@ -1235,24 +1885,50 @@ type ResolveIntentRequest struct {
 	Status TransactionStatus `protobuf:"varint,3,opt,name=status,proto3,enum=cockroach.roachpb.TransactionStatus" json:"status,omitempty"`
 	// Optionally poison the sequence cache for the transaction the intent's
 	// range.
-	Poison bool `protobuf:"varint,4,opt,name=poison,proto3" json:"poison,omitempty"`
+	Poison               bool     `protobuf:"varint,4,opt,name=poison,proto3" json:"poison,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ResolveIntentRequest) Reset()                    { *m = ResolveIntentRequest{} }
 func (m *ResolveIntentRequest) String() string            { return proto.CompactTextString(m) }
 func (*ResolveIntentRequest) ProtoMessage()               {}
 func (*ResolveIntentRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{49} }
+func (dst *ResolveIntentRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ResolveIntentRequest.Merge(dst, src)
+}
+func (m *ResolveIntentRequest) XXX_Size() int {
+	return xxx_messageInfo_ResolveIntentRequest.Size(m)
+}
+func (m *ResolveIntentRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ResolveIntentRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ResolveIntentRequest proto.InternalMessageInfo
 
 // A ResolveIntentResponse is the return value from the
 // ResolveIntent() method.
 type ResolveIntentResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ResolveIntentResponse) Reset()                    { *m = ResolveIntentResponse{} }
 func (m *ResolveIntentResponse) String() string            { return proto.CompactTextString(m) }
 func (*ResolveIntentResponse) ProtoMessage()               {}
 func (*ResolveIntentResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{50} }
+func (dst *ResolveIntentResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ResolveIntentResponse.Merge(dst, src)
+}
+func (m *ResolveIntentResponse) XXX_Size() int {
+	return xxx_messageInfo_ResolveIntentResponse.Size(m)
+}
+func (m *ResolveIntentResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ResolveIntentResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ResolveIntentResponse proto.InternalMessageInfo
 
 // A ResolveIntentRangeRequest is arguments to the ResolveIntentRange() method.
 // It is sent by transaction coordinators after success calling PushTxn to
@@ -1270,65 +1946,143 @@ type ResolveIntentRangeRequest struct {
 	// The minimum timestamp for any intents written by this
 	// transaction. If present, this value can be used to optimize the
 	// iteration over the span to find intents to resolve.
-	MinTimestamp cockroach_util_hlc.Timestamp `protobuf:"bytes,5,opt,name=min_timestamp,json=minTimestamp" json:"min_timestamp"`
+	MinTimestamp         cockroach_util_hlc.Timestamp `protobuf:"bytes,5,opt,name=min_timestamp,json=minTimestamp" json:"min_timestamp"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *ResolveIntentRangeRequest) Reset()                    { *m = ResolveIntentRangeRequest{} }
 func (m *ResolveIntentRangeRequest) String() string            { return proto.CompactTextString(m) }
 func (*ResolveIntentRangeRequest) ProtoMessage()               {}
 func (*ResolveIntentRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{51} }
+func (dst *ResolveIntentRangeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ResolveIntentRangeRequest.Merge(dst, src)
+}
+func (m *ResolveIntentRangeRequest) XXX_Size() int {
+	return xxx_messageInfo_ResolveIntentRangeRequest.Size(m)
+}
+func (m *ResolveIntentRangeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ResolveIntentRangeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ResolveIntentRangeRequest proto.InternalMessageInfo
 
 // A NoopResponse is the return value from a no-op operation.
 type NoopResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *NoopResponse) Reset()                    { *m = NoopResponse{} }
 func (m *NoopResponse) String() string            { return proto.CompactTextString(m) }
 func (*NoopResponse) ProtoMessage()               {}
 func (*NoopResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{52} }
+func (dst *NoopResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NoopResponse.Merge(dst, src)
+}
+func (m *NoopResponse) XXX_Size() int {
+	return xxx_messageInfo_NoopResponse.Size(m)
+}
+func (m *NoopResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_NoopResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NoopResponse proto.InternalMessageInfo
 
 // A NoopRequest is a no-op.
 type NoopRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *NoopRequest) Reset()                    { *m = NoopRequest{} }
 func (m *NoopRequest) String() string            { return proto.CompactTextString(m) }
 func (*NoopRequest) ProtoMessage()               {}
 func (*NoopRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{53} }
+func (dst *NoopRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NoopRequest.Merge(dst, src)
+}
+func (m *NoopRequest) XXX_Size() int {
+	return xxx_messageInfo_NoopRequest.Size(m)
+}
+func (m *NoopRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_NoopRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NoopRequest proto.InternalMessageInfo
 
 // A ResolveIntentRangeResponse is the return value from the
 // ResolveIntent() method.
 type ResolveIntentRangeResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ResolveIntentRangeResponse) Reset()                    { *m = ResolveIntentRangeResponse{} }
 func (m *ResolveIntentRangeResponse) String() string            { return proto.CompactTextString(m) }
 func (*ResolveIntentRangeResponse) ProtoMessage()               {}
 func (*ResolveIntentRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{54} }
+func (dst *ResolveIntentRangeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ResolveIntentRangeResponse.Merge(dst, src)
+}
+func (m *ResolveIntentRangeResponse) XXX_Size() int {
+	return xxx_messageInfo_ResolveIntentRangeResponse.Size(m)
+}
+func (m *ResolveIntentRangeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ResolveIntentRangeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ResolveIntentRangeResponse proto.InternalMessageInfo
 
 // A MergeRequest contains arguments to the Merge() method. It
 // specifies a key and a value which should be merged into the
 // existing value at that key.
 type MergeRequest struct {
-	Span  `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	Value Value `protobuf:"bytes,2,opt,name=value" json:"value"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Value                Value    `protobuf:"bytes,2,opt,name=value" json:"value"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *MergeRequest) Reset()                    { *m = MergeRequest{} }
 func (m *MergeRequest) String() string            { return proto.CompactTextString(m) }
 func (*MergeRequest) ProtoMessage()               {}
 func (*MergeRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{55} }
+func (dst *MergeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MergeRequest.Merge(dst, src)
+}
+func (m *MergeRequest) XXX_Size() int {
+	return xxx_messageInfo_MergeRequest.Size(m)
+}
+func (m *MergeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_MergeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MergeRequest proto.InternalMessageInfo
 
 // MergeResponse is the response to a Merge() operation.
 type MergeResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *MergeResponse) Reset()                    { *m = MergeResponse{} }
 func (m *MergeResponse) String() string            { return proto.CompactTextString(m) }
 func (*MergeResponse) ProtoMessage()               {}
 func (*MergeResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{56} }
+func (dst *MergeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MergeResponse.Merge(dst, src)
+}
+func (m *MergeResponse) XXX_Size() int {
+	return xxx_messageInfo_MergeResponse.Size(m)
+}
+func (m *MergeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MergeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MergeResponse proto.InternalMessageInfo
 
 // TruncateLogRequest is used to remove a prefix of the raft log. While there
 // is no requirement for correctness that the raft log truncation be synchronized across
@@ -1343,23 +2097,49 @@ type TruncateLogRequest struct {
 	// The header specifies a span, start and end keys, but not the range id
 	// itself. The range may have changed from the one specified in the header
 	// in the case of a merge.
-	RangeID RangeID `protobuf:"varint,3,opt,name=range_id,json=rangeId,proto3,casttype=RangeID" json:"range_id,omitempty"`
+	RangeID              RangeID  `protobuf:"varint,3,opt,name=range_id,json=rangeId,proto3,casttype=RangeID" json:"range_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TruncateLogRequest) Reset()                    { *m = TruncateLogRequest{} }
 func (m *TruncateLogRequest) String() string            { return proto.CompactTextString(m) }
 func (*TruncateLogRequest) ProtoMessage()               {}
 func (*TruncateLogRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{57} }
+func (dst *TruncateLogRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TruncateLogRequest.Merge(dst, src)
+}
+func (m *TruncateLogRequest) XXX_Size() int {
+	return xxx_messageInfo_TruncateLogRequest.Size(m)
+}
+func (m *TruncateLogRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_TruncateLogRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TruncateLogRequest proto.InternalMessageInfo
 
 // TruncateLogResponse is the response to a TruncateLog() operation.
 type TruncateLogResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TruncateLogResponse) Reset()                    { *m = TruncateLogResponse{} }
 func (m *TruncateLogResponse) String() string            { return proto.CompactTextString(m) }
 func (*TruncateLogResponse) ProtoMessage()               {}
 func (*TruncateLogResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{58} }
+func (dst *TruncateLogResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TruncateLogResponse.Merge(dst, src)
+}
+func (m *TruncateLogResponse) XXX_Size() int {
+	return xxx_messageInfo_TruncateLogResponse.Size(m)
+}
+func (m *TruncateLogResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_TruncateLogResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TruncateLogResponse proto.InternalMessageInfo
 
 // A RequestLeaseRequest is arguments to the RequestLease()
 // method. It is sent by the store on behalf of one of its ranges upon receipt
@@ -1369,13 +2149,26 @@ type RequestLeaseRequest struct {
 	Lease Lease `protobuf:"bytes,2,opt,name=lease" json:"lease"`
 	// The previous lease is specified by the caller to verify
 	// it has not changed when executing this command.
-	PrevLease Lease `protobuf:"bytes,3,opt,name=prev_lease,json=prevLease" json:"prev_lease"`
+	PrevLease            Lease    `protobuf:"bytes,3,opt,name=prev_lease,json=prevLease" json:"prev_lease"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RequestLeaseRequest) Reset()                    { *m = RequestLeaseRequest{} }
 func (m *RequestLeaseRequest) String() string            { return proto.CompactTextString(m) }
 func (*RequestLeaseRequest) ProtoMessage()               {}
 func (*RequestLeaseRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{59} }
+func (dst *RequestLeaseRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RequestLeaseRequest.Merge(dst, src)
+}
+func (m *RequestLeaseRequest) XXX_Size() int {
+	return xxx_messageInfo_RequestLeaseRequest.Size(m)
+}
+func (m *RequestLeaseRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RequestLeaseRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RequestLeaseRequest proto.InternalMessageInfo
 
 // A TransferLeaseRequest represents the arguments to the TransferLease()
 // method. It is sent by a replica that currently holds the range lease and
@@ -1394,50 +2187,102 @@ type TransferLeaseRequest struct {
 	Lease Lease `protobuf:"bytes,2,opt,name=lease" json:"lease"`
 	// The previous lease is specified by the caller to verify
 	// it has not changed when executing this command.
-	PrevLease Lease `protobuf:"bytes,3,opt,name=prev_lease,json=prevLease" json:"prev_lease"`
+	PrevLease            Lease    `protobuf:"bytes,3,opt,name=prev_lease,json=prevLease" json:"prev_lease"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TransferLeaseRequest) Reset()                    { *m = TransferLeaseRequest{} }
 func (m *TransferLeaseRequest) String() string            { return proto.CompactTextString(m) }
 func (*TransferLeaseRequest) ProtoMessage()               {}
 func (*TransferLeaseRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{60} }
+func (dst *TransferLeaseRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TransferLeaseRequest.Merge(dst, src)
+}
+func (m *TransferLeaseRequest) XXX_Size() int {
+	return xxx_messageInfo_TransferLeaseRequest.Size(m)
+}
+func (m *TransferLeaseRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_TransferLeaseRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TransferLeaseRequest proto.InternalMessageInfo
 
 // LeaseInfoRequest is the argument to the LeaseInfo() method, for getting
 // information about a range's lease.
 // It's a point request, so it addresses one single range, and returns the lease
 // currently in effect for that range.
 type LeaseInfoRequest struct {
-	Span `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *LeaseInfoRequest) Reset()                    { *m = LeaseInfoRequest{} }
 func (m *LeaseInfoRequest) String() string            { return proto.CompactTextString(m) }
 func (*LeaseInfoRequest) ProtoMessage()               {}
 func (*LeaseInfoRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{61} }
+func (dst *LeaseInfoRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LeaseInfoRequest.Merge(dst, src)
+}
+func (m *LeaseInfoRequest) XXX_Size() int {
+	return xxx_messageInfo_LeaseInfoRequest.Size(m)
+}
+func (m *LeaseInfoRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_LeaseInfoRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LeaseInfoRequest proto.InternalMessageInfo
 
 // LeaseInfoResponse is the response to a LeaseInfo() operation.
 type LeaseInfoResponse struct {
 	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
 	// The last lease known by the replica serving the request. It can also be the
 	// tentative future lease, if a lease transfer is in progress.
-	Lease Lease `protobuf:"bytes,2,opt,name=lease" json:"lease"`
+	Lease                Lease    `protobuf:"bytes,2,opt,name=lease" json:"lease"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *LeaseInfoResponse) Reset()                    { *m = LeaseInfoResponse{} }
 func (m *LeaseInfoResponse) String() string            { return proto.CompactTextString(m) }
 func (*LeaseInfoResponse) ProtoMessage()               {}
 func (*LeaseInfoResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{62} }
+func (dst *LeaseInfoResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LeaseInfoResponse.Merge(dst, src)
+}
+func (m *LeaseInfoResponse) XXX_Size() int {
+	return xxx_messageInfo_LeaseInfoResponse.Size(m)
+}
+func (m *LeaseInfoResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_LeaseInfoResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LeaseInfoResponse proto.InternalMessageInfo
 
 // A RequestLeaseResponse is the response to a RequestLease() or TransferLease()
 // operation.
 type RequestLeaseResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RequestLeaseResponse) Reset()                    { *m = RequestLeaseResponse{} }
 func (m *RequestLeaseResponse) String() string            { return proto.CompactTextString(m) }
 func (*RequestLeaseResponse) ProtoMessage()               {}
 func (*RequestLeaseResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{63} }
+func (dst *RequestLeaseResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RequestLeaseResponse.Merge(dst, src)
+}
+func (m *RequestLeaseResponse) XXX_Size() int {
+	return xxx_messageInfo_RequestLeaseResponse.Size(m)
+}
+func (m *RequestLeaseResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RequestLeaseResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RequestLeaseResponse proto.InternalMessageInfo
 
 // A ComputeChecksumRequest is arguments to the ComputeChecksum() method, to
 // start computing the checksum for the specified range at the snapshot for this
@@ -1453,26 +2298,54 @@ type ComputeChecksumRequest struct {
 	ChecksumID github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,3,opt,name=checksum_id,json=checksumId,proto3,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"checksum_id"`
 	// Compute a checksum along with a snapshot of the entire range, that will be
 	// used in logging a diff during checksum verification.
-	Snapshot bool `protobuf:"varint,4,opt,name=snapshot,proto3" json:"snapshot,omitempty"`
+	Snapshot             bool     `protobuf:"varint,4,opt,name=snapshot,proto3" json:"snapshot,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ComputeChecksumRequest) Reset()                    { *m = ComputeChecksumRequest{} }
 func (m *ComputeChecksumRequest) String() string            { return proto.CompactTextString(m) }
 func (*ComputeChecksumRequest) ProtoMessage()               {}
 func (*ComputeChecksumRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{64} }
+func (dst *ComputeChecksumRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ComputeChecksumRequest.Merge(dst, src)
+}
+func (m *ComputeChecksumRequest) XXX_Size() int {
+	return xxx_messageInfo_ComputeChecksumRequest.Size(m)
+}
+func (m *ComputeChecksumRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ComputeChecksumRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ComputeChecksumRequest proto.InternalMessageInfo
 
 // A ComputeChecksumResponse is the response to a ComputeChecksum() operation.
 type ComputeChecksumResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ComputeChecksumResponse) Reset()                    { *m = ComputeChecksumResponse{} }
 func (m *ComputeChecksumResponse) String() string            { return proto.CompactTextString(m) }
 func (*ComputeChecksumResponse) ProtoMessage()               {}
 func (*ComputeChecksumResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{65} }
+func (dst *ComputeChecksumResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ComputeChecksumResponse.Merge(dst, src)
+}
+func (m *ComputeChecksumResponse) XXX_Size() int {
+	return xxx_messageInfo_ComputeChecksumResponse.Size(m)
+}
+func (m *ComputeChecksumResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ComputeChecksumResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ComputeChecksumResponse proto.InternalMessageInfo
 
 type DeprecatedVerifyChecksumRequest struct {
-	Span `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DeprecatedVerifyChecksumRequest) Reset()         { *m = DeprecatedVerifyChecksumRequest{} }
@@ -1481,9 +2354,22 @@ func (*DeprecatedVerifyChecksumRequest) ProtoMessage()    {}
 func (*DeprecatedVerifyChecksumRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptorApi, []int{66}
 }
+func (dst *DeprecatedVerifyChecksumRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeprecatedVerifyChecksumRequest.Merge(dst, src)
+}
+func (m *DeprecatedVerifyChecksumRequest) XXX_Size() int {
+	return xxx_messageInfo_DeprecatedVerifyChecksumRequest.Size(m)
+}
+func (m *DeprecatedVerifyChecksumRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeprecatedVerifyChecksumRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeprecatedVerifyChecksumRequest proto.InternalMessageInfo
 
 type DeprecatedVerifyChecksumResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DeprecatedVerifyChecksumResponse) Reset()         { *m = DeprecatedVerifyChecksumResponse{} }
@@ -1492,23 +2378,49 @@ func (*DeprecatedVerifyChecksumResponse) ProtoMessage()    {}
 func (*DeprecatedVerifyChecksumResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptorApi, []int{67}
 }
+func (dst *DeprecatedVerifyChecksumResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeprecatedVerifyChecksumResponse.Merge(dst, src)
+}
+func (m *DeprecatedVerifyChecksumResponse) XXX_Size() int {
+	return xxx_messageInfo_DeprecatedVerifyChecksumResponse.Size(m)
+}
+func (m *DeprecatedVerifyChecksumResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeprecatedVerifyChecksumResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeprecatedVerifyChecksumResponse proto.InternalMessageInfo
 
 type ExportStorage struct {
-	Provider          ExportStorageProvider       `protobuf:"varint,1,opt,name=provider,proto3,enum=cockroach.roachpb.ExportStorageProvider" json:"provider,omitempty"`
-	LocalFile         ExportStorage_LocalFilePath `protobuf:"bytes,2,opt,name=LocalFile" json:"LocalFile"`
-	HttpPath          ExportStorage_Http          `protobuf:"bytes,3,opt,name=HttpPath" json:"HttpPath"`
-	GoogleCloudConfig *ExportStorage_GCS          `protobuf:"bytes,4,opt,name=GoogleCloudConfig" json:"GoogleCloudConfig,omitempty"`
-	S3Config          *ExportStorage_S3           `protobuf:"bytes,5,opt,name=S3Config" json:"S3Config,omitempty"`
-	AzureConfig       *ExportStorage_Azure        `protobuf:"bytes,6,opt,name=AzureConfig" json:"AzureConfig,omitempty"`
+	Provider             ExportStorageProvider       `protobuf:"varint,1,opt,name=provider,proto3,enum=cockroach.roachpb.ExportStorageProvider" json:"provider,omitempty"`
+	LocalFile            ExportStorage_LocalFilePath `protobuf:"bytes,2,opt,name=LocalFile" json:"LocalFile"`
+	HttpPath             ExportStorage_Http          `protobuf:"bytes,3,opt,name=HttpPath" json:"HttpPath"`
+	GoogleCloudConfig    *ExportStorage_GCS          `protobuf:"bytes,4,opt,name=GoogleCloudConfig" json:"GoogleCloudConfig,omitempty"`
+	S3Config             *ExportStorage_S3           `protobuf:"bytes,5,opt,name=S3Config" json:"S3Config,omitempty"`
+	AzureConfig          *ExportStorage_Azure        `protobuf:"bytes,6,opt,name=AzureConfig" json:"AzureConfig,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
+	XXX_sizecache        int32                       `json:"-"`
 }
 
 func (m *ExportStorage) Reset()                    { *m = ExportStorage{} }
 func (m *ExportStorage) String() string            { return proto.CompactTextString(m) }
 func (*ExportStorage) ProtoMessage()               {}
 func (*ExportStorage) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{68} }
+func (dst *ExportStorage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExportStorage.Merge(dst, src)
+}
+func (m *ExportStorage) XXX_Size() int {
+	return xxx_messageInfo_ExportStorage.Size(m)
+}
+func (m *ExportStorage) XXX_DiscardUnknown() {
+	xxx_messageInfo_ExportStorage.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ExportStorage proto.InternalMessageInfo
 
 type ExportStorage_LocalFilePath struct {
-	Path string `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	Path                 string   `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ExportStorage_LocalFilePath) Reset()         { *m = ExportStorage_LocalFilePath{} }
@@ -1517,53 +2429,116 @@ func (*ExportStorage_LocalFilePath) ProtoMessage()    {}
 func (*ExportStorage_LocalFilePath) Descriptor() ([]byte, []int) {
 	return fileDescriptorApi, []int{68, 0}
 }
+func (dst *ExportStorage_LocalFilePath) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExportStorage_LocalFilePath.Merge(dst, src)
+}
+func (m *ExportStorage_LocalFilePath) XXX_Size() int {
+	return xxx_messageInfo_ExportStorage_LocalFilePath.Size(m)
+}
+func (m *ExportStorage_LocalFilePath) XXX_DiscardUnknown() {
+	xxx_messageInfo_ExportStorage_LocalFilePath.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ExportStorage_LocalFilePath proto.InternalMessageInfo
 
 type ExportStorage_Http struct {
-	BaseUri string `protobuf:"bytes,1,opt,name=baseUri,proto3" json:"baseUri,omitempty"`
+	BaseUri              string   `protobuf:"bytes,1,opt,name=baseUri,proto3" json:"baseUri,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ExportStorage_Http) Reset()                    { *m = ExportStorage_Http{} }
 func (m *ExportStorage_Http) String() string            { return proto.CompactTextString(m) }
 func (*ExportStorage_Http) ProtoMessage()               {}
 func (*ExportStorage_Http) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{68, 1} }
+func (dst *ExportStorage_Http) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExportStorage_Http.Merge(dst, src)
+}
+func (m *ExportStorage_Http) XXX_Size() int {
+	return xxx_messageInfo_ExportStorage_Http.Size(m)
+}
+func (m *ExportStorage_Http) XXX_DiscardUnknown() {
+	xxx_messageInfo_ExportStorage_Http.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ExportStorage_Http proto.InternalMessageInfo
 
 type ExportStorage_S3 struct {
-	Bucket    string `protobuf:"bytes,1,opt,name=bucket,proto3" json:"bucket,omitempty"`
-	Prefix    string `protobuf:"bytes,2,opt,name=prefix,proto3" json:"prefix,omitempty"`
-	AccessKey string `protobuf:"bytes,3,opt,name=access_key,json=accessKey,proto3" json:"access_key,omitempty"`
-	Secret    string `protobuf:"bytes,4,opt,name=secret,proto3" json:"secret,omitempty"`
-	TempToken string `protobuf:"bytes,5,opt,name=temp_token,json=tempToken,proto3" json:"temp_token,omitempty"`
-	Endpoint  string `protobuf:"bytes,6,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
-	Region    string `protobuf:"bytes,7,opt,name=region,proto3" json:"region,omitempty"`
+	Bucket               string   `protobuf:"bytes,1,opt,name=bucket,proto3" json:"bucket,omitempty"`
+	Prefix               string   `protobuf:"bytes,2,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	AccessKey            string   `protobuf:"bytes,3,opt,name=access_key,json=accessKey,proto3" json:"access_key,omitempty"`
+	Secret               string   `protobuf:"bytes,4,opt,name=secret,proto3" json:"secret,omitempty"`
+	TempToken            string   `protobuf:"bytes,5,opt,name=temp_token,json=tempToken,proto3" json:"temp_token,omitempty"`
+	Endpoint             string   `protobuf:"bytes,6,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
+	Region               string   `protobuf:"bytes,7,opt,name=region,proto3" json:"region,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ExportStorage_S3) Reset()                    { *m = ExportStorage_S3{} }
 func (m *ExportStorage_S3) String() string            { return proto.CompactTextString(m) }
 func (*ExportStorage_S3) ProtoMessage()               {}
 func (*ExportStorage_S3) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{68, 2} }
+func (dst *ExportStorage_S3) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExportStorage_S3.Merge(dst, src)
+}
+func (m *ExportStorage_S3) XXX_Size() int {
+	return xxx_messageInfo_ExportStorage_S3.Size(m)
+}
+func (m *ExportStorage_S3) XXX_DiscardUnknown() {
+	xxx_messageInfo_ExportStorage_S3.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ExportStorage_S3 proto.InternalMessageInfo
 
 type ExportStorage_GCS struct {
-	Bucket string `protobuf:"bytes,1,opt,name=bucket,proto3" json:"bucket,omitempty"`
-	Prefix string `protobuf:"bytes,2,opt,name=prefix,proto3" json:"prefix,omitempty"`
-	Auth   string `protobuf:"bytes,3,opt,name=auth,proto3" json:"auth,omitempty"`
+	Bucket               string   `protobuf:"bytes,1,opt,name=bucket,proto3" json:"bucket,omitempty"`
+	Prefix               string   `protobuf:"bytes,2,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	Auth                 string   `protobuf:"bytes,3,opt,name=auth,proto3" json:"auth,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ExportStorage_GCS) Reset()                    { *m = ExportStorage_GCS{} }
 func (m *ExportStorage_GCS) String() string            { return proto.CompactTextString(m) }
 func (*ExportStorage_GCS) ProtoMessage()               {}
 func (*ExportStorage_GCS) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{68, 3} }
+func (dst *ExportStorage_GCS) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExportStorage_GCS.Merge(dst, src)
+}
+func (m *ExportStorage_GCS) XXX_Size() int {
+	return xxx_messageInfo_ExportStorage_GCS.Size(m)
+}
+func (m *ExportStorage_GCS) XXX_DiscardUnknown() {
+	xxx_messageInfo_ExportStorage_GCS.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ExportStorage_GCS proto.InternalMessageInfo
 
 type ExportStorage_Azure struct {
-	Container   string `protobuf:"bytes,1,opt,name=container,proto3" json:"container,omitempty"`
-	Prefix      string `protobuf:"bytes,2,opt,name=prefix,proto3" json:"prefix,omitempty"`
-	AccountName string `protobuf:"bytes,3,opt,name=account_name,json=accountName,proto3" json:"account_name,omitempty"`
-	AccountKey  string `protobuf:"bytes,4,opt,name=account_key,json=accountKey,proto3" json:"account_key,omitempty"`
+	Container            string   `protobuf:"bytes,1,opt,name=container,proto3" json:"container,omitempty"`
+	Prefix               string   `protobuf:"bytes,2,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	AccountName          string   `protobuf:"bytes,3,opt,name=account_name,json=accountName,proto3" json:"account_name,omitempty"`
+	AccountKey           string   `protobuf:"bytes,4,opt,name=account_key,json=accountKey,proto3" json:"account_key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ExportStorage_Azure) Reset()                    { *m = ExportStorage_Azure{} }
 func (m *ExportStorage_Azure) String() string            { return proto.CompactTextString(m) }
 func (*ExportStorage_Azure) ProtoMessage()               {}
 func (*ExportStorage_Azure) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{68, 4} }
+func (dst *ExportStorage_Azure) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExportStorage_Azure.Merge(dst, src)
+}
+func (m *ExportStorage_Azure) XXX_Size() int {
+	return xxx_messageInfo_ExportStorage_Azure.Size(m)
+}
+func (m *ExportStorage_Azure) XXX_DiscardUnknown() {
+	xxx_messageInfo_ExportStorage_Azure.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ExportStorage_Azure proto.InternalMessageInfo
 
 // WriteBatchRequest is arguments to the WriteBatch() method, to apply the
 // operations encoded in a BatchRepr.
@@ -1573,23 +2548,49 @@ type WriteBatchRequest struct {
 	// be modified by DistSender and we use this one to fail fast.
 	DataSpan Span `protobuf:"bytes,2,opt,name=data_span,json=dataSpan" json:"data_span"`
 	// A BatchRepr, the serialized form of a RocksDB Batch.
-	Data []byte `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
+	Data                 []byte   `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *WriteBatchRequest) Reset()                    { *m = WriteBatchRequest{} }
 func (m *WriteBatchRequest) String() string            { return proto.CompactTextString(m) }
 func (*WriteBatchRequest) ProtoMessage()               {}
 func (*WriteBatchRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{69} }
+func (dst *WriteBatchRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_WriteBatchRequest.Merge(dst, src)
+}
+func (m *WriteBatchRequest) XXX_Size() int {
+	return xxx_messageInfo_WriteBatchRequest.Size(m)
+}
+func (m *WriteBatchRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_WriteBatchRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_WriteBatchRequest proto.InternalMessageInfo
 
 // WriteBatchResponse is the response to a WriteBatch() operation.
 type WriteBatchResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *WriteBatchResponse) Reset()                    { *m = WriteBatchResponse{} }
 func (m *WriteBatchResponse) String() string            { return proto.CompactTextString(m) }
 func (*WriteBatchResponse) ProtoMessage()               {}
 func (*WriteBatchResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{70} }
+func (dst *WriteBatchResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_WriteBatchResponse.Merge(dst, src)
+}
+func (m *WriteBatchResponse) XXX_Size() int {
+	return xxx_messageInfo_WriteBatchResponse.Size(m)
+}
+func (m *WriteBatchResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_WriteBatchResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_WriteBatchResponse proto.InternalMessageInfo
 
 // ExportRequest is the argument to the Export() method, to dump a keyrange into
 // files under a basepath.
@@ -1599,52 +2600,104 @@ type ExportRequest struct {
 	StartTime  cockroach_util_hlc.Timestamp `protobuf:"bytes,3,opt,name=start_time,json=startTime" json:"start_time"`
 	MVCCFilter MVCCFilter                   `protobuf:"varint,4,opt,name=mvcc_filter,json=mvccFilter,proto3,enum=cockroach.roachpb.MVCCFilter" json:"mvcc_filter,omitempty"`
 	// Return the exported SST data in the response.
-	ReturnSST bool `protobuf:"varint,5,opt,name=return_sst,json=returnSst,proto3" json:"return_sst,omitempty"`
+	ReturnSST            bool     `protobuf:"varint,5,opt,name=return_sst,json=returnSst,proto3" json:"return_sst,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ExportRequest) Reset()                    { *m = ExportRequest{} }
 func (m *ExportRequest) String() string            { return proto.CompactTextString(m) }
 func (*ExportRequest) ProtoMessage()               {}
 func (*ExportRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{71} }
+func (dst *ExportRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExportRequest.Merge(dst, src)
+}
+func (m *ExportRequest) XXX_Size() int {
+	return xxx_messageInfo_ExportRequest.Size(m)
+}
+func (m *ExportRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ExportRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ExportRequest proto.InternalMessageInfo
 
 type BulkOpSummary struct {
-	DataSize      int64 `protobuf:"varint,1,opt,name=data_size,json=dataSize,proto3" json:"data_size,omitempty"`
-	Rows          int64 `protobuf:"varint,2,opt,name=rows,proto3" json:"rows,omitempty"`
-	IndexEntries  int64 `protobuf:"varint,3,opt,name=index_entries,json=indexEntries,proto3" json:"index_entries,omitempty"`
-	SystemRecords int64 `protobuf:"varint,4,opt,name=system_records,json=systemRecords,proto3" json:"system_records,omitempty"`
+	DataSize             int64    `protobuf:"varint,1,opt,name=data_size,json=dataSize,proto3" json:"data_size,omitempty"`
+	Rows                 int64    `protobuf:"varint,2,opt,name=rows,proto3" json:"rows,omitempty"`
+	IndexEntries         int64    `protobuf:"varint,3,opt,name=index_entries,json=indexEntries,proto3" json:"index_entries,omitempty"`
+	SystemRecords        int64    `protobuf:"varint,4,opt,name=system_records,json=systemRecords,proto3" json:"system_records,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *BulkOpSummary) Reset()                    { *m = BulkOpSummary{} }
 func (m *BulkOpSummary) String() string            { return proto.CompactTextString(m) }
 func (*BulkOpSummary) ProtoMessage()               {}
 func (*BulkOpSummary) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{72} }
+func (dst *BulkOpSummary) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BulkOpSummary.Merge(dst, src)
+}
+func (m *BulkOpSummary) XXX_Size() int {
+	return xxx_messageInfo_BulkOpSummary.Size(m)
+}
+func (m *BulkOpSummary) XXX_DiscardUnknown() {
+	xxx_messageInfo_BulkOpSummary.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BulkOpSummary proto.InternalMessageInfo
 
 // ExportResponse is the response to an Export() operation.
 type ExportResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	Files          []ExportResponse_File        `protobuf:"bytes,2,rep,name=files" json:"files"`
-	StartTime      cockroach_util_hlc.Timestamp `protobuf:"bytes,3,opt,name=start_time,json=startTime" json:"start_time"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Files                []ExportResponse_File        `protobuf:"bytes,2,rep,name=files" json:"files"`
+	StartTime            cockroach_util_hlc.Timestamp `protobuf:"bytes,3,opt,name=start_time,json=startTime" json:"start_time"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *ExportResponse) Reset()                    { *m = ExportResponse{} }
 func (m *ExportResponse) String() string            { return proto.CompactTextString(m) }
 func (*ExportResponse) ProtoMessage()               {}
 func (*ExportResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{73} }
+func (dst *ExportResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExportResponse.Merge(dst, src)
+}
+func (m *ExportResponse) XXX_Size() int {
+	return xxx_messageInfo_ExportResponse.Size(m)
+}
+func (m *ExportResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ExportResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ExportResponse proto.InternalMessageInfo
 
 // File describes a keyrange that has been dumped to a file at the given
 // path.
 type ExportResponse_File struct {
-	Span     Span          `protobuf:"bytes,1,opt,name=span" json:"span"`
-	Path     string        `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
-	Sha512   []byte        `protobuf:"bytes,5,opt,name=sha512,proto3" json:"sha512,omitempty"`
-	Exported BulkOpSummary `protobuf:"bytes,6,opt,name=exported" json:"exported"`
-	SST      []byte        `protobuf:"bytes,7,opt,name=sst,proto3" json:"sst,omitempty"`
+	Span                 Span          `protobuf:"bytes,1,opt,name=span" json:"span"`
+	Path                 string        `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
+	Sha512               []byte        `protobuf:"bytes,5,opt,name=sha512,proto3" json:"sha512,omitempty"`
+	Exported             BulkOpSummary `protobuf:"bytes,6,opt,name=exported" json:"exported"`
+	SST                  []byte        `protobuf:"bytes,7,opt,name=sst,proto3" json:"sst,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
 }
 
 func (m *ExportResponse_File) Reset()                    { *m = ExportResponse_File{} }
 func (m *ExportResponse_File) String() string            { return proto.CompactTextString(m) }
 func (*ExportResponse_File) ProtoMessage()               {}
 func (*ExportResponse_File) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{73, 0} }
+func (dst *ExportResponse_File) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExportResponse_File.Merge(dst, src)
+}
+func (m *ExportResponse_File) XXX_Size() int {
+	return xxx_messageInfo_ExportResponse_File.Size(m)
+}
+func (m *ExportResponse_File) XXX_DiscardUnknown() {
+	xxx_messageInfo_ExportResponse_File.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ExportResponse_File proto.InternalMessageInfo
 
 // ImportRequest is the argument to the Import() method, to bulk load key/value
 // entries.
@@ -1664,75 +2717,155 @@ type ImportRequest struct {
 	// TODO(dan): This field is a superset of the information represented by
 	// `key_rewrites` and will supercede it once rekeying of interleaved tables is
 	// fixed.
-	Rekeys []ImportRequest_TableRekey `protobuf:"bytes,5,rep,name=rekeys" json:"rekeys"`
+	Rekeys               []ImportRequest_TableRekey `protobuf:"bytes,5,rep,name=rekeys" json:"rekeys"`
+	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
+	XXX_sizecache        int32                      `json:"-"`
 }
 
 func (m *ImportRequest) Reset()                    { *m = ImportRequest{} }
 func (m *ImportRequest) String() string            { return proto.CompactTextString(m) }
 func (*ImportRequest) ProtoMessage()               {}
 func (*ImportRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{74} }
+func (dst *ImportRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ImportRequest.Merge(dst, src)
+}
+func (m *ImportRequest) XXX_Size() int {
+	return xxx_messageInfo_ImportRequest.Size(m)
+}
+func (m *ImportRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ImportRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ImportRequest proto.InternalMessageInfo
 
 type ImportRequest_File struct {
-	Dir    ExportStorage `protobuf:"bytes,1,opt,name=dir" json:"dir"`
-	Path   string        `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
-	Sha512 []byte        `protobuf:"bytes,4,opt,name=sha512,proto3" json:"sha512,omitempty"`
+	Dir                  ExportStorage `protobuf:"bytes,1,opt,name=dir" json:"dir"`
+	Path                 string        `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
+	Sha512               []byte        `protobuf:"bytes,4,opt,name=sha512,proto3" json:"sha512,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
 }
 
 func (m *ImportRequest_File) Reset()                    { *m = ImportRequest_File{} }
 func (m *ImportRequest_File) String() string            { return proto.CompactTextString(m) }
 func (*ImportRequest_File) ProtoMessage()               {}
 func (*ImportRequest_File) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{74, 0} }
+func (dst *ImportRequest_File) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ImportRequest_File.Merge(dst, src)
+}
+func (m *ImportRequest_File) XXX_Size() int {
+	return xxx_messageInfo_ImportRequest_File.Size(m)
+}
+func (m *ImportRequest_File) XXX_DiscardUnknown() {
+	xxx_messageInfo_ImportRequest_File.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ImportRequest_File proto.InternalMessageInfo
 
 type ImportRequest_TableRekey struct {
 	// OldID is the previous ID of `new_desc`.
 	OldID uint32 `protobuf:"varint,1,opt,name=old_id,json=oldId,proto3" json:"old_id,omitempty"`
 	// NewDesc is an encoded Descriptor message.
-	NewDesc []byte `protobuf:"bytes,2,opt,name=new_desc,json=newDesc,proto3" json:"new_desc,omitempty"`
+	NewDesc              []byte   `protobuf:"bytes,2,opt,name=new_desc,json=newDesc,proto3" json:"new_desc,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ImportRequest_TableRekey) Reset()                    { *m = ImportRequest_TableRekey{} }
 func (m *ImportRequest_TableRekey) String() string            { return proto.CompactTextString(m) }
 func (*ImportRequest_TableRekey) ProtoMessage()               {}
 func (*ImportRequest_TableRekey) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{74, 1} }
+func (dst *ImportRequest_TableRekey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ImportRequest_TableRekey.Merge(dst, src)
+}
+func (m *ImportRequest_TableRekey) XXX_Size() int {
+	return xxx_messageInfo_ImportRequest_TableRekey.Size(m)
+}
+func (m *ImportRequest_TableRekey) XXX_DiscardUnknown() {
+	xxx_messageInfo_ImportRequest_TableRekey.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ImportRequest_TableRekey proto.InternalMessageInfo
 
 // ImportResponse is the response to a Import() operation.
 type ImportResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	Imported       BulkOpSummary `protobuf:"bytes,3,opt,name=imported" json:"imported"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Imported             BulkOpSummary `protobuf:"bytes,3,opt,name=imported" json:"imported"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
 }
 
 func (m *ImportResponse) Reset()                    { *m = ImportResponse{} }
 func (m *ImportResponse) String() string            { return proto.CompactTextString(m) }
 func (*ImportResponse) ProtoMessage()               {}
 func (*ImportResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{75} }
+func (dst *ImportResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ImportResponse.Merge(dst, src)
+}
+func (m *ImportResponse) XXX_Size() int {
+	return xxx_messageInfo_ImportResponse.Size(m)
+}
+func (m *ImportResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ImportResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ImportResponse proto.InternalMessageInfo
 
 // AdminScatterRequest is the argument to the AdminScatter() method, which moves
 // replicas and leaseholders for a selection of ranges. Scatter is best-effort;
 // ranges that cannot be moved will include an error detail in the response and
 // won't fail the request.
 type AdminScatterRequest struct {
-	Span            `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	RandomizeLeases bool `protobuf:"varint,2,opt,name=randomize_leases,json=randomizeLeases,proto3" json:"randomize_leases,omitempty"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	RandomizeLeases      bool     `protobuf:"varint,2,opt,name=randomize_leases,json=randomizeLeases,proto3" json:"randomize_leases,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AdminScatterRequest) Reset()                    { *m = AdminScatterRequest{} }
 func (m *AdminScatterRequest) String() string            { return proto.CompactTextString(m) }
 func (*AdminScatterRequest) ProtoMessage()               {}
 func (*AdminScatterRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{76} }
+func (dst *AdminScatterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AdminScatterRequest.Merge(dst, src)
+}
+func (m *AdminScatterRequest) XXX_Size() int {
+	return xxx_messageInfo_AdminScatterRequest.Size(m)
+}
+func (m *AdminScatterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AdminScatterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AdminScatterRequest proto.InternalMessageInfo
 
 // ScatterResponse is the response to a Scatter() operation.
 type AdminScatterResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	Ranges         []AdminScatterResponse_Range `protobuf:"bytes,2,rep,name=ranges" json:"ranges"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Ranges               []AdminScatterResponse_Range `protobuf:"bytes,2,rep,name=ranges" json:"ranges"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *AdminScatterResponse) Reset()                    { *m = AdminScatterResponse{} }
 func (m *AdminScatterResponse) String() string            { return proto.CompactTextString(m) }
 func (*AdminScatterResponse) ProtoMessage()               {}
 func (*AdminScatterResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{77} }
+func (dst *AdminScatterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AdminScatterResponse.Merge(dst, src)
+}
+func (m *AdminScatterResponse) XXX_Size() int {
+	return xxx_messageInfo_AdminScatterResponse.Size(m)
+}
+func (m *AdminScatterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AdminScatterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AdminScatterResponse proto.InternalMessageInfo
 
 type AdminScatterResponse_Range struct {
-	Span Span `protobuf:"bytes,1,opt,name=span" json:"span"`
+	Span                 Span     `protobuf:"bytes,1,opt,name=span" json:"span"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AdminScatterResponse_Range) Reset()         { *m = AdminScatterResponse_Range{} }
@@ -1741,28 +2874,65 @@ func (*AdminScatterResponse_Range) ProtoMessage()    {}
 func (*AdminScatterResponse_Range) Descriptor() ([]byte, []int) {
 	return fileDescriptorApi, []int{77, 0}
 }
+func (dst *AdminScatterResponse_Range) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AdminScatterResponse_Range.Merge(dst, src)
+}
+func (m *AdminScatterResponse_Range) XXX_Size() int {
+	return xxx_messageInfo_AdminScatterResponse_Range.Size(m)
+}
+func (m *AdminScatterResponse_Range) XXX_DiscardUnknown() {
+	xxx_messageInfo_AdminScatterResponse_Range.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AdminScatterResponse_Range proto.InternalMessageInfo
 
 // AddSSTableRequest is arguments to the AddSSTable() method, to link a file
 // into the RocksDB log-structured merge-tree.
 type AddSSTableRequest struct {
-	Span `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	Data []byte `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+	Span                 `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Data                 []byte   `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AddSSTableRequest) Reset()                    { *m = AddSSTableRequest{} }
 func (m *AddSSTableRequest) String() string            { return proto.CompactTextString(m) }
 func (*AddSSTableRequest) ProtoMessage()               {}
 func (*AddSSTableRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{78} }
+func (dst *AddSSTableRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddSSTableRequest.Merge(dst, src)
+}
+func (m *AddSSTableRequest) XXX_Size() int {
+	return xxx_messageInfo_AddSSTableRequest.Size(m)
+}
+func (m *AddSSTableRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddSSTableRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddSSTableRequest proto.InternalMessageInfo
 
 // AddSSTableResponse is the response to a AddSSTable() operation.
 type AddSSTableResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AddSSTableResponse) Reset()                    { *m = AddSSTableResponse{} }
 func (m *AddSSTableResponse) String() string            { return proto.CompactTextString(m) }
 func (*AddSSTableResponse) ProtoMessage()               {}
 func (*AddSSTableResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{79} }
+func (dst *AddSSTableResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddSSTableResponse.Merge(dst, src)
+}
+func (m *AddSSTableResponse) XXX_Size() int {
+	return xxx_messageInfo_AddSSTableResponse.Size(m)
+}
+func (m *AddSSTableResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddSSTableResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddSSTableResponse proto.InternalMessageInfo
 
 // RefreshRequest is arguments to the Refresh() method, which verifies
 // that no write has occurred since the transaction's orig timestamp
@@ -1776,23 +2946,49 @@ type RefreshRequest struct {
 	// If set, indicates that the write timestamp cache should be
 	// updated. This handles the case of DeleteRange, which must set the
 	// write too old flag on transactions which attempt earlier writes.
-	Write bool `protobuf:"varint,2,opt,name=write,proto3" json:"write,omitempty"`
+	Write                bool     `protobuf:"varint,2,opt,name=write,proto3" json:"write,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RefreshRequest) Reset()                    { *m = RefreshRequest{} }
 func (m *RefreshRequest) String() string            { return proto.CompactTextString(m) }
 func (*RefreshRequest) ProtoMessage()               {}
 func (*RefreshRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{80} }
+func (dst *RefreshRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RefreshRequest.Merge(dst, src)
+}
+func (m *RefreshRequest) XXX_Size() int {
+	return xxx_messageInfo_RefreshRequest.Size(m)
+}
+func (m *RefreshRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RefreshRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RefreshRequest proto.InternalMessageInfo
 
 // RefreshResponse is the response to the Udpate() operation.
 type RefreshResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RefreshResponse) Reset()                    { *m = RefreshResponse{} }
 func (m *RefreshResponse) String() string            { return proto.CompactTextString(m) }
 func (*RefreshResponse) ProtoMessage()               {}
 func (*RefreshResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{81} }
+func (dst *RefreshResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RefreshResponse.Merge(dst, src)
+}
+func (m *RefreshResponse) XXX_Size() int {
+	return xxx_messageInfo_RefreshResponse.Size(m)
+}
+func (m *RefreshResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RefreshResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RefreshResponse proto.InternalMessageInfo
 
 // RefreshRangeRequest is arguments to the RefreshRange() method, which
 // is similar to RefreshRequest (see comments above), but operates on
@@ -1802,23 +2998,49 @@ type RefreshRangeRequest struct {
 	// If set, indicates that the write timestamp cache should be
 	// updated. This handles the case of DeleteRange, which must set the
 	// write too old flag on transactions which attempt earlier writes.
-	Write bool `protobuf:"varint,2,opt,name=write,proto3" json:"write,omitempty"`
+	Write                bool     `protobuf:"varint,2,opt,name=write,proto3" json:"write,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RefreshRangeRequest) Reset()                    { *m = RefreshRangeRequest{} }
 func (m *RefreshRangeRequest) String() string            { return proto.CompactTextString(m) }
 func (*RefreshRangeRequest) ProtoMessage()               {}
 func (*RefreshRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{82} }
+func (dst *RefreshRangeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RefreshRangeRequest.Merge(dst, src)
+}
+func (m *RefreshRangeRequest) XXX_Size() int {
+	return xxx_messageInfo_RefreshRangeRequest.Size(m)
+}
+func (m *RefreshRangeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RefreshRangeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RefreshRangeRequest proto.InternalMessageInfo
 
 // RefreshRangeResponse is the response to the Udpate() operation.
 type RefreshRangeResponse struct {
-	ResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	ResponseHeader       `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RefreshRangeResponse) Reset()                    { *m = RefreshRangeResponse{} }
 func (m *RefreshRangeResponse) String() string            { return proto.CompactTextString(m) }
 func (*RefreshRangeResponse) ProtoMessage()               {}
 func (*RefreshRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{83} }
+func (dst *RefreshRangeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RefreshRangeResponse.Merge(dst, src)
+}
+func (m *RefreshRangeResponse) XXX_Size() int {
+	return xxx_messageInfo_RefreshRangeResponse.Size(m)
+}
+func (m *RefreshRangeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RefreshRangeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RefreshRangeResponse proto.InternalMessageInfo
 
 // A RequestUnion contains exactly one of the requests.
 // The values added here must match those in ResponseUnion.
@@ -1871,12 +3093,25 @@ type RequestUnion struct {
 	RecomputeStats           *RecomputeStatsRequest           `protobuf:"bytes,39,opt,name=recompute_stats,json=recomputeStats" json:"recompute_stats,omitempty"`
 	Refresh                  *RefreshRequest                  `protobuf:"bytes,40,opt,name=refresh" json:"refresh,omitempty"`
 	RefreshRange             *RefreshRangeRequest             `protobuf:"bytes,41,opt,name=refresh_range,json=refreshRange" json:"refresh_range,omitempty"`
+	XXX_NoUnkeyedLiteral     struct{}                         `json:"-"`
+	XXX_sizecache            int32                            `json:"-"`
 }
 
 func (m *RequestUnion) Reset()                    { *m = RequestUnion{} }
 func (m *RequestUnion) String() string            { return proto.CompactTextString(m) }
 func (*RequestUnion) ProtoMessage()               {}
 func (*RequestUnion) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{84} }
+func (dst *RequestUnion) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RequestUnion.Merge(dst, src)
+}
+func (m *RequestUnion) XXX_Size() int {
+	return xxx_messageInfo_RequestUnion.Size(m)
+}
+func (m *RequestUnion) XXX_DiscardUnknown() {
+	xxx_messageInfo_RequestUnion.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RequestUnion proto.InternalMessageInfo
 
 // A ResponseUnion contains exactly one of the responses.
 // The values added here must match those in RequestUnion.
@@ -1925,12 +3160,25 @@ type ResponseUnion struct {
 	RecomputeStats           *RecomputeStatsResponse           `protobuf:"bytes,39,opt,name=recompute_stats,json=recomputeStats" json:"recompute_stats,omitempty"`
 	Refresh                  *RefreshResponse                  `protobuf:"bytes,40,opt,name=refresh" json:"refresh,omitempty"`
 	RefreshRange             *RefreshRangeResponse             `protobuf:"bytes,41,opt,name=refresh_range,json=refreshRange" json:"refresh_range,omitempty"`
+	XXX_NoUnkeyedLiteral     struct{}                          `json:"-"`
+	XXX_sizecache            int32                             `json:"-"`
 }
 
 func (m *ResponseUnion) Reset()                    { *m = ResponseUnion{} }
 func (m *ResponseUnion) String() string            { return proto.CompactTextString(m) }
 func (*ResponseUnion) ProtoMessage()               {}
 func (*ResponseUnion) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{85} }
+func (dst *ResponseUnion) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ResponseUnion.Merge(dst, src)
+}
+func (m *ResponseUnion) XXX_Size() int {
+	return xxx_messageInfo_ResponseUnion.Size(m)
+}
+func (m *ResponseUnion) XXX_DiscardUnknown() {
+	xxx_messageInfo_ResponseUnion.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ResponseUnion proto.InternalMessageInfo
 
 // A Header is attached to a BatchRequest, encapsulating routing and auxiliary
 // information required for executing it.
@@ -1984,27 +3232,53 @@ type Header struct {
 	DistinctSpans bool `protobuf:"varint,9,opt,name=distinct_spans,json=distinctSpans,proto3" json:"distinct_spans,omitempty"`
 	// If set, return_range_info causes RangeInfo details to be returned with
 	// each ResponseHeader.
-	ReturnRangeInfo bool         `protobuf:"varint,10,opt,name=return_range_info,json=returnRangeInfo,proto3" json:"return_range_info,omitempty"`
-	GatewayNodeID   NodeID       `protobuf:"varint,11,opt,name=gateway_node_id,json=gatewayNodeId,proto3,casttype=NodeID" json:"gateway_node_id,omitempty"`
-	ScanOptions     *ScanOptions `protobuf:"bytes,12,opt,name=scan_options,json=scanOptions" json:"scan_options,omitempty"`
+	ReturnRangeInfo      bool         `protobuf:"varint,10,opt,name=return_range_info,json=returnRangeInfo,proto3" json:"return_range_info,omitempty"`
+	GatewayNodeID        NodeID       `protobuf:"varint,11,opt,name=gateway_node_id,json=gatewayNodeId,proto3,casttype=NodeID" json:"gateway_node_id,omitempty"`
+	ScanOptions          *ScanOptions `protobuf:"bytes,12,opt,name=scan_options,json=scanOptions" json:"scan_options,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
 }
 
 func (m *Header) Reset()                    { *m = Header{} }
 func (m *Header) String() string            { return proto.CompactTextString(m) }
 func (*Header) ProtoMessage()               {}
 func (*Header) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{86} }
+func (dst *Header) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Header.Merge(dst, src)
+}
+func (m *Header) XXX_Size() int {
+	return xxx_messageInfo_Header.Size(m)
+}
+func (m *Header) XXX_DiscardUnknown() {
+	xxx_messageInfo_Header.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Header proto.InternalMessageInfo
 
 // A BatchRequest contains one or more requests to be executed in
 // parallel, or if applicable (based on write-only commands and
 // range-locality), as a single update.
 type BatchRequest struct {
-	Header   `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	Requests []RequestUnion `protobuf:"bytes,2,rep,name=requests" json:"requests"`
+	Header               `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Requests             []RequestUnion `protobuf:"bytes,2,rep,name=requests" json:"requests"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *BatchRequest) Reset()                    { *m = BatchRequest{} }
 func (*BatchRequest) ProtoMessage()               {}
 func (*BatchRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{87} }
+func (dst *BatchRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BatchRequest.Merge(dst, src)
+}
+func (m *BatchRequest) XXX_Size() int {
+	return xxx_messageInfo_BatchRequest.Size(m)
+}
+func (m *BatchRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_BatchRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BatchRequest proto.InternalMessageInfo
 
 // A BatchResponse contains one or more responses, one per request
 // corresponding to the requests in the matching BatchRequest. The
@@ -2013,11 +3287,24 @@ func (*BatchRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []
 type BatchResponse struct {
 	BatchResponse_Header `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
 	Responses            []ResponseUnion `protobuf:"bytes,2,rep,name=responses" json:"responses"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
 }
 
 func (m *BatchResponse) Reset()                    { *m = BatchResponse{} }
 func (*BatchResponse) ProtoMessage()               {}
 func (*BatchResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{88} }
+func (dst *BatchResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BatchResponse.Merge(dst, src)
+}
+func (m *BatchResponse) XXX_Size() int {
+	return xxx_messageInfo_BatchResponse.Size(m)
+}
+func (m *BatchResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_BatchResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BatchResponse proto.InternalMessageInfo
 
 type BatchResponse_Header struct {
 	// error is non-nil if an error occurred.
@@ -2035,13 +3322,26 @@ type BatchResponse_Header struct {
 	Now cockroach_util_hlc.Timestamp `protobuf:"bytes,5,opt,name=now" json:"now"`
 	// collected_spans stores trace spans recorded during the execution of this
 	// request.
-	CollectedSpans []cockroach_util_tracing.RecordedSpan `protobuf:"bytes,6,rep,name=collected_spans,json=collectedSpans" json:"collected_spans"`
+	CollectedSpans       []cockroach_util_tracing.RecordedSpan `protobuf:"bytes,6,rep,name=collected_spans,json=collectedSpans" json:"collected_spans"`
+	XXX_NoUnkeyedLiteral struct{}                              `json:"-"`
+	XXX_sizecache        int32                                 `json:"-"`
 }
 
 func (m *BatchResponse_Header) Reset()                    { *m = BatchResponse_Header{} }
 func (m *BatchResponse_Header) String() string            { return proto.CompactTextString(m) }
 func (*BatchResponse_Header) ProtoMessage()               {}
 func (*BatchResponse_Header) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{88, 0} }
+func (dst *BatchResponse_Header) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BatchResponse_Header.Merge(dst, src)
+}
+func (m *BatchResponse_Header) XXX_Size() int {
+	return xxx_messageInfo_BatchResponse_Header.Size(m)
+}
+func (m *BatchResponse_Header) XXX_DiscardUnknown() {
+	xxx_messageInfo_BatchResponse_Header.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BatchResponse_Header proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*RangeInfo)(nil), "cockroach.roachpb.RangeInfo")

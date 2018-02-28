@@ -18,24 +18,50 @@ var _ = math.Inf
 type UserPrivileges struct {
 	User string `protobuf:"bytes,1,opt,name=user" json:"user"`
 	// privileges is a bitfield of 1<<Privilege values.
-	Privileges uint32 `protobuf:"varint,2,opt,name=privileges" json:"privileges"`
+	Privileges           uint32   `protobuf:"varint,2,opt,name=privileges" json:"privileges"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *UserPrivileges) Reset()                    { *m = UserPrivileges{} }
 func (m *UserPrivileges) String() string            { return proto.CompactTextString(m) }
 func (*UserPrivileges) ProtoMessage()               {}
 func (*UserPrivileges) Descriptor() ([]byte, []int) { return fileDescriptorPrivilege, []int{0} }
+func (dst *UserPrivileges) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserPrivileges.Merge(dst, src)
+}
+func (m *UserPrivileges) XXX_Size() int {
+	return xxx_messageInfo_UserPrivileges.Size(m)
+}
+func (m *UserPrivileges) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserPrivileges.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserPrivileges proto.InternalMessageInfo
 
 // PrivilegeDescriptor describes a list of users and attached
 // privileges. The list should be sorted by user for fast access.
 type PrivilegeDescriptor struct {
-	Users []UserPrivileges `protobuf:"bytes,1,rep,name=users" json:"users"`
+	Users                []UserPrivileges `protobuf:"bytes,1,rep,name=users" json:"users"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
 }
 
 func (m *PrivilegeDescriptor) Reset()                    { *m = PrivilegeDescriptor{} }
 func (m *PrivilegeDescriptor) String() string            { return proto.CompactTextString(m) }
 func (*PrivilegeDescriptor) ProtoMessage()               {}
 func (*PrivilegeDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorPrivilege, []int{1} }
+func (dst *PrivilegeDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PrivilegeDescriptor.Merge(dst, src)
+}
+func (m *PrivilegeDescriptor) XXX_Size() int {
+	return xxx_messageInfo_PrivilegeDescriptor.Size(m)
+}
+func (m *PrivilegeDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_PrivilegeDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PrivilegeDescriptor proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*UserPrivileges)(nil), "cockroach.sql.sqlbase.UserPrivileges")

@@ -22,23 +22,49 @@ type RaftTruncatedState struct {
 	// The highest index that has been removed from the log.
 	Index uint64 `protobuf:"varint,1,opt,name=index" json:"index"`
 	// The term corresponding to 'index'.
-	Term uint64 `protobuf:"varint,2,opt,name=term" json:"term"`
+	Term                 uint64   `protobuf:"varint,2,opt,name=term" json:"term"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RaftTruncatedState) Reset()                    { *m = RaftTruncatedState{} }
 func (m *RaftTruncatedState) String() string            { return proto.CompactTextString(m) }
 func (*RaftTruncatedState) ProtoMessage()               {}
 func (*RaftTruncatedState) Descriptor() ([]byte, []int) { return fileDescriptorInternalRaft, []int{0} }
+func (dst *RaftTruncatedState) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RaftTruncatedState.Merge(dst, src)
+}
+func (m *RaftTruncatedState) XXX_Size() int {
+	return xxx_messageInfo_RaftTruncatedState.Size(m)
+}
+func (m *RaftTruncatedState) XXX_DiscardUnknown() {
+	xxx_messageInfo_RaftTruncatedState.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RaftTruncatedState proto.InternalMessageInfo
 
 // RaftTombstone contains information about a replica that has been deleted.
 type RaftTombstone struct {
-	NextReplicaID ReplicaID `protobuf:"varint,1,opt,name=next_replica_id,json=nextReplicaId,casttype=ReplicaID" json:"next_replica_id"`
+	NextReplicaID        ReplicaID `protobuf:"varint,1,opt,name=next_replica_id,json=nextReplicaId,casttype=ReplicaID" json:"next_replica_id"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
 }
 
 func (m *RaftTombstone) Reset()                    { *m = RaftTombstone{} }
 func (m *RaftTombstone) String() string            { return proto.CompactTextString(m) }
 func (*RaftTombstone) ProtoMessage()               {}
 func (*RaftTombstone) Descriptor() ([]byte, []int) { return fileDescriptorInternalRaft, []int{1} }
+func (dst *RaftTombstone) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RaftTombstone.Merge(dst, src)
+}
+func (m *RaftTombstone) XXX_Size() int {
+	return xxx_messageInfo_RaftTombstone.Size(m)
+}
+func (m *RaftTombstone) XXX_DiscardUnknown() {
+	xxx_messageInfo_RaftTombstone.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RaftTombstone proto.InternalMessageInfo
 
 // RaftSnapshotData is the payload of a raftpb.Snapshot. It contains a raw copy of
 // all of the range's data and metadata, including the raft log, sequence cache, etc.
@@ -48,18 +74,33 @@ type RaftSnapshotData struct {
 	KV              []RaftSnapshotData_KeyValue `protobuf:"bytes,2,rep,name=KV" json:"KV"`
 	// These are really raftpb.Entry, but we model them as raw bytes to avoid
 	// roundtripping through memory.
-	LogEntries [][]byte `protobuf:"bytes,3,rep,name=log_entries,json=logEntries" json:"log_entries,omitempty"`
+	LogEntries           [][]byte `protobuf:"bytes,3,rep,name=log_entries,json=logEntries" json:"log_entries,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RaftSnapshotData) Reset()                    { *m = RaftSnapshotData{} }
 func (m *RaftSnapshotData) String() string            { return proto.CompactTextString(m) }
 func (*RaftSnapshotData) ProtoMessage()               {}
 func (*RaftSnapshotData) Descriptor() ([]byte, []int) { return fileDescriptorInternalRaft, []int{2} }
+func (dst *RaftSnapshotData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RaftSnapshotData.Merge(dst, src)
+}
+func (m *RaftSnapshotData) XXX_Size() int {
+	return xxx_messageInfo_RaftSnapshotData.Size(m)
+}
+func (m *RaftSnapshotData) XXX_DiscardUnknown() {
+	xxx_messageInfo_RaftSnapshotData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RaftSnapshotData proto.InternalMessageInfo
 
 type RaftSnapshotData_KeyValue struct {
-	Key       []byte                       `protobuf:"bytes,1,opt,name=key" json:"key,omitempty"`
-	Value     []byte                       `protobuf:"bytes,2,opt,name=value" json:"value,omitempty"`
-	Timestamp cockroach_util_hlc.Timestamp `protobuf:"bytes,3,opt,name=timestamp" json:"timestamp"`
+	Key                  []byte                       `protobuf:"bytes,1,opt,name=key" json:"key,omitempty"`
+	Value                []byte                       `protobuf:"bytes,2,opt,name=value" json:"value,omitempty"`
+	Timestamp            cockroach_util_hlc.Timestamp `protobuf:"bytes,3,opt,name=timestamp" json:"timestamp"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *RaftSnapshotData_KeyValue) Reset()         { *m = RaftSnapshotData_KeyValue{} }
@@ -68,6 +109,17 @@ func (*RaftSnapshotData_KeyValue) ProtoMessage()    {}
 func (*RaftSnapshotData_KeyValue) Descriptor() ([]byte, []int) {
 	return fileDescriptorInternalRaft, []int{2, 0}
 }
+func (dst *RaftSnapshotData_KeyValue) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RaftSnapshotData_KeyValue.Merge(dst, src)
+}
+func (m *RaftSnapshotData_KeyValue) XXX_Size() int {
+	return xxx_messageInfo_RaftSnapshotData_KeyValue.Size(m)
+}
+func (m *RaftSnapshotData_KeyValue) XXX_DiscardUnknown() {
+	xxx_messageInfo_RaftSnapshotData_KeyValue.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RaftSnapshotData_KeyValue proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*RaftTruncatedState)(nil), "cockroach.roachpb.RaftTruncatedState")

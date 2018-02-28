@@ -21,19 +21,34 @@ type SSTUserProperties struct {
 	// ts_min is the minimum mvcc timestamp present in this sstable.
 	TsMin *cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=ts_min,json=tsMin" json:"ts_min,omitempty"`
 	// ts_max is the maximum mvcc timestamp present in this sstable.
-	TsMax *cockroach_util_hlc.Timestamp `protobuf:"bytes,3,opt,name=ts_max,json=tsMax" json:"ts_max,omitempty"`
+	TsMax                *cockroach_util_hlc.Timestamp `protobuf:"bytes,3,opt,name=ts_max,json=tsMax" json:"ts_max,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                      `json:"-"`
+	XXX_sizecache        int32                         `json:"-"`
 }
 
 func (m *SSTUserProperties) Reset()                    { *m = SSTUserProperties{} }
 func (m *SSTUserProperties) String() string            { return proto.CompactTextString(m) }
 func (*SSTUserProperties) ProtoMessage()               {}
 func (*SSTUserProperties) Descriptor() ([]byte, []int) { return fileDescriptorRocksdb, []int{0} }
+func (dst *SSTUserProperties) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSTUserProperties.Merge(dst, src)
+}
+func (m *SSTUserProperties) XXX_Size() int {
+	return xxx_messageInfo_SSTUserProperties.Size(m)
+}
+func (m *SSTUserProperties) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSTUserProperties.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSTUserProperties proto.InternalMessageInfo
 
 // SSTUserPropertiesCollection contains the user-added properties of every
 // sstable in a RocksDB instance.
 type SSTUserPropertiesCollection struct {
-	Sst   []SSTUserProperties `protobuf:"bytes,1,rep,name=sst" json:"sst"`
-	Error string              `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+	Sst                  []SSTUserProperties `protobuf:"bytes,1,rep,name=sst" json:"sst"`
+	Error                string              `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
+	XXX_sizecache        int32               `json:"-"`
 }
 
 func (m *SSTUserPropertiesCollection) Reset()         { *m = SSTUserPropertiesCollection{} }
@@ -42,6 +57,17 @@ func (*SSTUserPropertiesCollection) ProtoMessage()    {}
 func (*SSTUserPropertiesCollection) Descriptor() ([]byte, []int) {
 	return fileDescriptorRocksdb, []int{1}
 }
+func (dst *SSTUserPropertiesCollection) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSTUserPropertiesCollection.Merge(dst, src)
+}
+func (m *SSTUserPropertiesCollection) XXX_Size() int {
+	return xxx_messageInfo_SSTUserPropertiesCollection.Size(m)
+}
+func (m *SSTUserPropertiesCollection) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSTUserPropertiesCollection.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSTUserPropertiesCollection proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*SSTUserProperties)(nil), "cockroach.storage.engine.enginepb.SSTUserProperties")

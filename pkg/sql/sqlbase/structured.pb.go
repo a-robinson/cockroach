@@ -523,13 +523,26 @@ type ColumnType struct {
 	// compatibility.
 	VisibleType ColumnType_VisibleType `protobuf:"varint,6,opt,name=visible_type,json=visibleType,enum=cockroach.sql.sqlbase.ColumnType_VisibleType" json:"visible_type"`
 	// Only used if the kind is ARRAY.
-	ArrayContents *ColumnType_SemanticType `protobuf:"varint,7,opt,name=array_contents,json=arrayContents,enum=cockroach.sql.sqlbase.ColumnType_SemanticType" json:"array_contents,omitempty"`
+	ArrayContents        *ColumnType_SemanticType `protobuf:"varint,7,opt,name=array_contents,json=arrayContents,enum=cockroach.sql.sqlbase.ColumnType_SemanticType" json:"array_contents,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
+	XXX_sizecache        int32                    `json:"-"`
 }
 
 func (m *ColumnType) Reset()                    { *m = ColumnType{} }
 func (m *ColumnType) String() string            { return proto.CompactTextString(m) }
 func (*ColumnType) ProtoMessage()               {}
 func (*ColumnType) Descriptor() ([]byte, []int) { return fileDescriptorStructured, []int{0} }
+func (dst *ColumnType) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ColumnType.Merge(dst, src)
+}
+func (m *ColumnType) XXX_Size() int {
+	return xxx_messageInfo_ColumnType.Size(m)
+}
+func (m *ColumnType) XXX_DiscardUnknown() {
+	xxx_messageInfo_ColumnType.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ColumnType proto.InternalMessageInfo
 
 type ForeignKeyReference struct {
 	Table    ID                 `protobuf:"varint,1,opt,name=table,casttype=ID" json:"table"`
@@ -538,15 +551,28 @@ type ForeignKeyReference struct {
 	Validity ConstraintValidity `protobuf:"varint,4,opt,name=validity,enum=cockroach.sql.sqlbase.ConstraintValidity" json:"validity"`
 	// If this FK only uses a prefix of the columns in its index, we record how
 	// many to avoid spuriously counting the additional cols as used by this FK.
-	SharedPrefixLen int32                      `protobuf:"varint,5,opt,name=shared_prefix_len,json=sharedPrefixLen" json:"shared_prefix_len"`
-	OnDelete        ForeignKeyReference_Action `protobuf:"varint,6,opt,name=on_delete,json=onDelete,enum=cockroach.sql.sqlbase.ForeignKeyReference_Action" json:"on_delete"`
-	OnUpdate        ForeignKeyReference_Action `protobuf:"varint,7,opt,name=on_update,json=onUpdate,enum=cockroach.sql.sqlbase.ForeignKeyReference_Action" json:"on_update"`
+	SharedPrefixLen      int32                      `protobuf:"varint,5,opt,name=shared_prefix_len,json=sharedPrefixLen" json:"shared_prefix_len"`
+	OnDelete             ForeignKeyReference_Action `protobuf:"varint,6,opt,name=on_delete,json=onDelete,enum=cockroach.sql.sqlbase.ForeignKeyReference_Action" json:"on_delete"`
+	OnUpdate             ForeignKeyReference_Action `protobuf:"varint,7,opt,name=on_update,json=onUpdate,enum=cockroach.sql.sqlbase.ForeignKeyReference_Action" json:"on_update"`
+	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
+	XXX_sizecache        int32                      `json:"-"`
 }
 
 func (m *ForeignKeyReference) Reset()                    { *m = ForeignKeyReference{} }
 func (m *ForeignKeyReference) String() string            { return proto.CompactTextString(m) }
 func (*ForeignKeyReference) ProtoMessage()               {}
 func (*ForeignKeyReference) Descriptor() ([]byte, []int) { return fileDescriptorStructured, []int{1} }
+func (dst *ForeignKeyReference) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ForeignKeyReference.Merge(dst, src)
+}
+func (m *ForeignKeyReference) XXX_Size() int {
+	return xxx_messageInfo_ForeignKeyReference.Size(m)
+}
+func (m *ForeignKeyReference) XXX_DiscardUnknown() {
+	xxx_messageInfo_ForeignKeyReference.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ForeignKeyReference proto.InternalMessageInfo
 
 type ColumnDescriptor struct {
 	Name     string     `protobuf:"bytes,1,opt,name=name" json:"name"`
@@ -561,13 +587,26 @@ type ColumnDescriptor struct {
 	UsesSequenceIds []ID `protobuf:"varint,10,rep,name=uses_sequence_ids,json=usesSequenceIds,casttype=ID" json:"uses_sequence_ids,omitempty"`
 	// Expression to use to compute the value of this column if this is a
 	// computed column.
-	ComputeExpr *string `protobuf:"bytes,11,opt,name=compute_expr,json=computeExpr" json:"compute_expr,omitempty"`
+	ComputeExpr          *string  `protobuf:"bytes,11,opt,name=compute_expr,json=computeExpr" json:"compute_expr,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ColumnDescriptor) Reset()                    { *m = ColumnDescriptor{} }
 func (m *ColumnDescriptor) String() string            { return proto.CompactTextString(m) }
 func (*ColumnDescriptor) ProtoMessage()               {}
 func (*ColumnDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorStructured, []int{2} }
+func (dst *ColumnDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ColumnDescriptor.Merge(dst, src)
+}
+func (m *ColumnDescriptor) XXX_Size() int {
+	return xxx_messageInfo_ColumnDescriptor.Size(m)
+}
+func (m *ColumnDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_ColumnDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ColumnDescriptor proto.InternalMessageInfo
 
 // ColumnFamilyDescriptor is set of columns stored together in one kv entry.
 type ColumnFamilyDescriptor struct {
@@ -588,13 +627,26 @@ type ColumnFamilyDescriptor struct {
 	// column is written without the column id prefix. Because more columns could
 	// be added, it would be ambiguous which column was stored when read back in,
 	// so this field supplies it.
-	DefaultColumnID ColumnID `protobuf:"varint,5,opt,name=default_column_id,json=defaultColumnId,casttype=ColumnID" json:"default_column_id"`
+	DefaultColumnID      ColumnID `protobuf:"varint,5,opt,name=default_column_id,json=defaultColumnId,casttype=ColumnID" json:"default_column_id"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ColumnFamilyDescriptor) Reset()                    { *m = ColumnFamilyDescriptor{} }
 func (m *ColumnFamilyDescriptor) String() string            { return proto.CompactTextString(m) }
 func (*ColumnFamilyDescriptor) ProtoMessage()               {}
 func (*ColumnFamilyDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorStructured, []int{3} }
+func (dst *ColumnFamilyDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ColumnFamilyDescriptor.Merge(dst, src)
+}
+func (m *ColumnFamilyDescriptor) XXX_Size() int {
+	return xxx_messageInfo_ColumnFamilyDescriptor.Size(m)
+}
+func (m *ColumnFamilyDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_ColumnFamilyDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ColumnFamilyDescriptor proto.InternalMessageInfo
 
 // InterleaveDescriptor represents an index (either primary or secondary) that
 // is interleaved into another table's data.
@@ -610,13 +662,26 @@ type InterleaveDescriptor struct {
 	// Ancestors contains the nesting of interleaves in the order they appear in
 	// an encoded key. This means they are always in the far-to-near ancestor
 	// order (e.g. grand-grand-parent, grand-parent, parent).
-	Ancestors []InterleaveDescriptor_Ancestor `protobuf:"bytes,1,rep,name=ancestors" json:"ancestors"`
+	Ancestors            []InterleaveDescriptor_Ancestor `protobuf:"bytes,1,rep,name=ancestors" json:"ancestors"`
+	XXX_NoUnkeyedLiteral struct{}                        `json:"-"`
+	XXX_sizecache        int32                           `json:"-"`
 }
 
 func (m *InterleaveDescriptor) Reset()                    { *m = InterleaveDescriptor{} }
 func (m *InterleaveDescriptor) String() string            { return proto.CompactTextString(m) }
 func (*InterleaveDescriptor) ProtoMessage()               {}
 func (*InterleaveDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorStructured, []int{4} }
+func (dst *InterleaveDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InterleaveDescriptor.Merge(dst, src)
+}
+func (m *InterleaveDescriptor) XXX_Size() int {
+	return xxx_messageInfo_InterleaveDescriptor.Size(m)
+}
+func (m *InterleaveDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_InterleaveDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InterleaveDescriptor proto.InternalMessageInfo
 
 type InterleaveDescriptor_Ancestor struct {
 	// TableID the ID of the table being interleaved into.
@@ -628,7 +693,9 @@ type InterleaveDescriptor_Ancestor struct {
 	// grandparent. Thus, the sum of SharedPrefixLens in the components of an
 	// InterleaveDescriptor is never more than the number of fields in the index
 	// being interleaved.
-	SharedPrefixLen uint32 `protobuf:"varint,3,opt,name=shared_prefix_len,json=sharedPrefixLen" json:"shared_prefix_len"`
+	SharedPrefixLen      uint32   `protobuf:"varint,3,opt,name=shared_prefix_len,json=sharedPrefixLen" json:"shared_prefix_len"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *InterleaveDescriptor_Ancestor) Reset()         { *m = InterleaveDescriptor_Ancestor{} }
@@ -637,6 +704,17 @@ func (*InterleaveDescriptor_Ancestor) ProtoMessage()    {}
 func (*InterleaveDescriptor_Ancestor) Descriptor() ([]byte, []int) {
 	return fileDescriptorStructured, []int{4, 0}
 }
+func (dst *InterleaveDescriptor_Ancestor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InterleaveDescriptor_Ancestor.Merge(dst, src)
+}
+func (m *InterleaveDescriptor_Ancestor) XXX_Size() int {
+	return xxx_messageInfo_InterleaveDescriptor_Ancestor.Size(m)
+}
+func (m *InterleaveDescriptor_Ancestor) XXX_DiscardUnknown() {
+	xxx_messageInfo_InterleaveDescriptor_Ancestor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InterleaveDescriptor_Ancestor proto.InternalMessageInfo
 
 // PartitioningDescriptor represents the partitioning of an index into spans
 // of keys addressable by a zone config. The key encoding is unchanged. Each
@@ -650,14 +728,27 @@ type PartitioningDescriptor struct {
 	NumColumns uint32 `protobuf:"varint,1,opt,name=num_columns,json=numColumns" json:"num_columns"`
 	// Exactly one of List or Range is required to be non-empty if NumColumns is
 	// non-zero.
-	List  []PartitioningDescriptor_List  `protobuf:"bytes,2,rep,name=list" json:"list"`
-	Range []PartitioningDescriptor_Range `protobuf:"bytes,3,rep,name=range" json:"range"`
+	List                 []PartitioningDescriptor_List  `protobuf:"bytes,2,rep,name=list" json:"list"`
+	Range                []PartitioningDescriptor_Range `protobuf:"bytes,3,rep,name=range" json:"range"`
+	XXX_NoUnkeyedLiteral struct{}                       `json:"-"`
+	XXX_sizecache        int32                          `json:"-"`
 }
 
 func (m *PartitioningDescriptor) Reset()                    { *m = PartitioningDescriptor{} }
 func (m *PartitioningDescriptor) String() string            { return proto.CompactTextString(m) }
 func (*PartitioningDescriptor) ProtoMessage()               {}
 func (*PartitioningDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorStructured, []int{5} }
+func (dst *PartitioningDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PartitioningDescriptor.Merge(dst, src)
+}
+func (m *PartitioningDescriptor) XXX_Size() int {
+	return xxx_messageInfo_PartitioningDescriptor.Size(m)
+}
+func (m *PartitioningDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_PartitioningDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PartitioningDescriptor proto.InternalMessageInfo
 
 // List represents a list partitioning, which maps individual tuples to
 // partitions.
@@ -670,7 +761,9 @@ type PartitioningDescriptor_List struct {
 	// uvarint.
 	Values [][]byte `protobuf:"bytes,2,rep,name=values" json:"values,omitempty"`
 	// Subpartitioning represents a further partitioning of this list partition.
-	Subpartitioning PartitioningDescriptor `protobuf:"bytes,3,opt,name=subpartitioning" json:"subpartitioning"`
+	Subpartitioning      PartitioningDescriptor `protobuf:"bytes,3,opt,name=subpartitioning" json:"subpartitioning"`
+	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
+	XXX_sizecache        int32                  `json:"-"`
 }
 
 func (m *PartitioningDescriptor_List) Reset()         { *m = PartitioningDescriptor_List{} }
@@ -679,6 +772,17 @@ func (*PartitioningDescriptor_List) ProtoMessage()    {}
 func (*PartitioningDescriptor_List) Descriptor() ([]byte, []int) {
 	return fileDescriptorStructured, []int{5, 0}
 }
+func (dst *PartitioningDescriptor_List) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PartitioningDescriptor_List.Merge(dst, src)
+}
+func (m *PartitioningDescriptor_List) XXX_Size() int {
+	return xxx_messageInfo_PartitioningDescriptor_List.Size(m)
+}
+func (m *PartitioningDescriptor_List) XXX_DiscardUnknown() {
+	xxx_messageInfo_PartitioningDescriptor_List.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PartitioningDescriptor_List proto.InternalMessageInfo
 
 // Range represents a range partitioning, which maps ranges of tuples to
 // partitions by specifying exclusive upper bounds. The range partitions in a
@@ -693,7 +797,9 @@ type PartitioningDescriptor_Range struct {
 	FromInclusive []byte `protobuf:"bytes,3,opt,name=from_inclusive,json=fromInclusive" json:"from_inclusive,omitempty"`
 	// ToExclusive is the exclusive upper bound of this range partition. It is
 	// encoded in the same way as From.
-	ToExclusive []byte `protobuf:"bytes,2,opt,name=to_exclusive,json=toExclusive" json:"to_exclusive,omitempty"`
+	ToExclusive          []byte   `protobuf:"bytes,2,opt,name=to_exclusive,json=toExclusive" json:"to_exclusive,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *PartitioningDescriptor_Range) Reset()         { *m = PartitioningDescriptor_Range{} }
@@ -702,6 +808,17 @@ func (*PartitioningDescriptor_Range) ProtoMessage()    {}
 func (*PartitioningDescriptor_Range) Descriptor() ([]byte, []int) {
 	return fileDescriptorStructured, []int{5, 1}
 }
+func (dst *PartitioningDescriptor_Range) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PartitioningDescriptor_Range.Merge(dst, src)
+}
+func (m *PartitioningDescriptor_Range) XXX_Size() int {
+	return xxx_messageInfo_PartitioningDescriptor_Range.Size(m)
+}
+func (m *PartitioningDescriptor_Range) XXX_DiscardUnknown() {
+	xxx_messageInfo_PartitioningDescriptor_Range.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PartitioningDescriptor_Range proto.InternalMessageInfo
 
 // IndexDescriptor describes an index (primary or secondary).
 //
@@ -803,13 +920,26 @@ type IndexDescriptor struct {
 	// is partitioned into spans of keys each addressable by zone configs.
 	Partitioning PartitioningDescriptor `protobuf:"bytes,15,opt,name=partitioning" json:"partitioning"`
 	// Type is the type of index, inverted or forward.
-	Type IndexDescriptor_Type `protobuf:"varint,16,opt,name=type,enum=cockroach.sql.sqlbase.IndexDescriptor_Type" json:"type"`
+	Type                 IndexDescriptor_Type `protobuf:"varint,16,opt,name=type,enum=cockroach.sql.sqlbase.IndexDescriptor_Type" json:"type"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
 }
 
 func (m *IndexDescriptor) Reset()                    { *m = IndexDescriptor{} }
 func (m *IndexDescriptor) String() string            { return proto.CompactTextString(m) }
 func (*IndexDescriptor) ProtoMessage()               {}
 func (*IndexDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorStructured, []int{6} }
+func (dst *IndexDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IndexDescriptor.Merge(dst, src)
+}
+func (m *IndexDescriptor) XXX_Size() int {
+	return xxx_messageInfo_IndexDescriptor.Size(m)
+}
+func (m *IndexDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_IndexDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IndexDescriptor proto.InternalMessageInfo
 
 // A DescriptorMutation represents a column or an index that
 // has either been added or dropped and hasn't yet transitioned
@@ -830,13 +960,26 @@ type DescriptorMutation struct {
 	// unique constraint index.
 	MutationID MutationID `protobuf:"varint,5,opt,name=mutation_id,json=mutationId,casttype=MutationID" json:"mutation_id"`
 	// Indicates that this mutation is a rollback.
-	Rollback bool `protobuf:"varint,7,opt,name=rollback" json:"rollback"`
+	Rollback             bool     `protobuf:"varint,7,opt,name=rollback" json:"rollback"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DescriptorMutation) Reset()                    { *m = DescriptorMutation{} }
 func (m *DescriptorMutation) String() string            { return proto.CompactTextString(m) }
 func (*DescriptorMutation) ProtoMessage()               {}
 func (*DescriptorMutation) Descriptor() ([]byte, []int) { return fileDescriptorStructured, []int{7} }
+func (dst *DescriptorMutation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DescriptorMutation.Merge(dst, src)
+}
+func (m *DescriptorMutation) XXX_Size() int {
+	return xxx_messageInfo_DescriptorMutation.Size(m)
+}
+func (m *DescriptorMutation) XXX_DiscardUnknown() {
+	xxx_messageInfo_DescriptorMutation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DescriptorMutation proto.InternalMessageInfo
 
 type isDescriptorMutation_Descriptor_ interface {
 	isDescriptorMutation_Descriptor_()
@@ -1070,14 +1213,27 @@ type TableDescriptor struct {
 	// TRUNCATE creates a replacement of a table and swaps it in for the the old
 	// one, it should note on the new table the ID of the table it replaced. This
 	// can be used when trying to track a table's history across truncatations.
-	ReplacementOf TableDescriptor_Replacement `protobuf:"bytes,30,opt,name=replacement_of,json=replacementOf" json:"replacement_of"`
-	AuditMode     TableDescriptor_AuditMode   `protobuf:"varint,31,opt,name=audit_mode,json=auditMode,enum=cockroach.sql.sqlbase.TableDescriptor_AuditMode" json:"audit_mode"`
+	ReplacementOf        TableDescriptor_Replacement `protobuf:"bytes,30,opt,name=replacement_of,json=replacementOf" json:"replacement_of"`
+	AuditMode            TableDescriptor_AuditMode   `protobuf:"varint,31,opt,name=audit_mode,json=auditMode,enum=cockroach.sql.sqlbase.TableDescriptor_AuditMode" json:"audit_mode"`
+	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
+	XXX_sizecache        int32                       `json:"-"`
 }
 
 func (m *TableDescriptor) Reset()                    { *m = TableDescriptor{} }
 func (m *TableDescriptor) String() string            { return proto.CompactTextString(m) }
 func (*TableDescriptor) ProtoMessage()               {}
 func (*TableDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorStructured, []int{8} }
+func (dst *TableDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDescriptor.Merge(dst, src)
+}
+func (m *TableDescriptor) XXX_Size() int {
+	return xxx_messageInfo_TableDescriptor.Size(m)
+}
+func (m *TableDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDescriptor proto.InternalMessageInfo
 
 func (m *TableDescriptor) GetName() string {
 	if m != nil {
@@ -1290,7 +1446,9 @@ func (m *TableDescriptor) GetAuditMode() TableDescriptor_AuditMode {
 type TableDescriptor_SchemaChangeLease struct {
 	NodeID github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id"`
 	// Nanoseconds since the Unix epoch.
-	ExpirationTime int64 `protobuf:"varint,2,opt,name=expiration_time,json=expirationTime" json:"expiration_time"`
+	ExpirationTime       int64    `protobuf:"varint,2,opt,name=expiration_time,json=expirationTime" json:"expiration_time"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TableDescriptor_SchemaChangeLease) Reset()         { *m = TableDescriptor_SchemaChangeLease{} }
@@ -1299,13 +1457,26 @@ func (*TableDescriptor_SchemaChangeLease) ProtoMessage()    {}
 func (*TableDescriptor_SchemaChangeLease) Descriptor() ([]byte, []int) {
 	return fileDescriptorStructured, []int{8, 0}
 }
+func (dst *TableDescriptor_SchemaChangeLease) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDescriptor_SchemaChangeLease.Merge(dst, src)
+}
+func (m *TableDescriptor_SchemaChangeLease) XXX_Size() int {
+	return xxx_messageInfo_TableDescriptor_SchemaChangeLease.Size(m)
+}
+func (m *TableDescriptor_SchemaChangeLease) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDescriptor_SchemaChangeLease.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDescriptor_SchemaChangeLease proto.InternalMessageInfo
 
 type TableDescriptor_CheckConstraint struct {
 	Expr     string             `protobuf:"bytes,1,opt,name=expr" json:"expr"`
 	Name     string             `protobuf:"bytes,2,opt,name=name" json:"name"`
 	Validity ConstraintValidity `protobuf:"varint,3,opt,name=validity,enum=cockroach.sql.sqlbase.ConstraintValidity" json:"validity"`
 	// An ordered list of column IDs used by the check constraint.
-	ColumnIDs []ColumnID `protobuf:"varint,5,rep,name=column_ids,json=columnIds,casttype=ColumnID" json:"column_ids,omitempty"`
+	ColumnIDs            []ColumnID `protobuf:"varint,5,rep,name=column_ids,json=columnIds,casttype=ColumnID" json:"column_ids,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
 }
 
 func (m *TableDescriptor_CheckConstraint) Reset()         { *m = TableDescriptor_CheckConstraint{} }
@@ -1314,6 +1485,17 @@ func (*TableDescriptor_CheckConstraint) ProtoMessage()    {}
 func (*TableDescriptor_CheckConstraint) Descriptor() ([]byte, []int) {
 	return fileDescriptorStructured, []int{8, 1}
 }
+func (dst *TableDescriptor_CheckConstraint) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDescriptor_CheckConstraint.Merge(dst, src)
+}
+func (m *TableDescriptor_CheckConstraint) XXX_Size() int {
+	return xxx_messageInfo_TableDescriptor_CheckConstraint.Size(m)
+}
+func (m *TableDescriptor_CheckConstraint) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDescriptor_CheckConstraint.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDescriptor_CheckConstraint proto.InternalMessageInfo
 
 // A table descriptor is named through a name map stored in the
 // system.namespace table: a map from {parent_id, table_name} -> id.
@@ -1385,8 +1567,10 @@ func (*TableDescriptor_CheckConstraint) Descriptor() ([]byte, []int) {
 type TableDescriptor_NameInfo struct {
 	// The database that the table belonged to before the rename (tables can be
 	// renamed from one db to another).
-	ParentID ID     `protobuf:"varint,1,opt,name=parent_id,json=parentId,casttype=ID" json:"parent_id"`
-	Name     string `protobuf:"bytes,2,opt,name=name" json:"name"`
+	ParentID             ID       `protobuf:"varint,1,opt,name=parent_id,json=parentId,casttype=ID" json:"parent_id"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name" json:"name"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TableDescriptor_NameInfo) Reset()         { *m = TableDescriptor_NameInfo{} }
@@ -1395,6 +1579,17 @@ func (*TableDescriptor_NameInfo) ProtoMessage()    {}
 func (*TableDescriptor_NameInfo) Descriptor() ([]byte, []int) {
 	return fileDescriptorStructured, []int{8, 2}
 }
+func (dst *TableDescriptor_NameInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDescriptor_NameInfo.Merge(dst, src)
+}
+func (m *TableDescriptor_NameInfo) XXX_Size() int {
+	return xxx_messageInfo_TableDescriptor_NameInfo.Size(m)
+}
+func (m *TableDescriptor_NameInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDescriptor_NameInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDescriptor_NameInfo proto.InternalMessageInfo
 
 type TableDescriptor_Reference struct {
 	// The ID of the relation that depends on this one.
@@ -1404,7 +1599,9 @@ type TableDescriptor_Reference struct {
 	IndexID IndexID `protobuf:"varint,2,opt,name=index_id,json=indexId,casttype=IndexID" json:"index_id"`
 	// The IDs of this table's columns that are referenced by the dependent
 	// relation.
-	ColumnIDs []ColumnID `protobuf:"varint,3,rep,name=column_ids,json=columnIds,casttype=ColumnID" json:"column_ids,omitempty"`
+	ColumnIDs            []ColumnID `protobuf:"varint,3,rep,name=column_ids,json=columnIds,casttype=ColumnID" json:"column_ids,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
 }
 
 func (m *TableDescriptor_Reference) Reset()         { *m = TableDescriptor_Reference{} }
@@ -1413,13 +1610,26 @@ func (*TableDescriptor_Reference) ProtoMessage()    {}
 func (*TableDescriptor_Reference) Descriptor() ([]byte, []int) {
 	return fileDescriptorStructured, []int{8, 3}
 }
+func (dst *TableDescriptor_Reference) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDescriptor_Reference.Merge(dst, src)
+}
+func (m *TableDescriptor_Reference) XXX_Size() int {
+	return xxx_messageInfo_TableDescriptor_Reference.Size(m)
+}
+func (m *TableDescriptor_Reference) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDescriptor_Reference.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDescriptor_Reference proto.InternalMessageInfo
 
 type TableDescriptor_MutationJob struct {
 	// The mutation id of this mutation job.
 	MutationID MutationID `protobuf:"varint,1,opt,name=mutation_id,json=mutationId,casttype=MutationID" json:"mutation_id"`
 	// The job id for a mutation job is the id in the system.jobs table of the
 	// schema change job executing the mutation referenced by mutation_id.
-	JobID int64 `protobuf:"varint,2,opt,name=job_id,json=jobId" json:"job_id"`
+	JobID                int64    `protobuf:"varint,2,opt,name=job_id,json=jobId" json:"job_id"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TableDescriptor_MutationJob) Reset()         { *m = TableDescriptor_MutationJob{} }
@@ -1428,6 +1638,17 @@ func (*TableDescriptor_MutationJob) ProtoMessage()    {}
 func (*TableDescriptor_MutationJob) Descriptor() ([]byte, []int) {
 	return fileDescriptorStructured, []int{8, 4}
 }
+func (dst *TableDescriptor_MutationJob) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDescriptor_MutationJob.Merge(dst, src)
+}
+func (m *TableDescriptor_MutationJob) XXX_Size() int {
+	return xxx_messageInfo_TableDescriptor_MutationJob.Size(m)
+}
+func (m *TableDescriptor_MutationJob) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDescriptor_MutationJob.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDescriptor_MutationJob proto.InternalMessageInfo
 
 type TableDescriptor_SequenceOpts struct {
 	// How much to increment the sequence by when nextval() is called.
@@ -1437,7 +1658,9 @@ type TableDescriptor_SequenceOpts struct {
 	// Maximum value of the sequence.
 	MaxValue int64 `protobuf:"varint,3,opt,name=max_value,json=maxValue" json:"max_value"`
 	// Start value of the sequence.
-	Start int64 `protobuf:"varint,4,opt,name=start" json:"start"`
+	Start                int64    `protobuf:"varint,4,opt,name=start" json:"start"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TableDescriptor_SequenceOpts) Reset()         { *m = TableDescriptor_SequenceOpts{} }
@@ -1446,10 +1669,23 @@ func (*TableDescriptor_SequenceOpts) ProtoMessage()    {}
 func (*TableDescriptor_SequenceOpts) Descriptor() ([]byte, []int) {
 	return fileDescriptorStructured, []int{8, 5}
 }
+func (dst *TableDescriptor_SequenceOpts) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDescriptor_SequenceOpts.Merge(dst, src)
+}
+func (m *TableDescriptor_SequenceOpts) XXX_Size() int {
+	return xxx_messageInfo_TableDescriptor_SequenceOpts.Size(m)
+}
+func (m *TableDescriptor_SequenceOpts) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDescriptor_SequenceOpts.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDescriptor_SequenceOpts proto.InternalMessageInfo
 
 type TableDescriptor_Replacement struct {
-	ID   ID                           `protobuf:"varint,1,opt,name=id,casttype=ID" json:"id"`
-	Time cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=time" json:"time"`
+	ID                   ID                           `protobuf:"varint,1,opt,name=id,casttype=ID" json:"id"`
+	Time                 cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=time" json:"time"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *TableDescriptor_Replacement) Reset()         { *m = TableDescriptor_Replacement{} }
@@ -1458,21 +1694,45 @@ func (*TableDescriptor_Replacement) ProtoMessage()    {}
 func (*TableDescriptor_Replacement) Descriptor() ([]byte, []int) {
 	return fileDescriptorStructured, []int{8, 6}
 }
+func (dst *TableDescriptor_Replacement) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDescriptor_Replacement.Merge(dst, src)
+}
+func (m *TableDescriptor_Replacement) XXX_Size() int {
+	return xxx_messageInfo_TableDescriptor_Replacement.Size(m)
+}
+func (m *TableDescriptor_Replacement) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDescriptor_Replacement.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDescriptor_Replacement proto.InternalMessageInfo
 
 // DatabaseDescriptor represents a namespace (aka database) and is stored
 // in a structured metadata key. The DatabaseDescriptor has a globally-unique
 // ID shared with the TableDescriptor ID.
 // Permissions are applied to all tables in the namespace.
 type DatabaseDescriptor struct {
-	Name       string               `protobuf:"bytes,1,opt,name=name" json:"name"`
-	ID         ID                   `protobuf:"varint,2,opt,name=id,casttype=ID" json:"id"`
-	Privileges *PrivilegeDescriptor `protobuf:"bytes,3,opt,name=privileges" json:"privileges,omitempty"`
+	Name                 string               `protobuf:"bytes,1,opt,name=name" json:"name"`
+	ID                   ID                   `protobuf:"varint,2,opt,name=id,casttype=ID" json:"id"`
+	Privileges           *PrivilegeDescriptor `protobuf:"bytes,3,opt,name=privileges" json:"privileges,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
 }
 
 func (m *DatabaseDescriptor) Reset()                    { *m = DatabaseDescriptor{} }
 func (m *DatabaseDescriptor) String() string            { return proto.CompactTextString(m) }
 func (*DatabaseDescriptor) ProtoMessage()               {}
 func (*DatabaseDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorStructured, []int{9} }
+func (dst *DatabaseDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DatabaseDescriptor.Merge(dst, src)
+}
+func (m *DatabaseDescriptor) XXX_Size() int {
+	return xxx_messageInfo_DatabaseDescriptor.Size(m)
+}
+func (m *DatabaseDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_DatabaseDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DatabaseDescriptor proto.InternalMessageInfo
 
 func (m *DatabaseDescriptor) GetName() string {
 	if m != nil {
@@ -1500,13 +1760,26 @@ type Descriptor struct {
 	// Types that are valid to be assigned to Union:
 	//	*Descriptor_Table
 	//	*Descriptor_Database
-	Union isDescriptor_Union `protobuf_oneof:"union"`
+	Union                isDescriptor_Union `protobuf_oneof:"union"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
 }
 
 func (m *Descriptor) Reset()                    { *m = Descriptor{} }
 func (m *Descriptor) String() string            { return proto.CompactTextString(m) }
 func (*Descriptor) ProtoMessage()               {}
 func (*Descriptor) Descriptor() ([]byte, []int) { return fileDescriptorStructured, []int{10} }
+func (dst *Descriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Descriptor.Merge(dst, src)
+}
+func (m *Descriptor) XXX_Size() int {
+	return xxx_messageInfo_Descriptor.Size(m)
+}
+func (m *Descriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_Descriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Descriptor proto.InternalMessageInfo
 
 type isDescriptor_Union interface {
 	isDescriptor_Union()

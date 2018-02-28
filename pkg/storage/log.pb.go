@@ -51,32 +51,58 @@ func (x RangeLogEventType) String() string {
 func (RangeLogEventType) EnumDescriptor() ([]byte, []int) { return fileDescriptorLog, []int{0} }
 
 type RangeLogEvent struct {
-	Timestamp    time.Time                                            `protobuf:"bytes,1,opt,name=timestamp,stdtime" json:"timestamp"`
-	RangeID      github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,2,opt,name=range_id,json=rangeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_id,omitempty"`
-	StoreID      github_com_cockroachdb_cockroach_pkg_roachpb.StoreID `protobuf:"varint,3,opt,name=store_id,json=storeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.StoreID" json:"store_id,omitempty"`
-	EventType    RangeLogEventType                                    `protobuf:"varint,4,opt,name=event_type,json=eventType,proto3,enum=cockroach.storage.RangeLogEventType" json:"event_type,omitempty"`
-	OtherRangeID github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,5,opt,name=other_range_id,json=otherRangeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"other_range_id,omitempty"`
-	Info         *RangeLogEvent_Info                                  `protobuf:"bytes,6,opt,name=info" json:"info,omitempty"`
+	Timestamp            time.Time                                            `protobuf:"bytes,1,opt,name=timestamp,stdtime" json:"timestamp"`
+	RangeID              github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,2,opt,name=range_id,json=rangeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_id,omitempty"`
+	StoreID              github_com_cockroachdb_cockroach_pkg_roachpb.StoreID `protobuf:"varint,3,opt,name=store_id,json=storeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.StoreID" json:"store_id,omitempty"`
+	EventType            RangeLogEventType                                    `protobuf:"varint,4,opt,name=event_type,json=eventType,proto3,enum=cockroach.storage.RangeLogEventType" json:"event_type,omitempty"`
+	OtherRangeID         github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,5,opt,name=other_range_id,json=otherRangeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"other_range_id,omitempty"`
+	Info                 *RangeLogEvent_Info                                  `protobuf:"bytes,6,opt,name=info" json:"info,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                             `json:"-"`
+	XXX_sizecache        int32                                                `json:"-"`
 }
 
 func (m *RangeLogEvent) Reset()                    { *m = RangeLogEvent{} }
 func (m *RangeLogEvent) String() string            { return proto.CompactTextString(m) }
 func (*RangeLogEvent) ProtoMessage()               {}
 func (*RangeLogEvent) Descriptor() ([]byte, []int) { return fileDescriptorLog, []int{0} }
+func (dst *RangeLogEvent) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeLogEvent.Merge(dst, src)
+}
+func (m *RangeLogEvent) XXX_Size() int {
+	return xxx_messageInfo_RangeLogEvent.Size(m)
+}
+func (m *RangeLogEvent) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeLogEvent.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeLogEvent proto.InternalMessageInfo
 
 type RangeLogEvent_Info struct {
-	UpdatedDesc    *cockroach_roachpb.RangeDescriptor   `protobuf:"bytes,1,opt,name=updated_desc,json=updatedDesc" json:"UpdatedDesc,omitempty"`
-	NewDesc        *cockroach_roachpb.RangeDescriptor   `protobuf:"bytes,2,opt,name=new_desc,json=newDesc" json:"NewDesc,omitempty"`
-	AddedReplica   *cockroach_roachpb.ReplicaDescriptor `protobuf:"bytes,3,opt,name=added_replica,json=addedReplica" json:"AddReplica,omitempty"`
-	RemovedReplica *cockroach_roachpb.ReplicaDescriptor `protobuf:"bytes,4,opt,name=removed_replica,json=removedReplica" json:"RemovedReplica,omitempty"`
-	Reason         RangeLogEventReason                  `protobuf:"bytes,5,opt,name=reason,proto3,casttype=RangeLogEventReason" json:"Reason,omitempty"`
-	Details        string                               `protobuf:"bytes,6,opt,name=details,proto3" json:"Details,omitempty"`
+	UpdatedDesc          *cockroach_roachpb.RangeDescriptor   `protobuf:"bytes,1,opt,name=updated_desc,json=updatedDesc" json:"UpdatedDesc,omitempty"`
+	NewDesc              *cockroach_roachpb.RangeDescriptor   `protobuf:"bytes,2,opt,name=new_desc,json=newDesc" json:"NewDesc,omitempty"`
+	AddedReplica         *cockroach_roachpb.ReplicaDescriptor `protobuf:"bytes,3,opt,name=added_replica,json=addedReplica" json:"AddReplica,omitempty"`
+	RemovedReplica       *cockroach_roachpb.ReplicaDescriptor `protobuf:"bytes,4,opt,name=removed_replica,json=removedReplica" json:"RemovedReplica,omitempty"`
+	Reason               RangeLogEventReason                  `protobuf:"bytes,5,opt,name=reason,proto3,casttype=RangeLogEventReason" json:"Reason,omitempty"`
+	Details              string                               `protobuf:"bytes,6,opt,name=details,proto3" json:"Details,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                             `json:"-"`
+	XXX_sizecache        int32                                `json:"-"`
 }
 
 func (m *RangeLogEvent_Info) Reset()                    { *m = RangeLogEvent_Info{} }
 func (m *RangeLogEvent_Info) String() string            { return proto.CompactTextString(m) }
 func (*RangeLogEvent_Info) ProtoMessage()               {}
 func (*RangeLogEvent_Info) Descriptor() ([]byte, []int) { return fileDescriptorLog, []int{0, 0} }
+func (dst *RangeLogEvent_Info) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeLogEvent_Info.Merge(dst, src)
+}
+func (m *RangeLogEvent_Info) XXX_Size() int {
+	return xxx_messageInfo_RangeLogEvent_Info.Size(m)
+}
+func (m *RangeLogEvent_Info) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeLogEvent_Info.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeLogEvent_Info proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*RangeLogEvent)(nil), "cockroach.storage.RangeLogEvent")

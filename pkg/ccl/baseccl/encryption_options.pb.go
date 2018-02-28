@@ -53,8 +53,10 @@ func (EncryptionKeySource) EnumDescriptor() ([]byte, []int) {
 
 // EncryptionKeyFiles is used when plain key files are passed.
 type EncryptionKeyFiles struct {
-	CurrentKey string `protobuf:"bytes,1,opt,name=current_key,json=currentKey,proto3" json:"current_key,omitempty"`
-	OldKey     string `protobuf:"bytes,2,opt,name=old_key,json=oldKey,proto3" json:"old_key,omitempty"`
+	CurrentKey           string   `protobuf:"bytes,1,opt,name=current_key,json=currentKey,proto3" json:"current_key,omitempty"`
+	OldKey               string   `protobuf:"bytes,2,opt,name=old_key,json=oldKey,proto3" json:"old_key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *EncryptionKeyFiles) Reset()         { *m = EncryptionKeyFiles{} }
@@ -63,6 +65,17 @@ func (*EncryptionKeyFiles) ProtoMessage()    {}
 func (*EncryptionKeyFiles) Descriptor() ([]byte, []int) {
 	return fileDescriptorEncryptionOptions, []int{0}
 }
+func (dst *EncryptionKeyFiles) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EncryptionKeyFiles.Merge(dst, src)
+}
+func (m *EncryptionKeyFiles) XXX_Size() int {
+	return xxx_messageInfo_EncryptionKeyFiles.Size(m)
+}
+func (m *EncryptionKeyFiles) XXX_DiscardUnknown() {
+	xxx_messageInfo_EncryptionKeyFiles.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EncryptionKeyFiles proto.InternalMessageInfo
 
 // EncryptionOptions defines the per-store encryption options.
 type EncryptionOptions struct {
@@ -71,7 +84,9 @@ type EncryptionOptions struct {
 	// Set if key_source == KeyFiles.
 	KeyFiles *EncryptionKeyFiles `protobuf:"bytes,2,opt,name=key_files,json=keyFiles" json:"key_files,omitempty"`
 	// Default data key rotation in seconds.
-	DataKeyRotationPeriod int64 `protobuf:"varint,3,opt,name=data_key_rotation_period,json=dataKeyRotationPeriod,proto3" json:"data_key_rotation_period,omitempty"`
+	DataKeyRotationPeriod int64    `protobuf:"varint,3,opt,name=data_key_rotation_period,json=dataKeyRotationPeriod,proto3" json:"data_key_rotation_period,omitempty"`
+	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
+	XXX_sizecache         int32    `json:"-"`
 }
 
 func (m *EncryptionOptions) Reset()         { *m = EncryptionOptions{} }
@@ -80,6 +95,17 @@ func (*EncryptionOptions) ProtoMessage()    {}
 func (*EncryptionOptions) Descriptor() ([]byte, []int) {
 	return fileDescriptorEncryptionOptions, []int{1}
 }
+func (dst *EncryptionOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EncryptionOptions.Merge(dst, src)
+}
+func (m *EncryptionOptions) XXX_Size() int {
+	return xxx_messageInfo_EncryptionOptions.Size(m)
+}
+func (m *EncryptionOptions) XXX_DiscardUnknown() {
+	xxx_messageInfo_EncryptionOptions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EncryptionOptions proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*EncryptionKeyFiles)(nil), "cockroach.ccl.baseccl.EncryptionKeyFiles")

@@ -88,38 +88,66 @@ type CertificatesRequest struct {
 	//
 	// node_id is a string so that "local" can be used to specify that no
 	// forwarding is necessary.
-	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	NodeId               string   `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *CertificatesRequest) Reset()                    { *m = CertificatesRequest{} }
 func (m *CertificatesRequest) String() string            { return proto.CompactTextString(m) }
 func (*CertificatesRequest) ProtoMessage()               {}
 func (*CertificatesRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{0} }
+func (dst *CertificatesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CertificatesRequest.Merge(dst, src)
+}
+func (m *CertificatesRequest) XXX_Size() int {
+	return xxx_messageInfo_CertificatesRequest.Size(m)
+}
+func (m *CertificatesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CertificatesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CertificatesRequest proto.InternalMessageInfo
 
 type CertificateDetails struct {
 	Type CertificateDetails_CertificateType `protobuf:"varint,1,opt,name=type,proto3,enum=cockroach.server.serverpb.CertificateDetails_CertificateType" json:"type,omitempty"`
 	// "error_message" and "data" are mutually exclusive.
 	ErrorMessage string `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
 	// data is the raw file contents of the certificate. This means PEM-encoded DER data.
-	Data   []byte                      `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
-	Fields []CertificateDetails_Fields `protobuf:"bytes,4,rep,name=fields" json:"fields"`
+	Data                 []byte                      `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
+	Fields               []CertificateDetails_Fields `protobuf:"bytes,4,rep,name=fields" json:"fields"`
+	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
+	XXX_sizecache        int32                       `json:"-"`
 }
 
 func (m *CertificateDetails) Reset()                    { *m = CertificateDetails{} }
 func (m *CertificateDetails) String() string            { return proto.CompactTextString(m) }
 func (*CertificateDetails) ProtoMessage()               {}
 func (*CertificateDetails) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{1} }
+func (dst *CertificateDetails) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CertificateDetails.Merge(dst, src)
+}
+func (m *CertificateDetails) XXX_Size() int {
+	return xxx_messageInfo_CertificateDetails.Size(m)
+}
+func (m *CertificateDetails) XXX_DiscardUnknown() {
+	xxx_messageInfo_CertificateDetails.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CertificateDetails proto.InternalMessageInfo
 
 type CertificateDetails_Fields struct {
-	Issuer             string   `protobuf:"bytes,1,opt,name=issuer,proto3" json:"issuer,omitempty"`
-	Subject            string   `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
-	ValidFrom          int64    `protobuf:"varint,3,opt,name=valid_from,json=validFrom,proto3" json:"valid_from,omitempty"`
-	ValidUntil         int64    `protobuf:"varint,4,opt,name=valid_until,json=validUntil,proto3" json:"valid_until,omitempty"`
-	Addresses          []string `protobuf:"bytes,5,rep,name=addresses" json:"addresses,omitempty"`
-	SignatureAlgorithm string   `protobuf:"bytes,6,opt,name=signature_algorithm,json=signatureAlgorithm,proto3" json:"signature_algorithm,omitempty"`
-	PublicKey          string   `protobuf:"bytes,7,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
-	KeyUsage           []string `protobuf:"bytes,8,rep,name=key_usage,json=keyUsage" json:"key_usage,omitempty"`
-	ExtendedKeyUsage   []string `protobuf:"bytes,9,rep,name=extended_key_usage,json=extendedKeyUsage" json:"extended_key_usage,omitempty"`
+	Issuer               string   `protobuf:"bytes,1,opt,name=issuer,proto3" json:"issuer,omitempty"`
+	Subject              string   `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
+	ValidFrom            int64    `protobuf:"varint,3,opt,name=valid_from,json=validFrom,proto3" json:"valid_from,omitempty"`
+	ValidUntil           int64    `protobuf:"varint,4,opt,name=valid_until,json=validUntil,proto3" json:"valid_until,omitempty"`
+	Addresses            []string `protobuf:"bytes,5,rep,name=addresses" json:"addresses,omitempty"`
+	SignatureAlgorithm   string   `protobuf:"bytes,6,opt,name=signature_algorithm,json=signatureAlgorithm,proto3" json:"signature_algorithm,omitempty"`
+	PublicKey            string   `protobuf:"bytes,7,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
+	KeyUsage             []string `protobuf:"bytes,8,rep,name=key_usage,json=keyUsage" json:"key_usage,omitempty"`
+	ExtendedKeyUsage     []string `protobuf:"bytes,9,rep,name=extended_key_usage,json=extendedKeyUsage" json:"extended_key_usage,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *CertificateDetails_Fields) Reset()         { *m = CertificateDetails_Fields{} }
@@ -128,15 +156,39 @@ func (*CertificateDetails_Fields) ProtoMessage()    {}
 func (*CertificateDetails_Fields) Descriptor() ([]byte, []int) {
 	return fileDescriptorStatus, []int{1, 0}
 }
+func (dst *CertificateDetails_Fields) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CertificateDetails_Fields.Merge(dst, src)
+}
+func (m *CertificateDetails_Fields) XXX_Size() int {
+	return xxx_messageInfo_CertificateDetails_Fields.Size(m)
+}
+func (m *CertificateDetails_Fields) XXX_DiscardUnknown() {
+	xxx_messageInfo_CertificateDetails_Fields.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CertificateDetails_Fields proto.InternalMessageInfo
 
 type CertificatesResponse struct {
-	Certificates []CertificateDetails `protobuf:"bytes,1,rep,name=certificates" json:"certificates"`
+	Certificates         []CertificateDetails `protobuf:"bytes,1,rep,name=certificates" json:"certificates"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
 }
 
 func (m *CertificatesResponse) Reset()                    { *m = CertificatesResponse{} }
 func (m *CertificatesResponse) String() string            { return proto.CompactTextString(m) }
 func (*CertificatesResponse) ProtoMessage()               {}
 func (*CertificatesResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{2} }
+func (dst *CertificatesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CertificatesResponse.Merge(dst, src)
+}
+func (m *CertificatesResponse) XXX_Size() int {
+	return xxx_messageInfo_CertificatesResponse.Size(m)
+}
+func (m *CertificatesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CertificatesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CertificatesResponse proto.InternalMessageInfo
 
 // DetailsRequest requests a nodes details.
 type DetailsRequest struct {
@@ -145,41 +197,93 @@ type DetailsRequest struct {
 	//
 	// node_id is a string so that "local" can be used to specify that no
 	// forwarding is necessary.
-	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	NodeId               string   `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DetailsRequest) Reset()                    { *m = DetailsRequest{} }
 func (m *DetailsRequest) String() string            { return proto.CompactTextString(m) }
 func (*DetailsRequest) ProtoMessage()               {}
 func (*DetailsRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{3} }
+func (dst *DetailsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DetailsRequest.Merge(dst, src)
+}
+func (m *DetailsRequest) XXX_Size() int {
+	return xxx_messageInfo_DetailsRequest.Size(m)
+}
+func (m *DetailsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DetailsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DetailsRequest proto.InternalMessageInfo
 
 type DetailsResponse struct {
-	NodeID    github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
-	Address   cockroach_util.UnresolvedAddr                       `protobuf:"bytes,2,opt,name=address" json:"address"`
-	BuildInfo cockroach_build.Info                                `protobuf:"bytes,3,opt,name=build_info,json=buildInfo" json:"build_info"`
+	NodeID               github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
+	Address              cockroach_util.UnresolvedAddr                       `protobuf:"bytes,2,opt,name=address" json:"address"`
+	BuildInfo            cockroach_build.Info                                `protobuf:"bytes,3,opt,name=build_info,json=buildInfo" json:"build_info"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *DetailsResponse) Reset()                    { *m = DetailsResponse{} }
 func (m *DetailsResponse) String() string            { return proto.CompactTextString(m) }
 func (*DetailsResponse) ProtoMessage()               {}
 func (*DetailsResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{4} }
+func (dst *DetailsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DetailsResponse.Merge(dst, src)
+}
+func (m *DetailsResponse) XXX_Size() int {
+	return xxx_messageInfo_DetailsResponse.Size(m)
+}
+func (m *DetailsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DetailsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DetailsResponse proto.InternalMessageInfo
 
 type NodesRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *NodesRequest) Reset()                    { *m = NodesRequest{} }
 func (m *NodesRequest) String() string            { return proto.CompactTextString(m) }
 func (*NodesRequest) ProtoMessage()               {}
 func (*NodesRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{5} }
+func (dst *NodesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodesRequest.Merge(dst, src)
+}
+func (m *NodesRequest) XXX_Size() int {
+	return xxx_messageInfo_NodesRequest.Size(m)
+}
+func (m *NodesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_NodesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NodesRequest proto.InternalMessageInfo
 
 type NodesResponse struct {
-	Nodes []cockroach_server_status.NodeStatus `protobuf:"bytes,1,rep,name=nodes" json:"nodes"`
+	Nodes                []cockroach_server_status.NodeStatus `protobuf:"bytes,1,rep,name=nodes" json:"nodes"`
+	XXX_NoUnkeyedLiteral struct{}                             `json:"-"`
+	XXX_sizecache        int32                                `json:"-"`
 }
 
 func (m *NodesResponse) Reset()                    { *m = NodesResponse{} }
 func (m *NodesResponse) String() string            { return proto.CompactTextString(m) }
 func (*NodesResponse) ProtoMessage()               {}
 func (*NodesResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{6} }
+func (dst *NodesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodesResponse.Merge(dst, src)
+}
+func (m *NodesResponse) XXX_Size() int {
+	return xxx_messageInfo_NodesResponse.Size(m)
+}
+func (m *NodesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_NodesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NodesResponse proto.InternalMessageInfo
 
 type NodeRequest struct {
 	// TODO(tamird): use [(gogoproto.customname) = "NodeID"] below. Need to
@@ -187,13 +291,26 @@ type NodeRequest struct {
 	//
 	// node_id is a string so that "local" can be used to specify that no
 	// forwarding is necessary.
-	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	NodeId               string   `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *NodeRequest) Reset()                    { *m = NodeRequest{} }
 func (m *NodeRequest) String() string            { return proto.CompactTextString(m) }
 func (*NodeRequest) ProtoMessage()               {}
 func (*NodeRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{7} }
+func (dst *NodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodeRequest.Merge(dst, src)
+}
+func (m *NodeRequest) XXX_Size() int {
+	return xxx_messageInfo_NodeRequest.Size(m)
+}
+func (m *NodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_NodeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NodeRequest proto.InternalMessageInfo
 
 // RaftState gives internal details about a Raft group's state.
 // Closely mirrors the upstream definitions in github.com/coreos/etcd/raft.
@@ -205,96 +322,187 @@ type RaftState struct {
 	// State is part of Raft's SoftState.
 	// It's not an enum because this is primarily for ui consumption and there
 	// are issues associated with them.
-	State    string                        `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
-	Applied  uint64                        `protobuf:"varint,5,opt,name=applied,proto3" json:"applied,omitempty"`
-	Progress map[uint64]RaftState_Progress `protobuf:"bytes,6,rep,name=progress" json:"progress" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	State                string                        `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	Applied              uint64                        `protobuf:"varint,5,opt,name=applied,proto3" json:"applied,omitempty"`
+	Progress             map[uint64]RaftState_Progress `protobuf:"bytes,6,rep,name=progress" json:"progress" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	XXX_NoUnkeyedLiteral struct{}                      `json:"-"`
+	XXX_sizecache        int32                         `json:"-"`
 }
 
 func (m *RaftState) Reset()                    { *m = RaftState{} }
 func (m *RaftState) String() string            { return proto.CompactTextString(m) }
 func (*RaftState) ProtoMessage()               {}
 func (*RaftState) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{8} }
+func (dst *RaftState) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RaftState.Merge(dst, src)
+}
+func (m *RaftState) XXX_Size() int {
+	return xxx_messageInfo_RaftState.Size(m)
+}
+func (m *RaftState) XXX_DiscardUnknown() {
+	xxx_messageInfo_RaftState.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RaftState proto.InternalMessageInfo
 
 type RaftState_Progress struct {
-	Match           uint64 `protobuf:"varint,1,opt,name=match,proto3" json:"match,omitempty"`
-	Next            uint64 `protobuf:"varint,2,opt,name=next,proto3" json:"next,omitempty"`
-	State           string `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`
-	Paused          bool   `protobuf:"varint,4,opt,name=paused,proto3" json:"paused,omitempty"`
-	PendingSnapshot uint64 `protobuf:"varint,5,opt,name=pending_snapshot,json=pendingSnapshot,proto3" json:"pending_snapshot,omitempty"`
+	Match                uint64   `protobuf:"varint,1,opt,name=match,proto3" json:"match,omitempty"`
+	Next                 uint64   `protobuf:"varint,2,opt,name=next,proto3" json:"next,omitempty"`
+	State                string   `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`
+	Paused               bool     `protobuf:"varint,4,opt,name=paused,proto3" json:"paused,omitempty"`
+	PendingSnapshot      uint64   `protobuf:"varint,5,opt,name=pending_snapshot,json=pendingSnapshot,proto3" json:"pending_snapshot,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RaftState_Progress) Reset()                    { *m = RaftState_Progress{} }
 func (m *RaftState_Progress) String() string            { return proto.CompactTextString(m) }
 func (*RaftState_Progress) ProtoMessage()               {}
 func (*RaftState_Progress) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{8, 0} }
+func (dst *RaftState_Progress) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RaftState_Progress.Merge(dst, src)
+}
+func (m *RaftState_Progress) XXX_Size() int {
+	return xxx_messageInfo_RaftState_Progress.Size(m)
+}
+func (m *RaftState_Progress) XXX_DiscardUnknown() {
+	xxx_messageInfo_RaftState_Progress.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RaftState_Progress proto.InternalMessageInfo
 
 type RangeProblems struct {
-	Unavailable          bool `protobuf:"varint,1,opt,name=unavailable,proto3" json:"unavailable,omitempty"`
-	LeaderNotLeaseHolder bool `protobuf:"varint,2,opt,name=leader_not_lease_holder,json=leaderNotLeaseHolder,proto3" json:"leader_not_lease_holder,omitempty"`
-	NoRaftLeader         bool `protobuf:"varint,3,opt,name=no_raft_leader,json=noRaftLeader,proto3" json:"no_raft_leader,omitempty"`
-	Underreplicated      bool `protobuf:"varint,4,opt,name=underreplicated,proto3" json:"underreplicated,omitempty"`
-	NoLease              bool `protobuf:"varint,5,opt,name=no_lease,json=noLease,proto3" json:"no_lease,omitempty"`
+	Unavailable          bool     `protobuf:"varint,1,opt,name=unavailable,proto3" json:"unavailable,omitempty"`
+	LeaderNotLeaseHolder bool     `protobuf:"varint,2,opt,name=leader_not_lease_holder,json=leaderNotLeaseHolder,proto3" json:"leader_not_lease_holder,omitempty"`
+	NoRaftLeader         bool     `protobuf:"varint,3,opt,name=no_raft_leader,json=noRaftLeader,proto3" json:"no_raft_leader,omitempty"`
+	Underreplicated      bool     `protobuf:"varint,4,opt,name=underreplicated,proto3" json:"underreplicated,omitempty"`
+	NoLease              bool     `protobuf:"varint,5,opt,name=no_lease,json=noLease,proto3" json:"no_lease,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RangeProblems) Reset()                    { *m = RangeProblems{} }
 func (m *RangeProblems) String() string            { return proto.CompactTextString(m) }
 func (*RangeProblems) ProtoMessage()               {}
 func (*RangeProblems) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{9} }
+func (dst *RangeProblems) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeProblems.Merge(dst, src)
+}
+func (m *RangeProblems) XXX_Size() int {
+	return xxx_messageInfo_RangeProblems.Size(m)
+}
+func (m *RangeProblems) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeProblems.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeProblems proto.InternalMessageInfo
 
 type RangeStatistics struct {
 	// Note that queries per second will only be known by the leaseholder.
 	// All other replicas will report it as 0.
-	QueriesPerSecond float64 `protobuf:"fixed64,1,opt,name=queries_per_second,json=queriesPerSecond,proto3" json:"queries_per_second,omitempty"`
-	WritesPerSecond  float64 `protobuf:"fixed64,2,opt,name=writes_per_second,json=writesPerSecond,proto3" json:"writes_per_second,omitempty"`
+	QueriesPerSecond     float64  `protobuf:"fixed64,1,opt,name=queries_per_second,json=queriesPerSecond,proto3" json:"queries_per_second,omitempty"`
+	WritesPerSecond      float64  `protobuf:"fixed64,2,opt,name=writes_per_second,json=writesPerSecond,proto3" json:"writes_per_second,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RangeStatistics) Reset()                    { *m = RangeStatistics{} }
 func (m *RangeStatistics) String() string            { return proto.CompactTextString(m) }
 func (*RangeStatistics) ProtoMessage()               {}
 func (*RangeStatistics) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{10} }
+func (dst *RangeStatistics) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeStatistics.Merge(dst, src)
+}
+func (m *RangeStatistics) XXX_Size() int {
+	return xxx_messageInfo_RangeStatistics.Size(m)
+}
+func (m *RangeStatistics) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeStatistics.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeStatistics proto.InternalMessageInfo
 
 type PrettySpan struct {
-	StartKey string `protobuf:"bytes,1,opt,name=start_key,json=startKey,proto3" json:"start_key,omitempty"`
-	EndKey   string `protobuf:"bytes,2,opt,name=end_key,json=endKey,proto3" json:"end_key,omitempty"`
+	StartKey             string   `protobuf:"bytes,1,opt,name=start_key,json=startKey,proto3" json:"start_key,omitempty"`
+	EndKey               string   `protobuf:"bytes,2,opt,name=end_key,json=endKey,proto3" json:"end_key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *PrettySpan) Reset()                    { *m = PrettySpan{} }
 func (m *PrettySpan) String() string            { return proto.CompactTextString(m) }
 func (*PrettySpan) ProtoMessage()               {}
 func (*PrettySpan) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{11} }
+func (dst *PrettySpan) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PrettySpan.Merge(dst, src)
+}
+func (m *PrettySpan) XXX_Size() int {
+	return xxx_messageInfo_PrettySpan.Size(m)
+}
+func (m *PrettySpan) XXX_DiscardUnknown() {
+	xxx_messageInfo_PrettySpan.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PrettySpan proto.InternalMessageInfo
 
 type CommandQueueMetrics struct {
-	WriteCommands   int64 `protobuf:"varint,1,opt,name=write_commands,json=writeCommands,proto3" json:"write_commands,omitempty"`
-	ReadCommands    int64 `protobuf:"varint,2,opt,name=read_commands,json=readCommands,proto3" json:"read_commands,omitempty"`
-	MaxOverlapsSeen int64 `protobuf:"varint,3,opt,name=max_overlaps_seen,json=maxOverlapsSeen,proto3" json:"max_overlaps_seen,omitempty"`
-	TreeSize        int32 `protobuf:"varint,4,opt,name=tree_size,json=treeSize,proto3" json:"tree_size,omitempty"`
+	WriteCommands        int64    `protobuf:"varint,1,opt,name=write_commands,json=writeCommands,proto3" json:"write_commands,omitempty"`
+	ReadCommands         int64    `protobuf:"varint,2,opt,name=read_commands,json=readCommands,proto3" json:"read_commands,omitempty"`
+	MaxOverlapsSeen      int64    `protobuf:"varint,3,opt,name=max_overlaps_seen,json=maxOverlapsSeen,proto3" json:"max_overlaps_seen,omitempty"`
+	TreeSize             int32    `protobuf:"varint,4,opt,name=tree_size,json=treeSize,proto3" json:"tree_size,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *CommandQueueMetrics) Reset()                    { *m = CommandQueueMetrics{} }
 func (m *CommandQueueMetrics) String() string            { return proto.CompactTextString(m) }
 func (*CommandQueueMetrics) ProtoMessage()               {}
 func (*CommandQueueMetrics) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{12} }
+func (dst *CommandQueueMetrics) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CommandQueueMetrics.Merge(dst, src)
+}
+func (m *CommandQueueMetrics) XXX_Size() int {
+	return xxx_messageInfo_CommandQueueMetrics.Size(m)
+}
+func (m *CommandQueueMetrics) XXX_DiscardUnknown() {
+	xxx_messageInfo_CommandQueueMetrics.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CommandQueueMetrics proto.InternalMessageInfo
 
 type RangeInfo struct {
-	Span          PrettySpan                                           `protobuf:"bytes,1,opt,name=span" json:"span"`
-	RaftState     RaftState                                            `protobuf:"bytes,2,opt,name=raft_state,json=raftState" json:"raft_state"`
-	State         cockroach_storage_storagebase.RangeInfo              `protobuf:"bytes,4,opt,name=state" json:"state"`
-	SourceNodeID  github_com_cockroachdb_cockroach_pkg_roachpb.NodeID  `protobuf:"varint,5,opt,name=source_node_id,json=sourceNodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"source_node_id,omitempty"`
-	SourceStoreID github_com_cockroachdb_cockroach_pkg_roachpb.StoreID `protobuf:"varint,6,opt,name=source_store_id,json=sourceStoreId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.StoreID" json:"source_store_id,omitempty"`
-	ErrorMessage  string                                               `protobuf:"bytes,7,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
-	LeaseHistory  []cockroach_roachpb2.Lease                           `protobuf:"bytes,8,rep,name=lease_history,json=leaseHistory" json:"lease_history"`
-	Problems      RangeProblems                                        `protobuf:"bytes,9,opt,name=problems" json:"problems"`
-	Stats         RangeStatistics                                      `protobuf:"bytes,10,opt,name=stats" json:"stats"`
-	CmdQLocal     CommandQueueMetrics                                  `protobuf:"bytes,11,opt,name=cmd_q_local,json=cmdQLocal" json:"cmd_q_local"`
-	CmdQGlobal    CommandQueueMetrics                                  `protobuf:"bytes,12,opt,name=cmd_q_global,json=cmdQGlobal" json:"cmd_q_global"`
-	LeaseStatus   cockroach_storage2.LeaseStatus                       `protobuf:"bytes,13,opt,name=lease_status,json=leaseStatus" json:"lease_status"`
-	Quiescent     bool                                                 `protobuf:"varint,14,opt,name=quiescent,proto3" json:"quiescent,omitempty"`
+	Span                 PrettySpan                                           `protobuf:"bytes,1,opt,name=span" json:"span"`
+	RaftState            RaftState                                            `protobuf:"bytes,2,opt,name=raft_state,json=raftState" json:"raft_state"`
+	State                cockroach_storage_storagebase.RangeInfo              `protobuf:"bytes,4,opt,name=state" json:"state"`
+	SourceNodeID         github_com_cockroachdb_cockroach_pkg_roachpb.NodeID  `protobuf:"varint,5,opt,name=source_node_id,json=sourceNodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"source_node_id,omitempty"`
+	SourceStoreID        github_com_cockroachdb_cockroach_pkg_roachpb.StoreID `protobuf:"varint,6,opt,name=source_store_id,json=sourceStoreId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.StoreID" json:"source_store_id,omitempty"`
+	ErrorMessage         string                                               `protobuf:"bytes,7,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	LeaseHistory         []cockroach_roachpb2.Lease                           `protobuf:"bytes,8,rep,name=lease_history,json=leaseHistory" json:"lease_history"`
+	Problems             RangeProblems                                        `protobuf:"bytes,9,opt,name=problems" json:"problems"`
+	Stats                RangeStatistics                                      `protobuf:"bytes,10,opt,name=stats" json:"stats"`
+	CmdQLocal            CommandQueueMetrics                                  `protobuf:"bytes,11,opt,name=cmd_q_local,json=cmdQLocal" json:"cmd_q_local"`
+	CmdQGlobal           CommandQueueMetrics                                  `protobuf:"bytes,12,opt,name=cmd_q_global,json=cmdQGlobal" json:"cmd_q_global"`
+	LeaseStatus          cockroach_storage2.LeaseStatus                       `protobuf:"bytes,13,opt,name=lease_status,json=leaseStatus" json:"lease_status"`
+	Quiescent            bool                                                 `protobuf:"varint,14,opt,name=quiescent,proto3" json:"quiescent,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                             `json:"-"`
+	XXX_sizecache        int32                                                `json:"-"`
 }
 
 func (m *RangeInfo) Reset()                    { *m = RangeInfo{} }
 func (m *RangeInfo) String() string            { return proto.CompactTextString(m) }
 func (*RangeInfo) ProtoMessage()               {}
 func (*RangeInfo) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{13} }
+func (dst *RangeInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeInfo.Merge(dst, src)
+}
+func (m *RangeInfo) XXX_Size() int {
+	return xxx_messageInfo_RangeInfo.Size(m)
+}
+func (m *RangeInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeInfo proto.InternalMessageInfo
 
 type RangesRequest struct {
 	// TODO(tamird): use [(gogoproto.customname) = "NodeID"] below. Need to
@@ -302,23 +510,49 @@ type RangesRequest struct {
 	//
 	// node_id is a string so that "local" can be used to specify that no
 	// forwarding is necessary.
-	NodeId   string                                                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	RangeIDs []github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,2,rep,packed,name=range_ids,json=rangeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_ids,omitempty"`
+	NodeId               string                                                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	RangeIDs             []github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,2,rep,packed,name=range_ids,json=rangeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_ids,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                               `json:"-"`
+	XXX_sizecache        int32                                                  `json:"-"`
 }
 
 func (m *RangesRequest) Reset()                    { *m = RangesRequest{} }
 func (m *RangesRequest) String() string            { return proto.CompactTextString(m) }
 func (*RangesRequest) ProtoMessage()               {}
 func (*RangesRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{14} }
+func (dst *RangesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangesRequest.Merge(dst, src)
+}
+func (m *RangesRequest) XXX_Size() int {
+	return xxx_messageInfo_RangesRequest.Size(m)
+}
+func (m *RangesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangesRequest proto.InternalMessageInfo
 
 type RangesResponse struct {
-	Ranges []RangeInfo `protobuf:"bytes,1,rep,name=ranges" json:"ranges"`
+	Ranges               []RangeInfo `protobuf:"bytes,1,rep,name=ranges" json:"ranges"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
 func (m *RangesResponse) Reset()                    { *m = RangesResponse{} }
 func (m *RangesResponse) String() string            { return proto.CompactTextString(m) }
 func (*RangesResponse) ProtoMessage()               {}
 func (*RangesResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{15} }
+func (dst *RangesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangesResponse.Merge(dst, src)
+}
+func (m *RangesResponse) XXX_Size() int {
+	return xxx_messageInfo_RangesResponse.Size(m)
+}
+func (m *RangesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangesResponse proto.InternalMessageInfo
 
 type GossipRequest struct {
 	// TODO(tamird): use [(gogoproto.customname) = "NodeID"] below. Need to
@@ -326,86 +560,190 @@ type GossipRequest struct {
 	//
 	// node_id is a string so that "local" can be used to specify that no
 	// forwarding is necessary.
-	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	NodeId               string   `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *GossipRequest) Reset()                    { *m = GossipRequest{} }
 func (m *GossipRequest) String() string            { return proto.CompactTextString(m) }
 func (*GossipRequest) ProtoMessage()               {}
 func (*GossipRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{16} }
+func (dst *GossipRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GossipRequest.Merge(dst, src)
+}
+func (m *GossipRequest) XXX_Size() int {
+	return xxx_messageInfo_GossipRequest.Size(m)
+}
+func (m *GossipRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GossipRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GossipRequest proto.InternalMessageInfo
 
 type AllocatorDryRun struct {
-	RangeID github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,1,opt,name=range_id,json=rangeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_id,omitempty"`
-	Events  []*AllocatorDryRun_Event                             `protobuf:"bytes,2,rep,name=events" json:"events,omitempty"`
+	RangeID              github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,1,opt,name=range_id,json=rangeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_id,omitempty"`
+	Events               []*AllocatorDryRun_Event                             `protobuf:"bytes,2,rep,name=events" json:"events,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                             `json:"-"`
+	XXX_sizecache        int32                                                `json:"-"`
 }
 
 func (m *AllocatorDryRun) Reset()                    { *m = AllocatorDryRun{} }
 func (m *AllocatorDryRun) String() string            { return proto.CompactTextString(m) }
 func (*AllocatorDryRun) ProtoMessage()               {}
 func (*AllocatorDryRun) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{17} }
+func (dst *AllocatorDryRun) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AllocatorDryRun.Merge(dst, src)
+}
+func (m *AllocatorDryRun) XXX_Size() int {
+	return xxx_messageInfo_AllocatorDryRun.Size(m)
+}
+func (m *AllocatorDryRun) XXX_DiscardUnknown() {
+	xxx_messageInfo_AllocatorDryRun.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AllocatorDryRun proto.InternalMessageInfo
 
 type AllocatorDryRun_Event struct {
-	Time    time.Time `protobuf:"bytes,1,opt,name=time,stdtime" json:"time"`
-	Message string    `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Time                 time.Time `protobuf:"bytes,1,opt,name=time,stdtime" json:"time"`
+	Message              string    `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
 }
 
 func (m *AllocatorDryRun_Event) Reset()                    { *m = AllocatorDryRun_Event{} }
 func (m *AllocatorDryRun_Event) String() string            { return proto.CompactTextString(m) }
 func (*AllocatorDryRun_Event) ProtoMessage()               {}
 func (*AllocatorDryRun_Event) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{17, 0} }
+func (dst *AllocatorDryRun_Event) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AllocatorDryRun_Event.Merge(dst, src)
+}
+func (m *AllocatorDryRun_Event) XXX_Size() int {
+	return xxx_messageInfo_AllocatorDryRun_Event.Size(m)
+}
+func (m *AllocatorDryRun_Event) XXX_DiscardUnknown() {
+	xxx_messageInfo_AllocatorDryRun_Event.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AllocatorDryRun_Event proto.InternalMessageInfo
 
 type AllocatorRangeRequest struct {
 	// TODO(tamird): use [(gogoproto.customname) = "RangeID"] below. Need to
 	// figure out how to teach grpc-gateway about custom names.
-	RangeId int64 `protobuf:"varint,1,opt,name=range_id,json=rangeId,proto3" json:"range_id,omitempty"`
+	RangeId              int64    `protobuf:"varint,1,opt,name=range_id,json=rangeId,proto3" json:"range_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AllocatorRangeRequest) Reset()                    { *m = AllocatorRangeRequest{} }
 func (m *AllocatorRangeRequest) String() string            { return proto.CompactTextString(m) }
 func (*AllocatorRangeRequest) ProtoMessage()               {}
 func (*AllocatorRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{18} }
+func (dst *AllocatorRangeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AllocatorRangeRequest.Merge(dst, src)
+}
+func (m *AllocatorRangeRequest) XXX_Size() int {
+	return xxx_messageInfo_AllocatorRangeRequest.Size(m)
+}
+func (m *AllocatorRangeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AllocatorRangeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AllocatorRangeRequest proto.InternalMessageInfo
 
 type AllocatorRangeResponse struct {
 	// The NodeID of the store whose dry run is returned. Only the leaseholder
 	// for a given range will do an allocator dry run for it.
-	NodeID github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
-	DryRun *AllocatorDryRun                                    `protobuf:"bytes,2,opt,name=dry_run,json=dryRun" json:"dry_run,omitempty"`
+	NodeID               github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
+	DryRun               *AllocatorDryRun                                    `protobuf:"bytes,2,opt,name=dry_run,json=dryRun" json:"dry_run,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *AllocatorRangeResponse) Reset()                    { *m = AllocatorRangeResponse{} }
 func (m *AllocatorRangeResponse) String() string            { return proto.CompactTextString(m) }
 func (*AllocatorRangeResponse) ProtoMessage()               {}
 func (*AllocatorRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{19} }
+func (dst *AllocatorRangeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AllocatorRangeResponse.Merge(dst, src)
+}
+func (m *AllocatorRangeResponse) XXX_Size() int {
+	return xxx_messageInfo_AllocatorRangeResponse.Size(m)
+}
+func (m *AllocatorRangeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AllocatorRangeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AllocatorRangeResponse proto.InternalMessageInfo
 
 type AllocatorRequest struct {
 	// TODO(tamird): use [(gogoproto.customname) = "NodeID"] below. Need to
 	// figure out how to teach grpc-gateway about custom names.
-	NodeId   string                                                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	RangeIDs []github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,2,rep,packed,name=range_ids,json=rangeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_ids,omitempty"`
+	NodeId               string                                                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	RangeIDs             []github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,2,rep,packed,name=range_ids,json=rangeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_ids,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                               `json:"-"`
+	XXX_sizecache        int32                                                  `json:"-"`
 }
 
 func (m *AllocatorRequest) Reset()                    { *m = AllocatorRequest{} }
 func (m *AllocatorRequest) String() string            { return proto.CompactTextString(m) }
 func (*AllocatorRequest) ProtoMessage()               {}
 func (*AllocatorRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{20} }
+func (dst *AllocatorRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AllocatorRequest.Merge(dst, src)
+}
+func (m *AllocatorRequest) XXX_Size() int {
+	return xxx_messageInfo_AllocatorRequest.Size(m)
+}
+func (m *AllocatorRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AllocatorRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AllocatorRequest proto.InternalMessageInfo
 
 type AllocatorResponse struct {
-	DryRuns []*AllocatorDryRun `protobuf:"bytes,1,rep,name=dry_runs,json=dryRuns" json:"dry_runs,omitempty"`
+	DryRuns              []*AllocatorDryRun `protobuf:"bytes,1,rep,name=dry_runs,json=dryRuns" json:"dry_runs,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
 }
 
 func (m *AllocatorResponse) Reset()                    { *m = AllocatorResponse{} }
 func (m *AllocatorResponse) String() string            { return proto.CompactTextString(m) }
 func (*AllocatorResponse) ProtoMessage()               {}
 func (*AllocatorResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{21} }
+func (dst *AllocatorResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AllocatorResponse.Merge(dst, src)
+}
+func (m *AllocatorResponse) XXX_Size() int {
+	return xxx_messageInfo_AllocatorResponse.Size(m)
+}
+func (m *AllocatorResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AllocatorResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AllocatorResponse proto.InternalMessageInfo
 
 type JSONResponse struct {
-	Data []byte `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	Data                 []byte   `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *JSONResponse) Reset()                    { *m = JSONResponse{} }
 func (m *JSONResponse) String() string            { return proto.CompactTextString(m) }
 func (*JSONResponse) ProtoMessage()               {}
 func (*JSONResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{22} }
+func (dst *JSONResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_JSONResponse.Merge(dst, src)
+}
+func (m *JSONResponse) XXX_Size() int {
+	return xxx_messageInfo_JSONResponse.Size(m)
+}
+func (m *JSONResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_JSONResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_JSONResponse proto.InternalMessageInfo
 
 type LogsRequest struct {
 	// TODO(tamird): use [(gogoproto.customname) = "NodeID"] below. Need to
@@ -413,27 +751,53 @@ type LogsRequest struct {
 	//
 	// node_id is a string so that "local" can be used to specify that no
 	// forwarding is necessary.
-	NodeId    string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	Level     string `protobuf:"bytes,2,opt,name=level,proto3" json:"level,omitempty"`
-	StartTime string `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime   string `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	Max       string `protobuf:"bytes,5,opt,name=max,proto3" json:"max,omitempty"`
-	Pattern   string `protobuf:"bytes,6,opt,name=pattern,proto3" json:"pattern,omitempty"`
+	NodeId               string   `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	Level                string   `protobuf:"bytes,2,opt,name=level,proto3" json:"level,omitempty"`
+	StartTime            string   `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime              string   `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	Max                  string   `protobuf:"bytes,5,opt,name=max,proto3" json:"max,omitempty"`
+	Pattern              string   `protobuf:"bytes,6,opt,name=pattern,proto3" json:"pattern,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *LogsRequest) Reset()                    { *m = LogsRequest{} }
 func (m *LogsRequest) String() string            { return proto.CompactTextString(m) }
 func (*LogsRequest) ProtoMessage()               {}
 func (*LogsRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{23} }
+func (dst *LogsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LogsRequest.Merge(dst, src)
+}
+func (m *LogsRequest) XXX_Size() int {
+	return xxx_messageInfo_LogsRequest.Size(m)
+}
+func (m *LogsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_LogsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LogsRequest proto.InternalMessageInfo
 
 type LogEntriesResponse struct {
-	Entries []cockroach_util_log.Entry `protobuf:"bytes,1,rep,name=entries" json:"entries"`
+	Entries              []cockroach_util_log.Entry `protobuf:"bytes,1,rep,name=entries" json:"entries"`
+	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
+	XXX_sizecache        int32                      `json:"-"`
 }
 
 func (m *LogEntriesResponse) Reset()                    { *m = LogEntriesResponse{} }
 func (m *LogEntriesResponse) String() string            { return proto.CompactTextString(m) }
 func (*LogEntriesResponse) ProtoMessage()               {}
 func (*LogEntriesResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{24} }
+func (dst *LogEntriesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LogEntriesResponse.Merge(dst, src)
+}
+func (m *LogEntriesResponse) XXX_Size() int {
+	return xxx_messageInfo_LogEntriesResponse.Size(m)
+}
+func (m *LogEntriesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_LogEntriesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LogEntriesResponse proto.InternalMessageInfo
 
 type LogFilesListRequest struct {
 	// TODO(tamird): use [(gogoproto.customname) = "NodeID"] below. Need to
@@ -441,22 +805,48 @@ type LogFilesListRequest struct {
 	//
 	// node_id is a string so that "local" can be used to specify that no
 	// forwarding is necessary.
-	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	NodeId               string   `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *LogFilesListRequest) Reset()                    { *m = LogFilesListRequest{} }
 func (m *LogFilesListRequest) String() string            { return proto.CompactTextString(m) }
 func (*LogFilesListRequest) ProtoMessage()               {}
 func (*LogFilesListRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{25} }
+func (dst *LogFilesListRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LogFilesListRequest.Merge(dst, src)
+}
+func (m *LogFilesListRequest) XXX_Size() int {
+	return xxx_messageInfo_LogFilesListRequest.Size(m)
+}
+func (m *LogFilesListRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_LogFilesListRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LogFilesListRequest proto.InternalMessageInfo
 
 type LogFilesListResponse struct {
-	Files []cockroach_util_log.FileInfo `protobuf:"bytes,1,rep,name=files" json:"files"`
+	Files                []cockroach_util_log.FileInfo `protobuf:"bytes,1,rep,name=files" json:"files"`
+	XXX_NoUnkeyedLiteral struct{}                      `json:"-"`
+	XXX_sizecache        int32                         `json:"-"`
 }
 
 func (m *LogFilesListResponse) Reset()                    { *m = LogFilesListResponse{} }
 func (m *LogFilesListResponse) String() string            { return proto.CompactTextString(m) }
 func (*LogFilesListResponse) ProtoMessage()               {}
 func (*LogFilesListResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{26} }
+func (dst *LogFilesListResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LogFilesListResponse.Merge(dst, src)
+}
+func (m *LogFilesListResponse) XXX_Size() int {
+	return xxx_messageInfo_LogFilesListResponse.Size(m)
+}
+func (m *LogFilesListResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_LogFilesListResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LogFilesListResponse proto.InternalMessageInfo
 
 type LogFileRequest struct {
 	// TODO(tamird): use [(gogoproto.customname) = "NodeID"] below. Need to
@@ -464,14 +854,27 @@ type LogFileRequest struct {
 	//
 	// node_id is a string so that "local" can be used to specify that no
 	// forwarding is necessary.
-	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	File   string `protobuf:"bytes,2,opt,name=file,proto3" json:"file,omitempty"`
+	NodeId               string   `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	File                 string   `protobuf:"bytes,2,opt,name=file,proto3" json:"file,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *LogFileRequest) Reset()                    { *m = LogFileRequest{} }
 func (m *LogFileRequest) String() string            { return proto.CompactTextString(m) }
 func (*LogFileRequest) ProtoMessage()               {}
 func (*LogFileRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{27} }
+func (dst *LogFileRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LogFileRequest.Merge(dst, src)
+}
+func (m *LogFileRequest) XXX_Size() int {
+	return xxx_messageInfo_LogFileRequest.Size(m)
+}
+func (m *LogFileRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_LogFileRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LogFileRequest proto.InternalMessageInfo
 
 type StacksRequest struct {
 	// TODO(tamird): use [(gogoproto.customname) = "NodeID"] below. Need to
@@ -479,13 +882,26 @@ type StacksRequest struct {
 	//
 	// node_id is a string so that "local" can be used to specify that no
 	// forwarding is necessary.
-	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	NodeId               string   `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *StacksRequest) Reset()                    { *m = StacksRequest{} }
 func (m *StacksRequest) String() string            { return proto.CompactTextString(m) }
 func (*StacksRequest) ProtoMessage()               {}
 func (*StacksRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{28} }
+func (dst *StacksRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StacksRequest.Merge(dst, src)
+}
+func (m *StacksRequest) XXX_Size() int {
+	return xxx_messageInfo_StacksRequest.Size(m)
+}
+func (m *StacksRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_StacksRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StacksRequest proto.InternalMessageInfo
 
 type MetricsRequest struct {
 	// TODO(tamird): use [(gogoproto.customname) = "NodeID"] below. Need to
@@ -493,62 +909,140 @@ type MetricsRequest struct {
 	//
 	// node_id is a string so that "local" can be used to specify that no
 	// forwarding is necessary.
-	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	NodeId               string   `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *MetricsRequest) Reset()                    { *m = MetricsRequest{} }
 func (m *MetricsRequest) String() string            { return proto.CompactTextString(m) }
 func (*MetricsRequest) ProtoMessage()               {}
 func (*MetricsRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{29} }
+func (dst *MetricsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MetricsRequest.Merge(dst, src)
+}
+func (m *MetricsRequest) XXX_Size() int {
+	return xxx_messageInfo_MetricsRequest.Size(m)
+}
+func (m *MetricsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_MetricsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MetricsRequest proto.InternalMessageInfo
 
 type RaftRangeNode struct {
-	NodeID github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
-	Range  RangeInfo                                           `protobuf:"bytes,2,opt,name=range" json:"range"`
+	NodeID               github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
+	Range                RangeInfo                                           `protobuf:"bytes,2,opt,name=range" json:"range"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *RaftRangeNode) Reset()                    { *m = RaftRangeNode{} }
 func (m *RaftRangeNode) String() string            { return proto.CompactTextString(m) }
 func (*RaftRangeNode) ProtoMessage()               {}
 func (*RaftRangeNode) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{30} }
+func (dst *RaftRangeNode) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RaftRangeNode.Merge(dst, src)
+}
+func (m *RaftRangeNode) XXX_Size() int {
+	return xxx_messageInfo_RaftRangeNode.Size(m)
+}
+func (m *RaftRangeNode) XXX_DiscardUnknown() {
+	xxx_messageInfo_RaftRangeNode.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RaftRangeNode proto.InternalMessageInfo
 
 type RaftRangeError struct {
-	Message string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Message              string   `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RaftRangeError) Reset()                    { *m = RaftRangeError{} }
 func (m *RaftRangeError) String() string            { return proto.CompactTextString(m) }
 func (*RaftRangeError) ProtoMessage()               {}
 func (*RaftRangeError) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{31} }
+func (dst *RaftRangeError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RaftRangeError.Merge(dst, src)
+}
+func (m *RaftRangeError) XXX_Size() int {
+	return xxx_messageInfo_RaftRangeError.Size(m)
+}
+func (m *RaftRangeError) XXX_DiscardUnknown() {
+	xxx_messageInfo_RaftRangeError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RaftRangeError proto.InternalMessageInfo
 
 type RaftRangeStatus struct {
-	RangeID github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,1,opt,name=range_id,json=rangeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_id,omitempty"`
-	Errors  []RaftRangeError                                     `protobuf:"bytes,2,rep,name=errors" json:"errors"`
-	Nodes   []RaftRangeNode                                      `protobuf:"bytes,3,rep,name=nodes" json:"nodes"`
+	RangeID              github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,1,opt,name=range_id,json=rangeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_id,omitempty"`
+	Errors               []RaftRangeError                                     `protobuf:"bytes,2,rep,name=errors" json:"errors"`
+	Nodes                []RaftRangeNode                                      `protobuf:"bytes,3,rep,name=nodes" json:"nodes"`
+	XXX_NoUnkeyedLiteral struct{}                                             `json:"-"`
+	XXX_sizecache        int32                                                `json:"-"`
 }
 
 func (m *RaftRangeStatus) Reset()                    { *m = RaftRangeStatus{} }
 func (m *RaftRangeStatus) String() string            { return proto.CompactTextString(m) }
 func (*RaftRangeStatus) ProtoMessage()               {}
 func (*RaftRangeStatus) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{32} }
+func (dst *RaftRangeStatus) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RaftRangeStatus.Merge(dst, src)
+}
+func (m *RaftRangeStatus) XXX_Size() int {
+	return xxx_messageInfo_RaftRangeStatus.Size(m)
+}
+func (m *RaftRangeStatus) XXX_DiscardUnknown() {
+	xxx_messageInfo_RaftRangeStatus.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RaftRangeStatus proto.InternalMessageInfo
 
 type RaftDebugRequest struct {
-	RangeIDs []github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,1,rep,packed,name=range_ids,json=rangeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_ids,omitempty"`
+	RangeIDs             []github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,1,rep,packed,name=range_ids,json=rangeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_ids,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                               `json:"-"`
+	XXX_sizecache        int32                                                  `json:"-"`
 }
 
 func (m *RaftDebugRequest) Reset()                    { *m = RaftDebugRequest{} }
 func (m *RaftDebugRequest) String() string            { return proto.CompactTextString(m) }
 func (*RaftDebugRequest) ProtoMessage()               {}
 func (*RaftDebugRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{33} }
+func (dst *RaftDebugRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RaftDebugRequest.Merge(dst, src)
+}
+func (m *RaftDebugRequest) XXX_Size() int {
+	return xxx_messageInfo_RaftDebugRequest.Size(m)
+}
+func (m *RaftDebugRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RaftDebugRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RaftDebugRequest proto.InternalMessageInfo
 
 type RaftDebugResponse struct {
-	Ranges map[github_com_cockroachdb_cockroach_pkg_roachpb.RangeID]RaftRangeStatus `protobuf:"bytes,1,rep,name=ranges,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"ranges" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
-	Errors []RaftRangeError                                                         `protobuf:"bytes,2,rep,name=errors" json:"errors"`
+	Ranges               map[github_com_cockroachdb_cockroach_pkg_roachpb.RangeID]RaftRangeStatus `protobuf:"bytes,1,rep,name=ranges,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"ranges" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	Errors               []RaftRangeError                                                         `protobuf:"bytes,2,rep,name=errors" json:"errors"`
+	XXX_NoUnkeyedLiteral struct{}                                                                 `json:"-"`
+	XXX_sizecache        int32                                                                    `json:"-"`
 }
 
 func (m *RaftDebugResponse) Reset()                    { *m = RaftDebugResponse{} }
 func (m *RaftDebugResponse) String() string            { return proto.CompactTextString(m) }
 func (*RaftDebugResponse) ProtoMessage()               {}
 func (*RaftDebugResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{34} }
+func (dst *RaftDebugResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RaftDebugResponse.Merge(dst, src)
+}
+func (m *RaftDebugResponse) XXX_Size() int {
+	return xxx_messageInfo_RaftDebugResponse.Size(m)
+}
+func (m *RaftDebugResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RaftDebugResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RaftDebugResponse proto.InternalMessageInfo
 
 // ActiveQuery represents a query in flight on some Session.
 type ActiveQuery struct {
@@ -561,24 +1055,50 @@ type ActiveQuery struct {
 	// True if this query is distributed.
 	IsDistributed bool `protobuf:"varint,4,opt,name=is_distributed,json=isDistributed,proto3" json:"is_distributed,omitempty"`
 	// phase stores the current phase of execution for this query.
-	Phase ActiveQuery_Phase `protobuf:"varint,5,opt,name=phase,proto3,enum=cockroach.server.serverpb.ActiveQuery_Phase" json:"phase,omitempty"`
+	Phase                ActiveQuery_Phase `protobuf:"varint,5,opt,name=phase,proto3,enum=cockroach.server.serverpb.ActiveQuery_Phase" json:"phase,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
 }
 
 func (m *ActiveQuery) Reset()                    { *m = ActiveQuery{} }
 func (m *ActiveQuery) String() string            { return proto.CompactTextString(m) }
 func (*ActiveQuery) ProtoMessage()               {}
 func (*ActiveQuery) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{35} }
+func (dst *ActiveQuery) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ActiveQuery.Merge(dst, src)
+}
+func (m *ActiveQuery) XXX_Size() int {
+	return xxx_messageInfo_ActiveQuery.Size(m)
+}
+func (m *ActiveQuery) XXX_DiscardUnknown() {
+	xxx_messageInfo_ActiveQuery.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ActiveQuery proto.InternalMessageInfo
 
 // Request object for ListSessions and ListLocalSessions.
 type ListSessionsRequest struct {
 	// Username of the user making this request.
-	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Username             string   `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ListSessionsRequest) Reset()                    { *m = ListSessionsRequest{} }
 func (m *ListSessionsRequest) String() string            { return proto.CompactTextString(m) }
 func (*ListSessionsRequest) ProtoMessage()               {}
 func (*ListSessionsRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{36} }
+func (dst *ListSessionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListSessionsRequest.Merge(dst, src)
+}
+func (m *ListSessionsRequest) XXX_Size() int {
+	return xxx_messageInfo_ListSessionsRequest.Size(m)
+}
+func (m *ListSessionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListSessionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListSessionsRequest proto.InternalMessageInfo
 
 // Session represents one SQL session.
 type Session struct {
@@ -598,39 +1118,78 @@ type Session struct {
 	// doesn't currently have a transaction.
 	KvTxnID *github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,7,opt,name=kv_txn_id,json=kvTxnId,proto3,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"kv_txn_id,omitempty"`
 	// SQL string of the last query executed on this session.
-	LastActiveQuery string `protobuf:"bytes,8,opt,name=last_active_query,json=lastActiveQuery,proto3" json:"last_active_query,omitempty"`
+	LastActiveQuery      string   `protobuf:"bytes,8,opt,name=last_active_query,json=lastActiveQuery,proto3" json:"last_active_query,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Session) Reset()                    { *m = Session{} }
 func (m *Session) String() string            { return proto.CompactTextString(m) }
 func (*Session) ProtoMessage()               {}
 func (*Session) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{37} }
+func (dst *Session) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Session.Merge(dst, src)
+}
+func (m *Session) XXX_Size() int {
+	return xxx_messageInfo_Session.Size(m)
+}
+func (m *Session) XXX_DiscardUnknown() {
+	xxx_messageInfo_Session.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Session proto.InternalMessageInfo
 
 // An error wrapper object for ListSessionsResponse.
 type ListSessionsError struct {
 	// ID of node that was being contacted when this error occurred
 	NodeID github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
 	// Error message.
-	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Message              string   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ListSessionsError) Reset()                    { *m = ListSessionsError{} }
 func (m *ListSessionsError) String() string            { return proto.CompactTextString(m) }
 func (*ListSessionsError) ProtoMessage()               {}
 func (*ListSessionsError) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{38} }
+func (dst *ListSessionsError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListSessionsError.Merge(dst, src)
+}
+func (m *ListSessionsError) XXX_Size() int {
+	return xxx_messageInfo_ListSessionsError.Size(m)
+}
+func (m *ListSessionsError) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListSessionsError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListSessionsError proto.InternalMessageInfo
 
 // Response object for ListSessions and ListLocalSessions.
 type ListSessionsResponse struct {
 	// A list of sessions on this node or cluster.
 	Sessions []Session `protobuf:"bytes,1,rep,name=sessions" json:"sessions"`
 	// Any errors that occurred during fan-out calls to other nodes.
-	Errors []ListSessionsError `protobuf:"bytes,2,rep,name=errors" json:"errors"`
+	Errors               []ListSessionsError `protobuf:"bytes,2,rep,name=errors" json:"errors"`
+	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
+	XXX_sizecache        int32               `json:"-"`
 }
 
 func (m *ListSessionsResponse) Reset()                    { *m = ListSessionsResponse{} }
 func (m *ListSessionsResponse) String() string            { return proto.CompactTextString(m) }
 func (*ListSessionsResponse) ProtoMessage()               {}
 func (*ListSessionsResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{39} }
+func (dst *ListSessionsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListSessionsResponse.Merge(dst, src)
+}
+func (m *ListSessionsResponse) XXX_Size() int {
+	return xxx_messageInfo_ListSessionsResponse.Size(m)
+}
+func (m *ListSessionsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListSessionsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListSessionsResponse proto.InternalMessageInfo
 
 // Request object for issing a query cancel request.
 type CancelQueryRequest struct {
@@ -645,68 +1204,146 @@ type CancelQueryRequest struct {
 	// ID of query to be canceled (converted to string).
 	QueryID string `protobuf:"bytes,2,opt,name=query_id,json=queryId,proto3" json:"query_id,omitempty"`
 	// Username of the user making this cancellation request.
-	Username string `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
+	Username             string   `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *CancelQueryRequest) Reset()                    { *m = CancelQueryRequest{} }
 func (m *CancelQueryRequest) String() string            { return proto.CompactTextString(m) }
 func (*CancelQueryRequest) ProtoMessage()               {}
 func (*CancelQueryRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{40} }
+func (dst *CancelQueryRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CancelQueryRequest.Merge(dst, src)
+}
+func (m *CancelQueryRequest) XXX_Size() int {
+	return xxx_messageInfo_CancelQueryRequest.Size(m)
+}
+func (m *CancelQueryRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CancelQueryRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CancelQueryRequest proto.InternalMessageInfo
 
 // Response returned by target query's gateway node.
 type CancelQueryResponse struct {
 	// Whether the cancellation request succeeded and the query was canceled.
 	Canceled bool `protobuf:"varint,1,opt,name=canceled,proto3" json:"canceled,omitempty"`
 	// Error message (accompanied with canceled = false).
-	Error string `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+	Error                string   `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *CancelQueryResponse) Reset()                    { *m = CancelQueryResponse{} }
 func (m *CancelQueryResponse) String() string            { return proto.CompactTextString(m) }
 func (*CancelQueryResponse) ProtoMessage()               {}
 func (*CancelQueryResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{41} }
+func (dst *CancelQueryResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CancelQueryResponse.Merge(dst, src)
+}
+func (m *CancelQueryResponse) XXX_Size() int {
+	return xxx_messageInfo_CancelQueryResponse.Size(m)
+}
+func (m *CancelQueryResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CancelQueryResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CancelQueryResponse proto.InternalMessageInfo
 
 type SpanStatsRequest struct {
-	NodeID   string                                            `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	StartKey github_com_cockroachdb_cockroach_pkg_roachpb.RKey `protobuf:"bytes,2,opt,name=start_key,json=startKey,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RKey" json:"start_key,omitempty"`
-	EndKey   github_com_cockroachdb_cockroach_pkg_roachpb.RKey `protobuf:"bytes,3,opt,name=end_key,json=endKey,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RKey" json:"end_key,omitempty"`
+	NodeID               string                                            `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	StartKey             github_com_cockroachdb_cockroach_pkg_roachpb.RKey `protobuf:"bytes,2,opt,name=start_key,json=startKey,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RKey" json:"start_key,omitempty"`
+	EndKey               github_com_cockroachdb_cockroach_pkg_roachpb.RKey `protobuf:"bytes,3,opt,name=end_key,json=endKey,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RKey" json:"end_key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                          `json:"-"`
+	XXX_sizecache        int32                                             `json:"-"`
 }
 
 func (m *SpanStatsRequest) Reset()                    { *m = SpanStatsRequest{} }
 func (m *SpanStatsRequest) String() string            { return proto.CompactTextString(m) }
 func (*SpanStatsRequest) ProtoMessage()               {}
 func (*SpanStatsRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{42} }
+func (dst *SpanStatsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SpanStatsRequest.Merge(dst, src)
+}
+func (m *SpanStatsRequest) XXX_Size() int {
+	return xxx_messageInfo_SpanStatsRequest.Size(m)
+}
+func (m *SpanStatsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SpanStatsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SpanStatsRequest proto.InternalMessageInfo
 
 type SpanStatsResponse struct {
 	RangeCount           int32                                        `protobuf:"varint,2,opt,name=range_count,json=rangeCount,proto3" json:"range_count,omitempty"`
 	ApproximateDiskBytes uint64                                       `protobuf:"varint,3,opt,name=approximate_disk_bytes,json=approximateDiskBytes,proto3" json:"approximate_disk_bytes,omitempty"`
 	TotalStats           cockroach_storage_engine_enginepb1.MVCCStats `protobuf:"bytes,1,opt,name=total_stats,json=totalStats" json:"total_stats"`
+	XXX_NoUnkeyedLiteral struct{}                                     `json:"-"`
+	XXX_sizecache        int32                                        `json:"-"`
 }
 
 func (m *SpanStatsResponse) Reset()                    { *m = SpanStatsResponse{} }
 func (m *SpanStatsResponse) String() string            { return proto.CompactTextString(m) }
 func (*SpanStatsResponse) ProtoMessage()               {}
 func (*SpanStatsResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{43} }
+func (dst *SpanStatsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SpanStatsResponse.Merge(dst, src)
+}
+func (m *SpanStatsResponse) XXX_Size() int {
+	return xxx_messageInfo_SpanStatsResponse.Size(m)
+}
+func (m *SpanStatsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SpanStatsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SpanStatsResponse proto.InternalMessageInfo
 
 type ProblemRangesRequest struct {
-	NodeID string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	NodeID               string   `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ProblemRangesRequest) Reset()                    { *m = ProblemRangesRequest{} }
 func (m *ProblemRangesRequest) String() string            { return proto.CompactTextString(m) }
 func (*ProblemRangesRequest) ProtoMessage()               {}
 func (*ProblemRangesRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{44} }
+func (dst *ProblemRangesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProblemRangesRequest.Merge(dst, src)
+}
+func (m *ProblemRangesRequest) XXX_Size() int {
+	return xxx_messageInfo_ProblemRangesRequest.Size(m)
+}
+func (m *ProblemRangesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProblemRangesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProblemRangesRequest proto.InternalMessageInfo
 
 type ProblemRangesResponse struct {
 	// NodeID is the node that submitted all the requests.
-	NodeID           github_com_cockroachdb_cockroach_pkg_roachpb.NodeID                                        `protobuf:"varint,8,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
-	ProblemsByNodeID map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]ProblemRangesResponse_NodeProblems `protobuf:"bytes,9,rep,name=problems_by_node_id,json=problemsByNodeId,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"problems_by_node_id" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	NodeID               github_com_cockroachdb_cockroach_pkg_roachpb.NodeID                                        `protobuf:"varint,8,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
+	ProblemsByNodeID     map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]ProblemRangesResponse_NodeProblems `protobuf:"bytes,9,rep,name=problems_by_node_id,json=problemsByNodeId,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"problems_by_node_id" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	XXX_NoUnkeyedLiteral struct{}                                                                                   `json:"-"`
+	XXX_sizecache        int32                                                                                      `json:"-"`
 }
 
 func (m *ProblemRangesResponse) Reset()                    { *m = ProblemRangesResponse{} }
 func (m *ProblemRangesResponse) String() string            { return proto.CompactTextString(m) }
 func (*ProblemRangesResponse) ProtoMessage()               {}
 func (*ProblemRangesResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{45} }
+func (dst *ProblemRangesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProblemRangesResponse.Merge(dst, src)
+}
+func (m *ProblemRangesResponse) XXX_Size() int {
+	return xxx_messageInfo_ProblemRangesResponse.Size(m)
+}
+func (m *ProblemRangesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProblemRangesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProblemRangesResponse proto.InternalMessageInfo
 
 type ProblemRangesResponse_NodeProblems struct {
 	ErrorMessage                     string                                                 `protobuf:"bytes,1,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
@@ -715,6 +1352,8 @@ type ProblemRangesResponse_NodeProblems struct {
 	NoRaftLeaderRangeIDs             []github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,4,rep,packed,name=no_raft_leader_range_ids,json=noRaftLeaderRangeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"no_raft_leader_range_ids,omitempty"`
 	NoLeaseRangeIDs                  []github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,5,rep,packed,name=no_lease_range_ids,json=noLeaseRangeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"no_lease_range_ids,omitempty"`
 	UnderreplicatedRangeIDs          []github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,6,rep,packed,name=underreplicated_range_ids,json=underreplicatedRangeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"underreplicated_range_ids,omitempty"`
+	XXX_NoUnkeyedLiteral             struct{}                                               `json:"-"`
+	XXX_sizecache                    int32                                                  `json:"-"`
 }
 
 func (m *ProblemRangesResponse_NodeProblems) Reset()         { *m = ProblemRangesResponse_NodeProblems{} }
@@ -723,34 +1362,73 @@ func (*ProblemRangesResponse_NodeProblems) ProtoMessage()    {}
 func (*ProblemRangesResponse_NodeProblems) Descriptor() ([]byte, []int) {
 	return fileDescriptorStatus, []int{45, 0}
 }
+func (dst *ProblemRangesResponse_NodeProblems) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProblemRangesResponse_NodeProblems.Merge(dst, src)
+}
+func (m *ProblemRangesResponse_NodeProblems) XXX_Size() int {
+	return xxx_messageInfo_ProblemRangesResponse_NodeProblems.Size(m)
+}
+func (m *ProblemRangesResponse_NodeProblems) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProblemRangesResponse_NodeProblems.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProblemRangesResponse_NodeProblems proto.InternalMessageInfo
 
 type RangeRequest struct {
 	// TODO(tamird): use [(gogoproto.customname) = "RangeID"] below. Need to
 	// figure out how to teach grpc-gateway about custom names.
-	RangeId int64 `protobuf:"varint,1,opt,name=range_id,json=rangeId,proto3" json:"range_id,omitempty"`
+	RangeId              int64    `protobuf:"varint,1,opt,name=range_id,json=rangeId,proto3" json:"range_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RangeRequest) Reset()                    { *m = RangeRequest{} }
 func (m *RangeRequest) String() string            { return proto.CompactTextString(m) }
 func (*RangeRequest) ProtoMessage()               {}
 func (*RangeRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{46} }
+func (dst *RangeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeRequest.Merge(dst, src)
+}
+func (m *RangeRequest) XXX_Size() int {
+	return xxx_messageInfo_RangeRequest.Size(m)
+}
+func (m *RangeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeRequest proto.InternalMessageInfo
 
 type RangeResponse struct {
 	// NodeID is the node that submitted all the requests.
-	NodeID            github_com_cockroachdb_cockroach_pkg_roachpb.NodeID                                `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
-	RangeID           github_com_cockroachdb_cockroach_pkg_roachpb.RangeID                               `protobuf:"varint,2,opt,name=range_id,json=rangeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_id,omitempty"`
-	ResponsesByNodeID map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]RangeResponse_NodeResponse `protobuf:"bytes,3,rep,name=responses_by_node_id,json=responsesByNodeId,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"responses_by_node_id" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	NodeID               github_com_cockroachdb_cockroach_pkg_roachpb.NodeID                                `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
+	RangeID              github_com_cockroachdb_cockroach_pkg_roachpb.RangeID                               `protobuf:"varint,2,opt,name=range_id,json=rangeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_id,omitempty"`
+	ResponsesByNodeID    map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]RangeResponse_NodeResponse `protobuf:"bytes,3,rep,name=responses_by_node_id,json=responsesByNodeId,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"responses_by_node_id" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	XXX_NoUnkeyedLiteral struct{}                                                                           `json:"-"`
+	XXX_sizecache        int32                                                                              `json:"-"`
 }
 
 func (m *RangeResponse) Reset()                    { *m = RangeResponse{} }
 func (m *RangeResponse) String() string            { return proto.CompactTextString(m) }
 func (*RangeResponse) ProtoMessage()               {}
 func (*RangeResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{47} }
+func (dst *RangeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeResponse.Merge(dst, src)
+}
+func (m *RangeResponse) XXX_Size() int {
+	return xxx_messageInfo_RangeResponse.Size(m)
+}
+func (m *RangeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeResponse proto.InternalMessageInfo
 
 type RangeResponse_NodeResponse struct {
-	Response     bool        `protobuf:"varint,1,opt,name=response,proto3" json:"response,omitempty"`
-	ErrorMessage string      `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
-	Infos        []RangeInfo `protobuf:"bytes,3,rep,name=infos" json:"infos"`
+	Response             bool        `protobuf:"varint,1,opt,name=response,proto3" json:"response,omitempty"`
+	ErrorMessage         string      `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	Infos                []RangeInfo `protobuf:"bytes,3,rep,name=infos" json:"infos"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
 func (m *RangeResponse_NodeResponse) Reset()         { *m = RangeResponse_NodeResponse{} }
@@ -759,24 +1437,61 @@ func (*RangeResponse_NodeResponse) ProtoMessage()    {}
 func (*RangeResponse_NodeResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptorStatus, []int{47, 0}
 }
+func (dst *RangeResponse_NodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeResponse_NodeResponse.Merge(dst, src)
+}
+func (m *RangeResponse_NodeResponse) XXX_Size() int {
+	return xxx_messageInfo_RangeResponse_NodeResponse.Size(m)
+}
+func (m *RangeResponse_NodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeResponse_NodeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeResponse_NodeResponse proto.InternalMessageInfo
 
 type CommandQueueRequest struct {
-	RangeId int64 `protobuf:"varint,1,opt,name=range_id,json=rangeId,proto3" json:"range_id,omitempty"`
+	RangeId              int64    `protobuf:"varint,1,opt,name=range_id,json=rangeId,proto3" json:"range_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *CommandQueueRequest) Reset()                    { *m = CommandQueueRequest{} }
 func (m *CommandQueueRequest) String() string            { return proto.CompactTextString(m) }
 func (*CommandQueueRequest) ProtoMessage()               {}
 func (*CommandQueueRequest) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{48} }
+func (dst *CommandQueueRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CommandQueueRequest.Merge(dst, src)
+}
+func (m *CommandQueueRequest) XXX_Size() int {
+	return xxx_messageInfo_CommandQueueRequest.Size(m)
+}
+func (m *CommandQueueRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CommandQueueRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CommandQueueRequest proto.InternalMessageInfo
 
 type CommandQueueResponse struct {
-	Snapshot cockroach_storage_storagebase.CommandQueuesSnapshot `protobuf:"bytes,1,opt,name=snapshot" json:"snapshot"`
+	Snapshot             cockroach_storage_storagebase.CommandQueuesSnapshot `protobuf:"bytes,1,opt,name=snapshot" json:"snapshot"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *CommandQueueResponse) Reset()                    { *m = CommandQueueResponse{} }
 func (m *CommandQueueResponse) String() string            { return proto.CompactTextString(m) }
 func (*CommandQueueResponse) ProtoMessage()               {}
 func (*CommandQueueResponse) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{49} }
+func (dst *CommandQueueResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CommandQueueResponse.Merge(dst, src)
+}
+func (m *CommandQueueResponse) XXX_Size() int {
+	return xxx_messageInfo_CommandQueueResponse.Size(m)
+}
+func (m *CommandQueueResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CommandQueueResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CommandQueueResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*CertificatesRequest)(nil), "cockroach.server.serverpb.CertificatesRequest")
@@ -789,6 +1504,7 @@ func init() {
 	proto.RegisterType((*NodesResponse)(nil), "cockroach.server.serverpb.NodesResponse")
 	proto.RegisterType((*NodeRequest)(nil), "cockroach.server.serverpb.NodeRequest")
 	proto.RegisterType((*RaftState)(nil), "cockroach.server.serverpb.RaftState")
+	proto.RegisterMapType((map[uint64]RaftState_Progress)(nil), "cockroach.server.serverpb.RaftState.ProgressEntry")
 	proto.RegisterType((*RaftState_Progress)(nil), "cockroach.server.serverpb.RaftState.Progress")
 	proto.RegisterType((*RangeProblems)(nil), "cockroach.server.serverpb.RangeProblems")
 	proto.RegisterType((*RangeStatistics)(nil), "cockroach.server.serverpb.RangeStatistics")
@@ -817,6 +1533,7 @@ func init() {
 	proto.RegisterType((*RaftRangeStatus)(nil), "cockroach.server.serverpb.RaftRangeStatus")
 	proto.RegisterType((*RaftDebugRequest)(nil), "cockroach.server.serverpb.RaftDebugRequest")
 	proto.RegisterType((*RaftDebugResponse)(nil), "cockroach.server.serverpb.RaftDebugResponse")
+	proto.RegisterMapType((map[github_com_cockroachdb_cockroach_pkg_roachpb.RangeID]RaftRangeStatus)(nil), "cockroach.server.serverpb.RaftDebugResponse.RangesEntry")
 	proto.RegisterType((*ActiveQuery)(nil), "cockroach.server.serverpb.ActiveQuery")
 	proto.RegisterType((*ListSessionsRequest)(nil), "cockroach.server.serverpb.ListSessionsRequest")
 	proto.RegisterType((*Session)(nil), "cockroach.server.serverpb.Session")
@@ -828,9 +1545,11 @@ func init() {
 	proto.RegisterType((*SpanStatsResponse)(nil), "cockroach.server.serverpb.SpanStatsResponse")
 	proto.RegisterType((*ProblemRangesRequest)(nil), "cockroach.server.serverpb.ProblemRangesRequest")
 	proto.RegisterType((*ProblemRangesResponse)(nil), "cockroach.server.serverpb.ProblemRangesResponse")
+	proto.RegisterMapType((map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]ProblemRangesResponse_NodeProblems)(nil), "cockroach.server.serverpb.ProblemRangesResponse.ProblemsByNodeIdEntry")
 	proto.RegisterType((*ProblemRangesResponse_NodeProblems)(nil), "cockroach.server.serverpb.ProblemRangesResponse.NodeProblems")
 	proto.RegisterType((*RangeRequest)(nil), "cockroach.server.serverpb.RangeRequest")
 	proto.RegisterType((*RangeResponse)(nil), "cockroach.server.serverpb.RangeResponse")
+	proto.RegisterMapType((map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]RangeResponse_NodeResponse)(nil), "cockroach.server.serverpb.RangeResponse.ResponsesByNodeIdEntry")
 	proto.RegisterType((*RangeResponse_NodeResponse)(nil), "cockroach.server.serverpb.RangeResponse.NodeResponse")
 	proto.RegisterType((*CommandQueueRequest)(nil), "cockroach.server.serverpb.CommandQueueRequest")
 	proto.RegisterType((*CommandQueueResponse)(nil), "cockroach.server.serverpb.CommandQueueResponse")

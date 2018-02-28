@@ -964,8 +964,18 @@ func (s *statusServer) Ranges(
 				Underreplicated:      metrics.Leader && metrics.Underreplicated,
 				NoLease:              metrics.Leader && !metrics.LeaseValid && !metrics.Quiescent,
 			},
-			CmdQLocal:   serverpb.CommandQueueMetrics(metrics.CmdQMetricsLocal),
-			CmdQGlobal:  serverpb.CommandQueueMetrics(metrics.CmdQMetricsGlobal),
+			CmdQLocal: serverpb.CommandQueueMetrics{
+				WriteCommands:   metrics.CmdQMetricsLocal.WriteCommands,
+				ReadCommands:    metrics.CmdQMetricsLocal.ReadCommands,
+				MaxOverlapsSeen: metrics.CmdQMetricsLocal.MaxOverlapsSeen,
+				TreeSize:        metrics.CmdQMetricsLocal.TreeSize,
+			},
+			CmdQGlobal: serverpb.CommandQueueMetrics{
+				WriteCommands:   metrics.CmdQMetricsGlobal.WriteCommands,
+				ReadCommands:    metrics.CmdQMetricsGlobal.ReadCommands,
+				MaxOverlapsSeen: metrics.CmdQMetricsGlobal.MaxOverlapsSeen,
+				TreeSize:        metrics.CmdQMetricsGlobal.TreeSize,
+			},
 			LeaseStatus: metrics.LeaseStatus,
 			Quiescent:   metrics.Quiescent,
 		}

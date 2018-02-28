@@ -84,15 +84,28 @@ type SetupFlowRequest struct {
 	Txn cockroach_roachpb1.Transaction `protobuf:"bytes,1,opt,name=txn" json:"txn"`
 	// Version of distsqlrun protocol; a server accepts a certain range of
 	// versions, up to its own version. See server.go for more details.
-	Version     DistSQLVersion `protobuf:"varint,5,opt,name=version,casttype=DistSQLVersion" json:"version"`
-	Flow        FlowSpec       `protobuf:"bytes,3,opt,name=flow" json:"flow"`
-	EvalContext EvalContext    `protobuf:"bytes,6,opt,name=evalContext" json:"evalContext"`
+	Version              DistSQLVersion `protobuf:"varint,5,opt,name=version,casttype=DistSQLVersion" json:"version"`
+	Flow                 FlowSpec       `protobuf:"bytes,3,opt,name=flow" json:"flow"`
+	EvalContext          EvalContext    `protobuf:"bytes,6,opt,name=evalContext" json:"evalContext"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *SetupFlowRequest) Reset()                    { *m = SetupFlowRequest{} }
 func (m *SetupFlowRequest) String() string            { return proto.CompactTextString(m) }
 func (*SetupFlowRequest) ProtoMessage()               {}
 func (*SetupFlowRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{0} }
+func (dst *SetupFlowRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SetupFlowRequest.Merge(dst, src)
+}
+func (m *SetupFlowRequest) XXX_Size() int {
+	return xxx_messageInfo_SetupFlowRequest.Size(m)
+}
+func (m *SetupFlowRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SetupFlowRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SetupFlowRequest proto.InternalMessageInfo
 
 // EvalContext is used to marshall some planner.EvalContext members.
 type EvalContext struct {
@@ -100,25 +113,51 @@ type EvalContext struct {
 	TxnTimestampNanos  int64 `protobuf:"varint,2,opt,name=txnTimestampNanos" json:"txnTimestampNanos"`
 	// The name of the location according to whose current timezone we're going to
 	// parse timestamps. Used to init EvalContext.Location.
-	Location   string   `protobuf:"bytes,4,opt,name=location" json:"location"`
-	Database   string   `protobuf:"bytes,5,opt,name=database" json:"database"`
-	SearchPath []string `protobuf:"bytes,6,rep,name=searchPath" json:"searchPath,omitempty"`
-	User       string   `protobuf:"bytes,7,opt,name=user" json:"user"`
+	Location             string   `protobuf:"bytes,4,opt,name=location" json:"location"`
+	Database             string   `protobuf:"bytes,5,opt,name=database" json:"database"`
+	SearchPath           []string `protobuf:"bytes,6,rep,name=searchPath" json:"searchPath,omitempty"`
+	User                 string   `protobuf:"bytes,7,opt,name=user" json:"user"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *EvalContext) Reset()                    { *m = EvalContext{} }
 func (m *EvalContext) String() string            { return proto.CompactTextString(m) }
 func (*EvalContext) ProtoMessage()               {}
 func (*EvalContext) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{1} }
+func (dst *EvalContext) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EvalContext.Merge(dst, src)
+}
+func (m *EvalContext) XXX_Size() int {
+	return xxx_messageInfo_EvalContext.Size(m)
+}
+func (m *EvalContext) XXX_DiscardUnknown() {
+	xxx_messageInfo_EvalContext.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EvalContext proto.InternalMessageInfo
 
 type SimpleResponse struct {
-	Error *Error `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
+	Error                *Error   `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *SimpleResponse) Reset()                    { *m = SimpleResponse{} }
 func (m *SimpleResponse) String() string            { return proto.CompactTextString(m) }
 func (*SimpleResponse) ProtoMessage()               {}
 func (*SimpleResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{2} }
+func (dst *SimpleResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SimpleResponse.Merge(dst, src)
+}
+func (m *SimpleResponse) XXX_Size() int {
+	return xxx_messageInfo_SimpleResponse.Size(m)
+}
+func (m *SimpleResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SimpleResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SimpleResponse proto.InternalMessageInfo
 
 // ConsumerSignal are messages flowing from consumer to producer (so, from RPC
 // server to client) for the FlowStream RPC.
@@ -131,21 +170,47 @@ type ConsumerSignal struct {
 	// contain this message.
 	SetupFlowRequest *SetupFlowRequest `protobuf:"bytes,2,opt,name=setup_flow_request,json=setupFlowRequest" json:"setup_flow_request,omitempty"`
 	// Consumer->Producer handshake messages. See message definition.
-	Handshake *ConsumerHandshake `protobuf:"bytes,3,opt,name=handshake" json:"handshake,omitempty"`
+	Handshake            *ConsumerHandshake `protobuf:"bytes,3,opt,name=handshake" json:"handshake,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
 }
 
 func (m *ConsumerSignal) Reset()                    { *m = ConsumerSignal{} }
 func (m *ConsumerSignal) String() string            { return proto.CompactTextString(m) }
 func (*ConsumerSignal) ProtoMessage()               {}
 func (*ConsumerSignal) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{3} }
+func (dst *ConsumerSignal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConsumerSignal.Merge(dst, src)
+}
+func (m *ConsumerSignal) XXX_Size() int {
+	return xxx_messageInfo_ConsumerSignal.Size(m)
+}
+func (m *ConsumerSignal) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConsumerSignal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ConsumerSignal proto.InternalMessageInfo
 
 type DrainRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DrainRequest) Reset()                    { *m = DrainRequest{} }
 func (m *DrainRequest) String() string            { return proto.CompactTextString(m) }
 func (*DrainRequest) ProtoMessage()               {}
 func (*DrainRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{4} }
+func (dst *DrainRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DrainRequest.Merge(dst, src)
+}
+func (m *DrainRequest) XXX_Size() int {
+	return xxx_messageInfo_DrainRequest.Size(m)
+}
+func (m *DrainRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DrainRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DrainRequest proto.InternalMessageInfo
 
 // ConsumerHandshake is the first one or two message sent in the
 // consumer->producer direction on a stream. It informs the producer about the
@@ -165,14 +230,27 @@ type ConsumerHandshake struct {
 	// dealine, this stream will be disconnected by the server-side.
 	ConsumerScheduleDeadline *time.Time `protobuf:"bytes,2,opt,name=consumer_schedule_deadline,json=consumerScheduleDeadline,stdtime" json:"consumer_schedule_deadline,omitempty"`
 	// The server's DistSQL version range.
-	Version            DistSQLVersion `protobuf:"varint,3,opt,name=version,casttype=DistSQLVersion" json:"version"`
-	MinAcceptedVersion DistSQLVersion `protobuf:"varint,4,opt,name=min_accepted_version,json=minAcceptedVersion,casttype=DistSQLVersion" json:"min_accepted_version"`
+	Version              DistSQLVersion `protobuf:"varint,3,opt,name=version,casttype=DistSQLVersion" json:"version"`
+	MinAcceptedVersion   DistSQLVersion `protobuf:"varint,4,opt,name=min_accepted_version,json=minAcceptedVersion,casttype=DistSQLVersion" json:"min_accepted_version"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *ConsumerHandshake) Reset()                    { *m = ConsumerHandshake{} }
 func (m *ConsumerHandshake) String() string            { return proto.CompactTextString(m) }
 func (*ConsumerHandshake) ProtoMessage()               {}
 func (*ConsumerHandshake) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{5} }
+func (dst *ConsumerHandshake) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConsumerHandshake.Merge(dst, src)
+}
+func (m *ConsumerHandshake) XXX_Size() int {
+	return xxx_messageInfo_ConsumerHandshake.Size(m)
+}
+func (m *ConsumerHandshake) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConsumerHandshake.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ConsumerHandshake proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*SetupFlowRequest)(nil), "cockroach.sql.distsqlrun.SetupFlowRequest")

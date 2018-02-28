@@ -63,27 +63,53 @@ func (RegistryVersion) EnumDescriptor() ([]byte, []int) { return fileDescriptorF
 // TODO(mberhault): this is still in flux.
 type Registry struct {
 	// version is currently always Base.
-	Version RegistryVersion `protobuf:"varint,1,opt,name=version,proto3,enum=cockroach.storage.engine.enginepb.RegistryVersion" json:"version,omitempty"`
-	Files   []*FileEntry    `protobuf:"bytes,2,rep,name=files" json:"files,omitempty"`
+	Version              RegistryVersion `protobuf:"varint,1,opt,name=version,proto3,enum=cockroach.storage.engine.enginepb.RegistryVersion" json:"version,omitempty"`
+	Files                []*FileEntry    `protobuf:"bytes,2,rep,name=files" json:"files,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
 }
 
 func (m *Registry) Reset()                    { *m = Registry{} }
 func (m *Registry) String() string            { return proto.CompactTextString(m) }
 func (*Registry) ProtoMessage()               {}
 func (*Registry) Descriptor() ([]byte, []int) { return fileDescriptorFileRegistry, []int{0} }
+func (dst *Registry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Registry.Merge(dst, src)
+}
+func (m *Registry) XXX_Size() int {
+	return xxx_messageInfo_Registry.Size(m)
+}
+func (m *Registry) XXX_DiscardUnknown() {
+	xxx_messageInfo_Registry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Registry proto.InternalMessageInfo
 
 type FileEntry struct {
 	// File path relative to the DB directory.
 	// TODO(mberhault): figure out if we need anything special for Windows.
 	Filename string `protobuf:"bytes,1,opt,name=Filename,proto3" json:"Filename,omitempty"`
 	// Env level identifies which rocksdb::Env is responsible for this file.
-	EnvLevel int32 `protobuf:"varint,2,opt,name=env_level,json=envLevel,proto3" json:"env_level,omitempty"`
+	EnvLevel             int32    `protobuf:"varint,2,opt,name=env_level,json=envLevel,proto3" json:"env_level,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *FileEntry) Reset()                    { *m = FileEntry{} }
 func (m *FileEntry) String() string            { return proto.CompactTextString(m) }
 func (*FileEntry) ProtoMessage()               {}
 func (*FileEntry) Descriptor() ([]byte, []int) { return fileDescriptorFileRegistry, []int{1} }
+func (dst *FileEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FileEntry.Merge(dst, src)
+}
+func (m *FileEntry) XXX_Size() int {
+	return xxx_messageInfo_FileEntry.Size(m)
+}
+func (m *FileEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_FileEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FileEntry proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*Registry)(nil), "cockroach.storage.engine.enginepb.Registry")

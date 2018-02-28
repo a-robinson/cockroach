@@ -76,42 +76,83 @@ type Lease struct {
 	// The ID of the node that holds the lease.
 	NodeID github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
 	// The epoch of the lease holder's node liveness entry.
-	Epoch int64 `protobuf:"varint,2,opt,name=epoch,proto3" json:"epoch,omitempty"`
+	Epoch                int64    `protobuf:"varint,2,opt,name=epoch,proto3" json:"epoch,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Lease) Reset()                    { *m = Lease{} }
 func (m *Lease) String() string            { return proto.CompactTextString(m) }
 func (*Lease) ProtoMessage()               {}
 func (*Lease) Descriptor() ([]byte, []int) { return fileDescriptorJobs, []int{0} }
+func (dst *Lease) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Lease.Merge(dst, src)
+}
+func (m *Lease) XXX_Size() int {
+	return xxx_messageInfo_Lease.Size(m)
+}
+func (m *Lease) XXX_DiscardUnknown() {
+	xxx_messageInfo_Lease.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Lease proto.InternalMessageInfo
 
 type BackupDetails struct {
-	StartTime        cockroach_util_hlc.Timestamp `protobuf:"bytes,1,opt,name=start_time,json=startTime" json:"start_time"`
-	EndTime          cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=end_time,json=endTime" json:"end_time"`
-	URI              string                       `protobuf:"bytes,3,opt,name=uri,proto3" json:"uri,omitempty"`
-	BackupDescriptor []byte                       `protobuf:"bytes,4,opt,name=backup_descriptor,json=backupDescriptor,proto3" json:"backup_descriptor,omitempty"`
+	StartTime            cockroach_util_hlc.Timestamp `protobuf:"bytes,1,opt,name=start_time,json=startTime" json:"start_time"`
+	EndTime              cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=end_time,json=endTime" json:"end_time"`
+	URI                  string                       `protobuf:"bytes,3,opt,name=uri,proto3" json:"uri,omitempty"`
+	BackupDescriptor     []byte                       `protobuf:"bytes,4,opt,name=backup_descriptor,json=backupDescriptor,proto3" json:"backup_descriptor,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *BackupDetails) Reset()                    { *m = BackupDetails{} }
 func (m *BackupDetails) String() string            { return proto.CompactTextString(m) }
 func (*BackupDetails) ProtoMessage()               {}
 func (*BackupDetails) Descriptor() ([]byte, []int) { return fileDescriptorJobs, []int{1} }
+func (dst *BackupDetails) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BackupDetails.Merge(dst, src)
+}
+func (m *BackupDetails) XXX_Size() int {
+	return xxx_messageInfo_BackupDetails.Size(m)
+}
+func (m *BackupDetails) XXX_DiscardUnknown() {
+	xxx_messageInfo_BackupDetails.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BackupDetails proto.InternalMessageInfo
 
 type RestoreDetails struct {
-	LowWaterMark  []byte                                                                               `protobuf:"bytes,1,opt,name=low_water_mark,json=lowWaterMark,proto3" json:"low_water_mark,omitempty"`
-	EndTime       cockroach_util_hlc.Timestamp                                                         `protobuf:"bytes,4,opt,name=end_time,json=endTime" json:"end_time"`
-	TableRewrites map[github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID]*RestoreDetails_TableRewrite `protobuf:"bytes,2,rep,name=table_rewrites,json=tableRewrites,castkey=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ID" json:"table_rewrites,omitempty" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
-	URIs          []string                                                                             `protobuf:"bytes,3,rep,name=uris" json:"uris,omitempty"`
-	TableDescs    []*cockroach_sql_sqlbase1.TableDescriptor                                            `protobuf:"bytes,5,rep,name=table_descs,json=tableDescs" json:"table_descs,omitempty"`
+	LowWaterMark         []byte                                                                               `protobuf:"bytes,1,opt,name=low_water_mark,json=lowWaterMark,proto3" json:"low_water_mark,omitempty"`
+	EndTime              cockroach_util_hlc.Timestamp                                                         `protobuf:"bytes,4,opt,name=end_time,json=endTime" json:"end_time"`
+	TableRewrites        map[github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID]*RestoreDetails_TableRewrite `protobuf:"bytes,2,rep,name=table_rewrites,json=tableRewrites,castkey=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ID" json:"table_rewrites,omitempty" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	URIs                 []string                                                                             `protobuf:"bytes,3,rep,name=uris" json:"uris,omitempty"`
+	TableDescs           []*cockroach_sql_sqlbase1.TableDescriptor                                            `protobuf:"bytes,5,rep,name=table_descs,json=tableDescs" json:"table_descs,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                                                             `json:"-"`
+	XXX_sizecache        int32                                                                                `json:"-"`
 }
 
 func (m *RestoreDetails) Reset()                    { *m = RestoreDetails{} }
 func (m *RestoreDetails) String() string            { return proto.CompactTextString(m) }
 func (*RestoreDetails) ProtoMessage()               {}
 func (*RestoreDetails) Descriptor() ([]byte, []int) { return fileDescriptorJobs, []int{2} }
+func (dst *RestoreDetails) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RestoreDetails.Merge(dst, src)
+}
+func (m *RestoreDetails) XXX_Size() int {
+	return xxx_messageInfo_RestoreDetails.Size(m)
+}
+func (m *RestoreDetails) XXX_DiscardUnknown() {
+	xxx_messageInfo_RestoreDetails.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RestoreDetails proto.InternalMessageInfo
 
 type RestoreDetails_TableRewrite struct {
-	TableID  github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID `protobuf:"varint,1,opt,name=table_id,json=tableId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ID" json:"table_id,omitempty"`
-	ParentID github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ID" json:"parent_id,omitempty"`
+	TableID              github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID `protobuf:"varint,1,opt,name=table_id,json=tableId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ID" json:"table_id,omitempty"`
+	ParentID             github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ID" json:"parent_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *RestoreDetails_TableRewrite) Reset()         { *m = RestoreDetails_TableRewrite{} }
@@ -120,15 +161,39 @@ func (*RestoreDetails_TableRewrite) ProtoMessage()    {}
 func (*RestoreDetails_TableRewrite) Descriptor() ([]byte, []int) {
 	return fileDescriptorJobs, []int{2, 0}
 }
+func (dst *RestoreDetails_TableRewrite) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RestoreDetails_TableRewrite.Merge(dst, src)
+}
+func (m *RestoreDetails_TableRewrite) XXX_Size() int {
+	return xxx_messageInfo_RestoreDetails_TableRewrite.Size(m)
+}
+func (m *RestoreDetails_TableRewrite) XXX_DiscardUnknown() {
+	xxx_messageInfo_RestoreDetails_TableRewrite.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RestoreDetails_TableRewrite proto.InternalMessageInfo
 
 type ImportDetails struct {
-	Tables []ImportDetails_Table `protobuf:"bytes,1,rep,name=tables" json:"tables"`
+	Tables               []ImportDetails_Table `protobuf:"bytes,1,rep,name=tables" json:"tables"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
 func (m *ImportDetails) Reset()                    { *m = ImportDetails{} }
 func (m *ImportDetails) String() string            { return proto.CompactTextString(m) }
 func (*ImportDetails) ProtoMessage()               {}
 func (*ImportDetails) Descriptor() ([]byte, []int) { return fileDescriptorJobs, []int{3} }
+func (dst *ImportDetails) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ImportDetails.Merge(dst, src)
+}
+func (m *ImportDetails) XXX_Size() int {
+	return xxx_messageInfo_ImportDetails.Size(m)
+}
+func (m *ImportDetails) XXX_DiscardUnknown() {
+	xxx_messageInfo_ImportDetails.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ImportDetails proto.InternalMessageInfo
 
 type ImportDetails_Table struct {
 	Desc             *cockroach_sql_sqlbase1.TableDescriptor             `protobuf:"bytes,1,opt,name=desc" json:"desc,omitempty"`
@@ -149,16 +214,31 @@ type ImportDetails_Table struct {
 	// samples is populated with the sampling phase's results. These must be
 	// used if a job is resumed to guarantee that AddSSTable will not attempt
 	// to add ranges with an old split point within them.
-	Samples [][]byte `protobuf:"bytes,15,rep,name=samples" json:"samples,omitempty"`
+	Samples              [][]byte `protobuf:"bytes,15,rep,name=samples" json:"samples,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ImportDetails_Table) Reset()                    { *m = ImportDetails_Table{} }
 func (m *ImportDetails_Table) String() string            { return proto.CompactTextString(m) }
 func (*ImportDetails_Table) ProtoMessage()               {}
 func (*ImportDetails_Table) Descriptor() ([]byte, []int) { return fileDescriptorJobs, []int{3, 0} }
+func (dst *ImportDetails_Table) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ImportDetails_Table.Merge(dst, src)
+}
+func (m *ImportDetails_Table) XXX_Size() int {
+	return xxx_messageInfo_ImportDetails_Table.Size(m)
+}
+func (m *ImportDetails_Table) XXX_DiscardUnknown() {
+	xxx_messageInfo_ImportDetails_Table.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ImportDetails_Table proto.InternalMessageInfo
 
 type ImportDetails_Table_Nullif struct {
-	Nullif string `protobuf:"bytes,1,opt,name=nullif,proto3" json:"nullif,omitempty"`
+	Nullif               string   `protobuf:"bytes,1,opt,name=nullif,proto3" json:"nullif,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ImportDetails_Table_Nullif) Reset()         { *m = ImportDetails_Table_Nullif{} }
@@ -167,15 +247,39 @@ func (*ImportDetails_Table_Nullif) ProtoMessage()    {}
 func (*ImportDetails_Table_Nullif) Descriptor() ([]byte, []int) {
 	return fileDescriptorJobs, []int{3, 0, 0}
 }
+func (dst *ImportDetails_Table_Nullif) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ImportDetails_Table_Nullif.Merge(dst, src)
+}
+func (m *ImportDetails_Table_Nullif) XXX_Size() int {
+	return xxx_messageInfo_ImportDetails_Table_Nullif.Size(m)
+}
+func (m *ImportDetails_Table_Nullif) XXX_DiscardUnknown() {
+	xxx_messageInfo_ImportDetails_Table_Nullif.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ImportDetails_Table_Nullif proto.InternalMessageInfo
 
 type ResumeSpanList struct {
-	ResumeSpans []cockroach_roachpb2.Span `protobuf:"bytes,1,rep,name=resume_spans,json=resumeSpans" json:"resume_spans"`
+	ResumeSpans          []cockroach_roachpb2.Span `protobuf:"bytes,1,rep,name=resume_spans,json=resumeSpans" json:"resume_spans"`
+	XXX_NoUnkeyedLiteral struct{}                  `json:"-"`
+	XXX_sizecache        int32                     `json:"-"`
 }
 
 func (m *ResumeSpanList) Reset()                    { *m = ResumeSpanList{} }
 func (m *ResumeSpanList) String() string            { return proto.CompactTextString(m) }
 func (*ResumeSpanList) ProtoMessage()               {}
 func (*ResumeSpanList) Descriptor() ([]byte, []int) { return fileDescriptorJobs, []int{4} }
+func (dst *ResumeSpanList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ResumeSpanList.Merge(dst, src)
+}
+func (m *ResumeSpanList) XXX_Size() int {
+	return xxx_messageInfo_ResumeSpanList.Size(m)
+}
+func (m *ResumeSpanList) XXX_DiscardUnknown() {
+	xxx_messageInfo_ResumeSpanList.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ResumeSpanList proto.InternalMessageInfo
 
 type SchemaChangeDetails struct {
 	ReadAsOf cockroach_util_hlc.Timestamp `protobuf:"bytes,1,opt,name=read_as_of,json=readAsOf" json:"read_as_of"`
@@ -185,13 +289,26 @@ type SchemaChangeDetails struct {
 	// non-overlapping contiguous areas of the KV space that still need to
 	// be processed. The index represents the index of a mutation in a
 	// mutation list containing mutations for the same mutationID.
-	ResumeSpanList []ResumeSpanList `protobuf:"bytes,2,rep,name=resume_span_list,json=resumeSpanList" json:"resume_span_list"`
+	ResumeSpanList       []ResumeSpanList `protobuf:"bytes,2,rep,name=resume_span_list,json=resumeSpanList" json:"resume_span_list"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
 }
 
 func (m *SchemaChangeDetails) Reset()                    { *m = SchemaChangeDetails{} }
 func (m *SchemaChangeDetails) String() string            { return proto.CompactTextString(m) }
 func (*SchemaChangeDetails) ProtoMessage()               {}
 func (*SchemaChangeDetails) Descriptor() ([]byte, []int) { return fileDescriptorJobs, []int{5} }
+func (dst *SchemaChangeDetails) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SchemaChangeDetails.Merge(dst, src)
+}
+func (m *SchemaChangeDetails) XXX_Size() int {
+	return xxx_messageInfo_SchemaChangeDetails.Size(m)
+}
+func (m *SchemaChangeDetails) XXX_DiscardUnknown() {
+	xxx_messageInfo_SchemaChangeDetails.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SchemaChangeDetails proto.InternalMessageInfo
 
 type Payload struct {
 	Description string `protobuf:"bytes,1,opt,name=description,proto3" json:"description,omitempty"`
@@ -212,13 +329,26 @@ type Payload struct {
 	//	*Payload_Restore
 	//	*Payload_SchemaChange
 	//	*Payload_Import
-	Details isPayload_Details `protobuf_oneof:"details"`
+	Details              isPayload_Details `protobuf_oneof:"details"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
 }
 
 func (m *Payload) Reset()                    { *m = Payload{} }
 func (m *Payload) String() string            { return proto.CompactTextString(m) }
 func (*Payload) ProtoMessage()               {}
 func (*Payload) Descriptor() ([]byte, []int) { return fileDescriptorJobs, []int{6} }
+func (dst *Payload) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Payload.Merge(dst, src)
+}
+func (m *Payload) XXX_Size() int {
+	return xxx_messageInfo_Payload.Size(m)
+}
+func (m *Payload) XXX_DiscardUnknown() {
+	xxx_messageInfo_Payload.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Payload proto.InternalMessageInfo
 
 type isPayload_Details interface {
 	isPayload_Details()
@@ -395,6 +525,7 @@ func init() {
 	proto.RegisterType((*Lease)(nil), "cockroach.sql.jobs.Lease")
 	proto.RegisterType((*BackupDetails)(nil), "cockroach.sql.jobs.BackupDetails")
 	proto.RegisterType((*RestoreDetails)(nil), "cockroach.sql.jobs.RestoreDetails")
+	proto.RegisterMapType((map[github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID]*RestoreDetails_TableRewrite)(nil), "cockroach.sql.jobs.RestoreDetails.TableRewritesEntry")
 	proto.RegisterType((*RestoreDetails_TableRewrite)(nil), "cockroach.sql.jobs.RestoreDetails.TableRewrite")
 	proto.RegisterType((*ImportDetails)(nil), "cockroach.sql.jobs.ImportDetails")
 	proto.RegisterType((*ImportDetails_Table)(nil), "cockroach.sql.jobs.ImportDetails.Table")

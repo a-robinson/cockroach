@@ -22,22 +22,48 @@ var _ = math.Inf
 // Attributes specifies a list of arbitrary strings describing
 // node topology, store type, and machine capabilities.
 type Attributes struct {
-	Attrs []string `protobuf:"bytes,1,rep,name=attrs" json:"attrs,omitempty" yaml:"attrs,flow"`
+	Attrs                []string `protobuf:"bytes,1,rep,name=attrs" json:"attrs,omitempty" yaml:"attrs,flow"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Attributes) Reset()                    { *m = Attributes{} }
 func (*Attributes) ProtoMessage()               {}
 func (*Attributes) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{0} }
+func (dst *Attributes) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Attributes.Merge(dst, src)
+}
+func (m *Attributes) XXX_Size() int {
+	return xxx_messageInfo_Attributes.Size(m)
+}
+func (m *Attributes) XXX_DiscardUnknown() {
+	xxx_messageInfo_Attributes.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Attributes proto.InternalMessageInfo
 
 // ReplicationTarget identifies a node/store pair.
 type ReplicationTarget struct {
-	NodeID  NodeID  `protobuf:"varint,1,opt,name=node_id,json=nodeId,casttype=NodeID" json:"node_id"`
-	StoreID StoreID `protobuf:"varint,2,opt,name=store_id,json=storeId,casttype=StoreID" json:"store_id"`
+	NodeID               NodeID   `protobuf:"varint,1,opt,name=node_id,json=nodeId,casttype=NodeID" json:"node_id"`
+	StoreID              StoreID  `protobuf:"varint,2,opt,name=store_id,json=storeId,casttype=StoreID" json:"store_id"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ReplicationTarget) Reset()                    { *m = ReplicationTarget{} }
 func (*ReplicationTarget) ProtoMessage()               {}
 func (*ReplicationTarget) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{1} }
+func (dst *ReplicationTarget) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReplicationTarget.Merge(dst, src)
+}
+func (m *ReplicationTarget) XXX_Size() int {
+	return xxx_messageInfo_ReplicationTarget.Size(m)
+}
+func (m *ReplicationTarget) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReplicationTarget.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReplicationTarget proto.InternalMessageInfo
 
 // ReplicaDescriptor describes a replica location by node ID
 // (corresponds to a host:port via lookup on gossip network) and store
@@ -48,23 +74,49 @@ type ReplicaDescriptor struct {
 	// replica_id uniquely identifies a replica instance. If a range is removed from
 	// a store and then re-added to the same store, the new instance will have a
 	// higher replica_id.
-	ReplicaID ReplicaID `protobuf:"varint,3,opt,name=replica_id,json=replicaId,casttype=ReplicaID" json:"replica_id"`
+	ReplicaID            ReplicaID `protobuf:"varint,3,opt,name=replica_id,json=replicaId,casttype=ReplicaID" json:"replica_id"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
 }
 
 func (m *ReplicaDescriptor) Reset()                    { *m = ReplicaDescriptor{} }
 func (*ReplicaDescriptor) ProtoMessage()               {}
 func (*ReplicaDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{2} }
+func (dst *ReplicaDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReplicaDescriptor.Merge(dst, src)
+}
+func (m *ReplicaDescriptor) XXX_Size() int {
+	return xxx_messageInfo_ReplicaDescriptor.Size(m)
+}
+func (m *ReplicaDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReplicaDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReplicaDescriptor proto.InternalMessageInfo
 
 // ReplicaIdent uniquely identifies a specific replica.
 type ReplicaIdent struct {
-	RangeID RangeID           `protobuf:"varint,1,opt,name=range_id,json=rangeId,casttype=RangeID" json:"range_id"`
-	Replica ReplicaDescriptor `protobuf:"bytes,2,opt,name=replica" json:"replica"`
+	RangeID              RangeID           `protobuf:"varint,1,opt,name=range_id,json=rangeId,casttype=RangeID" json:"range_id"`
+	Replica              ReplicaDescriptor `protobuf:"bytes,2,opt,name=replica" json:"replica"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
 }
 
 func (m *ReplicaIdent) Reset()                    { *m = ReplicaIdent{} }
 func (m *ReplicaIdent) String() string            { return proto.CompactTextString(m) }
 func (*ReplicaIdent) ProtoMessage()               {}
 func (*ReplicaIdent) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{3} }
+func (dst *ReplicaIdent) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReplicaIdent.Merge(dst, src)
+}
+func (m *ReplicaIdent) XXX_Size() int {
+	return xxx_messageInfo_ReplicaIdent.Size(m)
+}
+func (m *ReplicaIdent) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReplicaIdent.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReplicaIdent proto.InternalMessageInfo
 
 // RangeDescriptor is the value stored in a range metadata key.
 // A range is described using an inclusive start key, a non-inclusive end key,
@@ -85,26 +137,52 @@ type RangeDescriptor struct {
 	// permutation.
 	Replicas []ReplicaDescriptor `protobuf:"bytes,4,rep,name=replicas" json:"replicas"`
 	// next_replica_id is a counter used to generate replica IDs.
-	NextReplicaID ReplicaID `protobuf:"varint,5,opt,name=next_replica_id,json=nextReplicaId,casttype=ReplicaID" json:"next_replica_id"`
+	NextReplicaID        ReplicaID `protobuf:"varint,5,opt,name=next_replica_id,json=nextReplicaId,casttype=ReplicaID" json:"next_replica_id"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
 }
 
 func (m *RangeDescriptor) Reset()                    { *m = RangeDescriptor{} }
 func (*RangeDescriptor) ProtoMessage()               {}
 func (*RangeDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{4} }
+func (dst *RangeDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeDescriptor.Merge(dst, src)
+}
+func (m *RangeDescriptor) XXX_Size() int {
+	return xxx_messageInfo_RangeDescriptor.Size(m)
+}
+func (m *RangeDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeDescriptor proto.InternalMessageInfo
 
 // Percentiles contains a handful of hard-coded percentiles meant to summarize
 // a distribution.
 type Percentiles struct {
-	P10 float64 `protobuf:"fixed64,1,opt,name=p10" json:"p10"`
-	P25 float64 `protobuf:"fixed64,2,opt,name=p25" json:"p25"`
-	P50 float64 `protobuf:"fixed64,3,opt,name=p50" json:"p50"`
-	P75 float64 `protobuf:"fixed64,4,opt,name=p75" json:"p75"`
-	P90 float64 `protobuf:"fixed64,5,opt,name=p90" json:"p90"`
+	P10                  float64  `protobuf:"fixed64,1,opt,name=p10" json:"p10"`
+	P25                  float64  `protobuf:"fixed64,2,opt,name=p25" json:"p25"`
+	P50                  float64  `protobuf:"fixed64,3,opt,name=p50" json:"p50"`
+	P75                  float64  `protobuf:"fixed64,4,opt,name=p75" json:"p75"`
+	P90                  float64  `protobuf:"fixed64,5,opt,name=p90" json:"p90"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Percentiles) Reset()                    { *m = Percentiles{} }
 func (*Percentiles) ProtoMessage()               {}
 func (*Percentiles) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{5} }
+func (dst *Percentiles) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Percentiles.Merge(dst, src)
+}
+func (m *Percentiles) XXX_Size() int {
+	return xxx_messageInfo_Percentiles.Size(m)
+}
+func (m *Percentiles) XXX_DiscardUnknown() {
+	xxx_messageInfo_Percentiles.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Percentiles proto.InternalMessageInfo
 
 // StoreCapacity contains capacity information for a storage device.
 type StoreCapacity struct {
@@ -134,76 +212,154 @@ type StoreCapacity struct {
 	// bytes_per_replica and writes_per_replica contain percentiles for the
 	// number of bytes and writes-per-second to each replica in the store.
 	// This information can be used for rebalancing decisions.
-	BytesPerReplica  Percentiles `protobuf:"bytes,6,opt,name=bytes_per_replica,json=bytesPerReplica" json:"bytes_per_replica"`
-	WritesPerReplica Percentiles `protobuf:"bytes,7,opt,name=writes_per_replica,json=writesPerReplica" json:"writes_per_replica"`
+	BytesPerReplica      Percentiles `protobuf:"bytes,6,opt,name=bytes_per_replica,json=bytesPerReplica" json:"bytes_per_replica"`
+	WritesPerReplica     Percentiles `protobuf:"bytes,7,opt,name=writes_per_replica,json=writesPerReplica" json:"writes_per_replica"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
 func (m *StoreCapacity) Reset()                    { *m = StoreCapacity{} }
 func (*StoreCapacity) ProtoMessage()               {}
 func (*StoreCapacity) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{6} }
+func (dst *StoreCapacity) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StoreCapacity.Merge(dst, src)
+}
+func (m *StoreCapacity) XXX_Size() int {
+	return xxx_messageInfo_StoreCapacity.Size(m)
+}
+func (m *StoreCapacity) XXX_DiscardUnknown() {
+	xxx_messageInfo_StoreCapacity.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StoreCapacity proto.InternalMessageInfo
 
 // NodeDescriptor holds details on node physical/network topology.
 type NodeDescriptor struct {
-	NodeID        NodeID                        `protobuf:"varint,1,opt,name=node_id,json=nodeId,casttype=NodeID" json:"node_id"`
-	Address       cockroach_util.UnresolvedAddr `protobuf:"bytes,2,opt,name=address" json:"address"`
-	Attrs         Attributes                    `protobuf:"bytes,3,opt,name=attrs" json:"attrs"`
-	Locality      Locality                      `protobuf:"bytes,4,opt,name=locality" json:"locality"`
-	ServerVersion Version                       `protobuf:"bytes,5,opt,name=ServerVersion" json:"ServerVersion"`
+	NodeID               NodeID                        `protobuf:"varint,1,opt,name=node_id,json=nodeId,casttype=NodeID" json:"node_id"`
+	Address              cockroach_util.UnresolvedAddr `protobuf:"bytes,2,opt,name=address" json:"address"`
+	Attrs                Attributes                    `protobuf:"bytes,3,opt,name=attrs" json:"attrs"`
+	Locality             Locality                      `protobuf:"bytes,4,opt,name=locality" json:"locality"`
+	ServerVersion        Version                       `protobuf:"bytes,5,opt,name=ServerVersion" json:"ServerVersion"`
+	XXX_NoUnkeyedLiteral struct{}                      `json:"-"`
+	XXX_sizecache        int32                         `json:"-"`
 }
 
 func (m *NodeDescriptor) Reset()                    { *m = NodeDescriptor{} }
 func (m *NodeDescriptor) String() string            { return proto.CompactTextString(m) }
 func (*NodeDescriptor) ProtoMessage()               {}
 func (*NodeDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{7} }
+func (dst *NodeDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodeDescriptor.Merge(dst, src)
+}
+func (m *NodeDescriptor) XXX_Size() int {
+	return xxx_messageInfo_NodeDescriptor.Size(m)
+}
+func (m *NodeDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_NodeDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NodeDescriptor proto.InternalMessageInfo
 
 // StoreDescriptor holds store information including store attributes, node
 // descriptor and store capacity.
 type StoreDescriptor struct {
-	StoreID  StoreID        `protobuf:"varint,1,opt,name=store_id,json=storeId,casttype=StoreID" json:"store_id"`
-	Attrs    Attributes     `protobuf:"bytes,2,opt,name=attrs" json:"attrs"`
-	Node     NodeDescriptor `protobuf:"bytes,3,opt,name=node" json:"node"`
-	Capacity StoreCapacity  `protobuf:"bytes,4,opt,name=capacity" json:"capacity"`
+	StoreID              StoreID        `protobuf:"varint,1,opt,name=store_id,json=storeId,casttype=StoreID" json:"store_id"`
+	Attrs                Attributes     `protobuf:"bytes,2,opt,name=attrs" json:"attrs"`
+	Node                 NodeDescriptor `protobuf:"bytes,3,opt,name=node" json:"node"`
+	Capacity             StoreCapacity  `protobuf:"bytes,4,opt,name=capacity" json:"capacity"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *StoreDescriptor) Reset()                    { *m = StoreDescriptor{} }
 func (m *StoreDescriptor) String() string            { return proto.CompactTextString(m) }
 func (*StoreDescriptor) ProtoMessage()               {}
 func (*StoreDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{8} }
+func (dst *StoreDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StoreDescriptor.Merge(dst, src)
+}
+func (m *StoreDescriptor) XXX_Size() int {
+	return xxx_messageInfo_StoreDescriptor.Size(m)
+}
+func (m *StoreDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_StoreDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StoreDescriptor proto.InternalMessageInfo
 
 // StoreDeadReplicas holds a storeID and a list of dead replicas on that store.
 // Used to let the range lease holder know about corrupted or otherwise
 // destroyed replicas that should be transferred to a different store.
 type StoreDeadReplicas struct {
-	StoreID  StoreID        `protobuf:"varint,1,opt,name=store_id,json=storeId,casttype=StoreID" json:"store_id"`
-	Replicas []ReplicaIdent `protobuf:"bytes,2,rep,name=replicas" json:"replicas"`
+	StoreID              StoreID        `protobuf:"varint,1,opt,name=store_id,json=storeId,casttype=StoreID" json:"store_id"`
+	Replicas             []ReplicaIdent `protobuf:"bytes,2,rep,name=replicas" json:"replicas"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *StoreDeadReplicas) Reset()                    { *m = StoreDeadReplicas{} }
 func (m *StoreDeadReplicas) String() string            { return proto.CompactTextString(m) }
 func (*StoreDeadReplicas) ProtoMessage()               {}
 func (*StoreDeadReplicas) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{9} }
+func (dst *StoreDeadReplicas) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StoreDeadReplicas.Merge(dst, src)
+}
+func (m *StoreDeadReplicas) XXX_Size() int {
+	return xxx_messageInfo_StoreDeadReplicas.Size(m)
+}
+func (m *StoreDeadReplicas) XXX_DiscardUnknown() {
+	xxx_messageInfo_StoreDeadReplicas.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StoreDeadReplicas proto.InternalMessageInfo
 
 // Locality is an ordered set of key value Tiers that describe a node's
 // location. The tier keys should be the same across all nodes.
 type Locality struct {
-	Tiers []Tier `protobuf:"bytes,1,rep,name=tiers" json:"tiers"`
+	Tiers                []Tier   `protobuf:"bytes,1,rep,name=tiers" json:"tiers"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Locality) Reset()                    { *m = Locality{} }
 func (*Locality) ProtoMessage()               {}
 func (*Locality) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{10} }
+func (dst *Locality) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Locality.Merge(dst, src)
+}
+func (m *Locality) XXX_Size() int {
+	return xxx_messageInfo_Locality.Size(m)
+}
+func (m *Locality) XXX_DiscardUnknown() {
+	xxx_messageInfo_Locality.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Locality proto.InternalMessageInfo
 
 // Tier represents one level of the locality hierarchy.
 type Tier struct {
 	// Key is the name of tier and should match all other nodes.
 	Key string `protobuf:"bytes,1,opt,name=key" json:"key"`
 	// Value is node specific value corresponding to the key.
-	Value string `protobuf:"bytes,2,opt,name=value" json:"value"`
+	Value                string   `protobuf:"bytes,2,opt,name=value" json:"value"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Tier) Reset()                    { *m = Tier{} }
 func (*Tier) ProtoMessage()               {}
 func (*Tier) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{11} }
+func (dst *Tier) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Tier.Merge(dst, src)
+}
+func (m *Tier) XXX_Size() int {
+	return xxx_messageInfo_Tier.Size(m)
+}
+func (m *Tier) XXX_DiscardUnknown() {
+	xxx_messageInfo_Tier.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Tier proto.InternalMessageInfo
 
 type Version struct {
 	// The names "major" and "minor" are reserved in C in
@@ -215,12 +371,25 @@ type Version struct {
 	// The unstable version is used to migrate during development.
 	// Users of stable, public releases will only use binaries
 	// with unstable set to 0.
-	Unstable int32 `protobuf:"varint,4,opt,name=unstable" json:"unstable"`
+	Unstable             int32    `protobuf:"varint,4,opt,name=unstable" json:"unstable"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Version) Reset()                    { *m = Version{} }
 func (*Version) ProtoMessage()               {}
 func (*Version) Descriptor() ([]byte, []int) { return fileDescriptorMetadata, []int{12} }
+func (dst *Version) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Version.Merge(dst, src)
+}
+func (m *Version) XXX_Size() int {
+	return xxx_messageInfo_Version.Size(m)
+}
+func (m *Version) XXX_DiscardUnknown() {
+	xxx_messageInfo_Version.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Version proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*Attributes)(nil), "cockroach.roachpb.Attributes")

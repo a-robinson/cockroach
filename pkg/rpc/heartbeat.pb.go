@@ -51,12 +51,25 @@ type RemoteOffset struct {
 	// The maximum error of the measured offset, in nanoseconds.
 	Uncertainty int64 `protobuf:"varint,2,opt,name=uncertainty" json:"uncertainty"`
 	// Measurement time, in nanoseconds from unix epoch.
-	MeasuredAt int64 `protobuf:"varint,3,opt,name=measured_at,json=measuredAt" json:"measured_at"`
+	MeasuredAt           int64    `protobuf:"varint,3,opt,name=measured_at,json=measuredAt" json:"measured_at"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RemoteOffset) Reset()                    { *m = RemoteOffset{} }
 func (*RemoteOffset) ProtoMessage()               {}
 func (*RemoteOffset) Descriptor() ([]byte, []int) { return fileDescriptorHeartbeat, []int{0} }
+func (dst *RemoteOffset) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RemoteOffset.Merge(dst, src)
+}
+func (m *RemoteOffset) XXX_Size() int {
+	return xxx_messageInfo_RemoteOffset.Size(m)
+}
+func (m *RemoteOffset) XXX_DiscardUnknown() {
+	xxx_messageInfo_RemoteOffset.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RemoteOffset proto.InternalMessageInfo
 
 // A PingRequest specifies the string to echo in response.
 // Fields are exported so that they will be serialized in the rpc call.
@@ -70,27 +83,53 @@ type PingRequest struct {
 	// The configured maximum clock offset (in nanoseconds) on the server.
 	MaxOffsetNanos int64 `protobuf:"varint,4,opt,name=max_offset_nanos,json=maxOffsetNanos" json:"max_offset_nanos"`
 	// Cluster ID to prevent connections between nodes in different clusters.
-	ClusterID     *github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,5,opt,name=cluster_id,json=clusterId,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"cluster_id,omitempty"`
-	ServerVersion cockroach_roachpb.Version                            `protobuf:"bytes,6,opt,name=server_version,json=serverVersion" json:"server_version"`
+	ClusterID            *github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,5,opt,name=cluster_id,json=clusterId,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"cluster_id,omitempty"`
+	ServerVersion        cockroach_roachpb.Version                            `protobuf:"bytes,6,opt,name=server_version,json=serverVersion" json:"server_version"`
+	XXX_NoUnkeyedLiteral struct{}                                             `json:"-"`
+	XXX_sizecache        int32                                                `json:"-"`
 }
 
 func (m *PingRequest) Reset()                    { *m = PingRequest{} }
 func (m *PingRequest) String() string            { return proto.CompactTextString(m) }
 func (*PingRequest) ProtoMessage()               {}
 func (*PingRequest) Descriptor() ([]byte, []int) { return fileDescriptorHeartbeat, []int{1} }
+func (dst *PingRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PingRequest.Merge(dst, src)
+}
+func (m *PingRequest) XXX_Size() int {
+	return xxx_messageInfo_PingRequest.Size(m)
+}
+func (m *PingRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_PingRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PingRequest proto.InternalMessageInfo
 
 // A PingResponse contains the echoed ping request string.
 type PingResponse struct {
 	// An echo of value sent with PingRequest.
-	Pong          string                    `protobuf:"bytes,1,opt,name=pong" json:"pong"`
-	ServerTime    int64                     `protobuf:"varint,2,opt,name=server_time,json=serverTime" json:"server_time"`
-	ServerVersion cockroach_roachpb.Version `protobuf:"bytes,3,opt,name=server_version,json=serverVersion" json:"server_version"`
+	Pong                 string                    `protobuf:"bytes,1,opt,name=pong" json:"pong"`
+	ServerTime           int64                     `protobuf:"varint,2,opt,name=server_time,json=serverTime" json:"server_time"`
+	ServerVersion        cockroach_roachpb.Version `protobuf:"bytes,3,opt,name=server_version,json=serverVersion" json:"server_version"`
+	XXX_NoUnkeyedLiteral struct{}                  `json:"-"`
+	XXX_sizecache        int32                     `json:"-"`
 }
 
 func (m *PingResponse) Reset()                    { *m = PingResponse{} }
 func (m *PingResponse) String() string            { return proto.CompactTextString(m) }
 func (*PingResponse) ProtoMessage()               {}
 func (*PingResponse) Descriptor() ([]byte, []int) { return fileDescriptorHeartbeat, []int{2} }
+func (dst *PingResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PingResponse.Merge(dst, src)
+}
+func (m *PingResponse) XXX_Size() int {
+	return xxx_messageInfo_PingResponse.Size(m)
+}
+func (m *PingResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_PingResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PingResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*RemoteOffset)(nil), "cockroach.rpc.RemoteOffset")

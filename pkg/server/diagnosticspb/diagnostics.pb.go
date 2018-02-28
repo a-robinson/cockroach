@@ -39,48 +39,90 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type DiagnosticReport struct {
-	Node                NodeInfo                                     `protobuf:"bytes,1,opt,name=node" json:"node"`
-	Stores              []StoreInfo                                  `protobuf:"bytes,2,rep,name=stores" json:"stores"`
-	Schema              []cockroach_sql_sqlbase1.TableDescriptor     `protobuf:"bytes,3,rep,name=schema" json:"schema"`
-	SqlStats            []cockroach_sql.CollectedStatementStatistics `protobuf:"bytes,4,rep,name=sql_stats,json=sqlStats" json:"sql_stats"`
-	UnimplementedErrors map[string]int64                             `protobuf:"bytes,5,rep,name=unimplemented_errors,json=unimplementedErrors" json:"unimplemented_errors,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`
-	AlteredSettings     map[string]string                            `protobuf:"bytes,6,rep,name=altered_settings,json=alteredSettings" json:"altered_settings,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	ErrorCounts         map[string]int64                             `protobuf:"bytes,7,rep,name=error_counts,json=errorCounts" json:"error_counts,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`
+	Node                 NodeInfo                                     `protobuf:"bytes,1,opt,name=node" json:"node"`
+	Stores               []StoreInfo                                  `protobuf:"bytes,2,rep,name=stores" json:"stores"`
+	Schema               []cockroach_sql_sqlbase1.TableDescriptor     `protobuf:"bytes,3,rep,name=schema" json:"schema"`
+	SqlStats             []cockroach_sql.CollectedStatementStatistics `protobuf:"bytes,4,rep,name=sql_stats,json=sqlStats" json:"sql_stats"`
+	UnimplementedErrors  map[string]int64                             `protobuf:"bytes,5,rep,name=unimplemented_errors,json=unimplementedErrors" json:"unimplemented_errors,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`
+	AlteredSettings      map[string]string                            `protobuf:"bytes,6,rep,name=altered_settings,json=alteredSettings" json:"altered_settings,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	ErrorCounts          map[string]int64                             `protobuf:"bytes,7,rep,name=error_counts,json=errorCounts" json:"error_counts,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}                                     `json:"-"`
+	XXX_sizecache        int32                                        `json:"-"`
 }
 
 func (m *DiagnosticReport) Reset()                    { *m = DiagnosticReport{} }
 func (m *DiagnosticReport) String() string            { return proto.CompactTextString(m) }
 func (*DiagnosticReport) ProtoMessage()               {}
 func (*DiagnosticReport) Descriptor() ([]byte, []int) { return fileDescriptorDiagnostics, []int{0} }
+func (dst *DiagnosticReport) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DiagnosticReport.Merge(dst, src)
+}
+func (m *DiagnosticReport) XXX_Size() int {
+	return xxx_messageInfo_DiagnosticReport.Size(m)
+}
+func (m *DiagnosticReport) XXX_DiscardUnknown() {
+	xxx_messageInfo_DiagnosticReport.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DiagnosticReport proto.InternalMessageInfo
 
 type NodeInfo struct {
-	NodeID     github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
-	Bytes      int64                                               `protobuf:"varint,2,opt,name=bytes,proto3" json:"bytes,omitempty"`
-	KeyCount   int64                                               `protobuf:"varint,3,opt,name=key_count,json=keyCount,proto3" json:"key_count,omitempty"`
-	RangeCount int64                                               `protobuf:"varint,4,opt,name=range_count,json=rangeCount,proto3" json:"range_count,omitempty"`
-	Locality   cockroach_roachpb.Locality                          `protobuf:"bytes,5,opt,name=locality" json:"locality"`
+	NodeID               github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
+	Bytes                int64                                               `protobuf:"varint,2,opt,name=bytes,proto3" json:"bytes,omitempty"`
+	KeyCount             int64                                               `protobuf:"varint,3,opt,name=key_count,json=keyCount,proto3" json:"key_count,omitempty"`
+	RangeCount           int64                                               `protobuf:"varint,4,opt,name=range_count,json=rangeCount,proto3" json:"range_count,omitempty"`
+	Locality             cockroach_roachpb.Locality                          `protobuf:"bytes,5,opt,name=locality" json:"locality"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *NodeInfo) Reset()                    { *m = NodeInfo{} }
 func (m *NodeInfo) String() string            { return proto.CompactTextString(m) }
 func (*NodeInfo) ProtoMessage()               {}
 func (*NodeInfo) Descriptor() ([]byte, []int) { return fileDescriptorDiagnostics, []int{1} }
+func (dst *NodeInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodeInfo.Merge(dst, src)
+}
+func (m *NodeInfo) XXX_Size() int {
+	return xxx_messageInfo_NodeInfo.Size(m)
+}
+func (m *NodeInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_NodeInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NodeInfo proto.InternalMessageInfo
 
 type StoreInfo struct {
-	NodeID     github_com_cockroachdb_cockroach_pkg_roachpb.NodeID  `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
-	StoreID    github_com_cockroachdb_cockroach_pkg_roachpb.StoreID `protobuf:"varint,2,opt,name=store_id,json=storeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.StoreID" json:"store_id,omitempty"`
-	Bytes      int64                                                `protobuf:"varint,3,opt,name=bytes,proto3" json:"bytes,omitempty"`
-	KeyCount   int64                                                `protobuf:"varint,4,opt,name=key_count,json=keyCount,proto3" json:"key_count,omitempty"`
-	RangeCount int64                                                `protobuf:"varint,5,opt,name=range_count,json=rangeCount,proto3" json:"range_count,omitempty"`
+	NodeID               github_com_cockroachdb_cockroach_pkg_roachpb.NodeID  `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
+	StoreID              github_com_cockroachdb_cockroach_pkg_roachpb.StoreID `protobuf:"varint,2,opt,name=store_id,json=storeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.StoreID" json:"store_id,omitempty"`
+	Bytes                int64                                                `protobuf:"varint,3,opt,name=bytes,proto3" json:"bytes,omitempty"`
+	KeyCount             int64                                                `protobuf:"varint,4,opt,name=key_count,json=keyCount,proto3" json:"key_count,omitempty"`
+	RangeCount           int64                                                `protobuf:"varint,5,opt,name=range_count,json=rangeCount,proto3" json:"range_count,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                             `json:"-"`
+	XXX_sizecache        int32                                                `json:"-"`
 }
 
 func (m *StoreInfo) Reset()                    { *m = StoreInfo{} }
 func (m *StoreInfo) String() string            { return proto.CompactTextString(m) }
 func (*StoreInfo) ProtoMessage()               {}
 func (*StoreInfo) Descriptor() ([]byte, []int) { return fileDescriptorDiagnostics, []int{2} }
+func (dst *StoreInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StoreInfo.Merge(dst, src)
+}
+func (m *StoreInfo) XXX_Size() int {
+	return xxx_messageInfo_StoreInfo.Size(m)
+}
+func (m *StoreInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_StoreInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StoreInfo proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*DiagnosticReport)(nil), "cockroach.server.diagnosticspb.DiagnosticReport")
+	proto.RegisterMapType((map[string]string)(nil), "cockroach.server.diagnosticspb.DiagnosticReport.AlteredSettingsEntry")
+	proto.RegisterMapType((map[string]int64)(nil), "cockroach.server.diagnosticspb.DiagnosticReport.ErrorCountsEntry")
+	proto.RegisterMapType((map[string]int64)(nil), "cockroach.server.diagnosticspb.DiagnosticReport.UnimplementedErrorsEntry")
 	proto.RegisterType((*NodeInfo)(nil), "cockroach.server.diagnosticspb.NodeInfo")
 	proto.RegisterType((*StoreInfo)(nil), "cockroach.server.diagnosticspb.StoreInfo")
 }

@@ -226,13 +226,26 @@ type ProcessorSpec struct {
 	// part of the same stage (e.g. multiple joiners that are part of a
 	// distributed join). This has no consequence on the running of flows, but is
 	// useful for plan diagrams.
-	StageID int32 `protobuf:"varint,5,opt,name=stage_id,json=stageId" json:"stage_id"`
+	StageID              int32    `protobuf:"varint,5,opt,name=stage_id,json=stageId" json:"stage_id"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ProcessorSpec) Reset()                    { *m = ProcessorSpec{} }
 func (m *ProcessorSpec) String() string            { return proto.CompactTextString(m) }
 func (*ProcessorSpec) ProtoMessage()               {}
 func (*ProcessorSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{0} }
+func (dst *ProcessorSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProcessorSpec.Merge(dst, src)
+}
+func (m *ProcessorSpec) XXX_Size() int {
+	return xxx_messageInfo_ProcessorSpec.Size(m)
+}
+func (m *ProcessorSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProcessorSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProcessorSpec proto.InternalMessageInfo
 
 // PostProcessSpec describes the processing required to obtain the output
 // (filtering, projection). It operates on the internal schema of the processor
@@ -261,13 +274,26 @@ type PostProcessSpec struct {
 	Offset uint64 `protobuf:"varint,5,opt,name=offset" json:"offset"`
 	// If nonzero, the processor will stop after emitting this many rows. The rows
 	// suppressed by <offset>, if any, do not count towards this limit.
-	Limit uint64 `protobuf:"varint,6,opt,name=limit" json:"limit"`
+	Limit                uint64   `protobuf:"varint,6,opt,name=limit" json:"limit"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *PostProcessSpec) Reset()                    { *m = PostProcessSpec{} }
 func (m *PostProcessSpec) String() string            { return proto.CompactTextString(m) }
 func (*PostProcessSpec) ProtoMessage()               {}
 func (*PostProcessSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{1} }
+func (dst *PostProcessSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PostProcessSpec.Merge(dst, src)
+}
+func (m *PostProcessSpec) XXX_Size() int {
+	return xxx_messageInfo_PostProcessSpec.Size(m)
+}
+func (m *PostProcessSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_PostProcessSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PostProcessSpec proto.InternalMessageInfo
 
 type ProcessorCoreUnion struct {
 	Noop                    *NoopCoreSpec                `protobuf:"bytes,1,opt,name=noop" json:"noop,omitempty"`
@@ -285,23 +311,49 @@ type ProcessorCoreUnion struct {
 	Sampler                 *SamplerSpec                 `protobuf:"bytes,15,opt,name=Sampler" json:"Sampler,omitempty"`
 	SampleAggregator        *SampleAggregatorSpec        `protobuf:"bytes,16,opt,name=SampleAggregator" json:"SampleAggregator,omitempty"`
 	InterleavedReaderJoiner *InterleavedReaderJoinerSpec `protobuf:"bytes,17,opt,name=interleavedReaderJoiner" json:"interleavedReaderJoiner,omitempty"`
+	XXX_NoUnkeyedLiteral    struct{}                     `json:"-"`
+	XXX_sizecache           int32                        `json:"-"`
 }
 
 func (m *ProcessorCoreUnion) Reset()                    { *m = ProcessorCoreUnion{} }
 func (m *ProcessorCoreUnion) String() string            { return proto.CompactTextString(m) }
 func (*ProcessorCoreUnion) ProtoMessage()               {}
 func (*ProcessorCoreUnion) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{2} }
+func (dst *ProcessorCoreUnion) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProcessorCoreUnion.Merge(dst, src)
+}
+func (m *ProcessorCoreUnion) XXX_Size() int {
+	return xxx_messageInfo_ProcessorCoreUnion.Size(m)
+}
+func (m *ProcessorCoreUnion) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProcessorCoreUnion.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProcessorCoreUnion proto.InternalMessageInfo
 
 // NoopCoreSpec indicates a "no-op" processor core. This is used when we just
 // need post-processing or when only a synchronizer is required (e.g. at the
 // final endpoint).
 type NoopCoreSpec struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *NoopCoreSpec) Reset()                    { *m = NoopCoreSpec{} }
 func (m *NoopCoreSpec) String() string            { return proto.CompactTextString(m) }
 func (*NoopCoreSpec) ProtoMessage()               {}
 func (*NoopCoreSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{3} }
+func (dst *NoopCoreSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NoopCoreSpec.Merge(dst, src)
+}
+func (m *NoopCoreSpec) XXX_Size() int {
+	return xxx_messageInfo_NoopCoreSpec.Size(m)
+}
+func (m *NoopCoreSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_NoopCoreSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NoopCoreSpec proto.InternalMessageInfo
 
 // ValuesCoreSpec is the core of a processor that has no inputs and generates
 // "pre-canned" rows. This is not intended to be used for very large datasets.
@@ -310,25 +362,51 @@ type ValuesCoreSpec struct {
 	Columns []DatumInfo `protobuf:"bytes,1,rep,name=columns" json:"columns"`
 	// Each raw block encodes one or more data rows; each datum is encoded
 	// according to the corresponding DatumInfo.
-	RawBytes [][]byte `protobuf:"bytes,2,rep,name=raw_bytes,json=rawBytes" json:"raw_bytes,omitempty"`
+	RawBytes             [][]byte `protobuf:"bytes,2,rep,name=raw_bytes,json=rawBytes" json:"raw_bytes,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ValuesCoreSpec) Reset()                    { *m = ValuesCoreSpec{} }
 func (m *ValuesCoreSpec) String() string            { return proto.CompactTextString(m) }
 func (*ValuesCoreSpec) ProtoMessage()               {}
 func (*ValuesCoreSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{4} }
+func (dst *ValuesCoreSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ValuesCoreSpec.Merge(dst, src)
+}
+func (m *ValuesCoreSpec) XXX_Size() int {
+	return xxx_messageInfo_ValuesCoreSpec.Size(m)
+}
+func (m *ValuesCoreSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_ValuesCoreSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ValuesCoreSpec proto.InternalMessageInfo
 
 type TableReaderSpan struct {
 	// TODO(radu): the dist_sql APIs should be agnostic to how we map tables to
 	// KVs. The span should be described as starting and ending lists of values
 	// for a prefix of the index columns, along with inclusive/exclusive flags.
-	Span cockroach_roachpb1.Span `protobuf:"bytes,1,opt,name=span" json:"span"`
+	Span                 cockroach_roachpb1.Span `protobuf:"bytes,1,opt,name=span" json:"span"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
 }
 
 func (m *TableReaderSpan) Reset()                    { *m = TableReaderSpan{} }
 func (m *TableReaderSpan) String() string            { return proto.CompactTextString(m) }
 func (*TableReaderSpan) ProtoMessage()               {}
 func (*TableReaderSpan) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{5} }
+func (dst *TableReaderSpan) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableReaderSpan.Merge(dst, src)
+}
+func (m *TableReaderSpan) XXX_Size() int {
+	return xxx_messageInfo_TableReaderSpan.Size(m)
+}
+func (m *TableReaderSpan) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableReaderSpan.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableReaderSpan proto.InternalMessageInfo
 
 // TableReaderSpec is the specification for a "table reader". A table reader
 // performs KV operations to retrieve rows for a table and outputs the desired
@@ -358,13 +436,26 @@ type TableReaderSpec struct {
 	LimitHint int64 `protobuf:"varint,5,opt,name=limit_hint,json=limitHint" json:"limit_hint"`
 	// Indicates whether the TableReader is being run as an exhaustive
 	// check. This is only true during SCRUB commands.
-	IsCheck bool `protobuf:"varint,6,opt,name=is_check,json=isCheck" json:"is_check"`
+	IsCheck              bool     `protobuf:"varint,6,opt,name=is_check,json=isCheck" json:"is_check"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TableReaderSpec) Reset()                    { *m = TableReaderSpec{} }
 func (m *TableReaderSpec) String() string            { return proto.CompactTextString(m) }
 func (*TableReaderSpec) ProtoMessage()               {}
 func (*TableReaderSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{6} }
+func (dst *TableReaderSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableReaderSpec.Merge(dst, src)
+}
+func (m *TableReaderSpec) XXX_Size() int {
+	return xxx_messageInfo_TableReaderSpec.Size(m)
+}
+func (m *TableReaderSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableReaderSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableReaderSpec proto.InternalMessageInfo
 
 // JoinReaderSpec is the specification for a "join reader". A join reader
 // performs KV operations to retrieve specific rows that correspond to the
@@ -413,13 +504,26 @@ type JoinReaderSpec struct {
 	// 5. But when an index lookup is done, the entire right side is returned.
 	// The index map tells the processor which columns it should select. In the
 	// example the indexMap would be [2, 3].
-	IndexMap []uint32 `protobuf:"varint,5,rep,packed,name=index_map,json=indexMap" json:"index_map,omitempty"`
+	IndexMap             []uint32 `protobuf:"varint,5,rep,packed,name=index_map,json=indexMap" json:"index_map,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *JoinReaderSpec) Reset()                    { *m = JoinReaderSpec{} }
 func (m *JoinReaderSpec) String() string            { return proto.CompactTextString(m) }
 func (*JoinReaderSpec) ProtoMessage()               {}
 func (*JoinReaderSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{7} }
+func (dst *JoinReaderSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_JoinReaderSpec.Merge(dst, src)
+}
+func (m *JoinReaderSpec) XXX_Size() int {
+	return xxx_messageInfo_JoinReaderSpec.Size(m)
+}
+func (m *JoinReaderSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_JoinReaderSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_JoinReaderSpec proto.InternalMessageInfo
 
 // SorterSpec is the specification for a "sorting aggregator". A sorting
 // processor sorts elements in the input stream providing a certain output
@@ -433,13 +537,26 @@ type SorterSpec struct {
 	// Ordering match length, specifying that the input is already sorted by the
 	// first 'n' output ordering columns, can be optionally specified for
 	// possible speed-ups taking advantage of the partial orderings.
-	OrderingMatchLen uint32 `protobuf:"varint,2,opt,name=ordering_match_len,json=orderingMatchLen" json:"ordering_match_len"`
+	OrderingMatchLen     uint32   `protobuf:"varint,2,opt,name=ordering_match_len,json=orderingMatchLen" json:"ordering_match_len"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *SorterSpec) Reset()                    { *m = SorterSpec{} }
 func (m *SorterSpec) String() string            { return proto.CompactTextString(m) }
 func (*SorterSpec) ProtoMessage()               {}
 func (*SorterSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{8} }
+func (dst *SorterSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SorterSpec.Merge(dst, src)
+}
+func (m *SorterSpec) XXX_Size() int {
+	return xxx_messageInfo_SorterSpec.Size(m)
+}
+func (m *SorterSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_SorterSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SorterSpec proto.InternalMessageInfo
 
 type DistinctSpec struct {
 	// The ordered columns in the input stream can be optionally specified for
@@ -452,13 +569,26 @@ type DistinctSpec struct {
 	// 4th column D which is not included in distinct_columns, its values are not
 	// considered, so rows A1,B1,C1,D1 and A1,B1,C1,D2 are considered equal and
 	// only one of them (the first) is output.
-	DistinctColumns []uint32 `protobuf:"varint,2,rep,name=distinct_columns,json=distinctColumns" json:"distinct_columns,omitempty"`
+	DistinctColumns      []uint32 `protobuf:"varint,2,rep,name=distinct_columns,json=distinctColumns" json:"distinct_columns,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DistinctSpec) Reset()                    { *m = DistinctSpec{} }
 func (m *DistinctSpec) String() string            { return proto.CompactTextString(m) }
 func (*DistinctSpec) ProtoMessage()               {}
 func (*DistinctSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{9} }
+func (dst *DistinctSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DistinctSpec.Merge(dst, src)
+}
+func (m *DistinctSpec) XXX_Size() int {
+	return xxx_messageInfo_DistinctSpec.Size(m)
+}
+func (m *DistinctSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_DistinctSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DistinctSpec proto.InternalMessageInfo
 
 // MergeJoinerSpec is the specification for a merge join processor. The processor
 // has two inputs and one output. The inputs must have the same ordering on the
@@ -493,13 +623,26 @@ type MergeJoinerSpec struct {
 	// NullEquality indicates that NULL = NULL should be considered true.
 	// This allows OUTER JOINs to consider NULL values meaningfully. An
 	// example of this is during SCRUB checks on secondary indexes.
-	NullEquality bool `protobuf:"varint,7,opt,name=null_equality,json=nullEquality" json:"null_equality"`
+	NullEquality         bool     `protobuf:"varint,7,opt,name=null_equality,json=nullEquality" json:"null_equality"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *MergeJoinerSpec) Reset()                    { *m = MergeJoinerSpec{} }
 func (m *MergeJoinerSpec) String() string            { return proto.CompactTextString(m) }
 func (*MergeJoinerSpec) ProtoMessage()               {}
 func (*MergeJoinerSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{10} }
+func (dst *MergeJoinerSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MergeJoinerSpec.Merge(dst, src)
+}
+func (m *MergeJoinerSpec) XXX_Size() int {
+	return xxx_messageInfo_MergeJoinerSpec.Size(m)
+}
+func (m *MergeJoinerSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_MergeJoinerSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MergeJoinerSpec proto.InternalMessageInfo
 
 // HashJoinerSpec is the specification for a hash join processor. The processor
 // has two inputs and one output.
@@ -545,13 +688,26 @@ type HashJoinerSpec struct {
 	//
 	// This has been deprecated; the distsqlrun layer still supports it for
 	// backward compatibility during upgrade.
-	MergedColumns bool `protobuf:"varint,7,opt,name=merged_columns,json=mergedColumns" json:"merged_columns"`
+	MergedColumns        bool     `protobuf:"varint,7,opt,name=merged_columns,json=mergedColumns" json:"merged_columns"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *HashJoinerSpec) Reset()                    { *m = HashJoinerSpec{} }
 func (m *HashJoinerSpec) String() string            { return proto.CompactTextString(m) }
 func (*HashJoinerSpec) ProtoMessage()               {}
 func (*HashJoinerSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{11} }
+func (dst *HashJoinerSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HashJoinerSpec.Merge(dst, src)
+}
+func (m *HashJoinerSpec) XXX_Size() int {
+	return xxx_messageInfo_HashJoinerSpec.Size(m)
+}
+func (m *HashJoinerSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_HashJoinerSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HashJoinerSpec proto.InternalMessageInfo
 
 // AggregatorSpec is the specification for an "aggregator" (processor core
 // type, not the logical plan computation stage). An aggregator performs
@@ -563,14 +719,27 @@ func (*HashJoinerSpec) Descriptor() ([]byte, []int) { return fileDescriptorProce
 type AggregatorSpec struct {
 	// The group key is a subset of the columns in the input stream schema on the
 	// basis of which we define our groups.
-	GroupCols    []uint32                     `protobuf:"varint,2,rep,packed,name=group_cols,json=groupCols" json:"group_cols,omitempty"`
-	Aggregations []AggregatorSpec_Aggregation `protobuf:"bytes,3,rep,name=aggregations" json:"aggregations"`
+	GroupCols            []uint32                     `protobuf:"varint,2,rep,packed,name=group_cols,json=groupCols" json:"group_cols,omitempty"`
+	Aggregations         []AggregatorSpec_Aggregation `protobuf:"bytes,3,rep,name=aggregations" json:"aggregations"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *AggregatorSpec) Reset()                    { *m = AggregatorSpec{} }
 func (m *AggregatorSpec) String() string            { return proto.CompactTextString(m) }
 func (*AggregatorSpec) ProtoMessage()               {}
 func (*AggregatorSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{12} }
+func (dst *AggregatorSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AggregatorSpec.Merge(dst, src)
+}
+func (m *AggregatorSpec) XXX_Size() int {
+	return xxx_messageInfo_AggregatorSpec.Size(m)
+}
+func (m *AggregatorSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_AggregatorSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AggregatorSpec proto.InternalMessageInfo
 
 type AggregatorSpec_Aggregation struct {
 	Func AggregatorSpec_Func `protobuf:"varint,1,opt,name=func,enum=cockroach.sql.distsqlrun.AggregatorSpec_Func" json:"func"`
@@ -589,7 +758,9 @@ type AggregatorSpec_Aggregation struct {
 	// this value is not true don't contribute to this aggregation. This enables
 	// the filter clause, e.g.:
 	//   SELECT SUM(x) FILTER (WHERE y > 1), SUM(x) FILTER (WHERE y < 1) FROM t
-	FilterColIdx *uint32 `protobuf:"varint,4,opt,name=filter_col_idx,json=filterColIdx" json:"filter_col_idx,omitempty"`
+	FilterColIdx         *uint32  `protobuf:"varint,4,opt,name=filter_col_idx,json=filterColIdx" json:"filter_col_idx,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AggregatorSpec_Aggregation) Reset()         { *m = AggregatorSpec_Aggregation{} }
@@ -598,6 +769,17 @@ func (*AggregatorSpec_Aggregation) ProtoMessage()    {}
 func (*AggregatorSpec_Aggregation) Descriptor() ([]byte, []int) {
 	return fileDescriptorProcessors, []int{12, 0}
 }
+func (dst *AggregatorSpec_Aggregation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AggregatorSpec_Aggregation.Merge(dst, src)
+}
+func (m *AggregatorSpec_Aggregation) XXX_Size() int {
+	return xxx_messageInfo_AggregatorSpec_Aggregation.Size(m)
+}
+func (m *AggregatorSpec_Aggregation) XXX_DiscardUnknown() {
+	xxx_messageInfo_AggregatorSpec_Aggregation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AggregatorSpec_Aggregation proto.InternalMessageInfo
 
 // BackfillerSpec is the specification for a "schema change backfiller".
 // The created backfill processor runs a backfill for the first mutations in
@@ -625,27 +807,53 @@ type BackfillerSpec struct {
 	// relationships to the table being modified.
 	OtherTables []cockroach_sql_sqlbase1.TableDescriptor `protobuf:"bytes,6,rep,name=other_tables,json=otherTables" json:"other_tables"`
 	// The timestamp to perform index backfill historical scans at.
-	ReadAsOf cockroach_util_hlc.Timestamp `protobuf:"bytes,7,opt,name=readAsOf" json:"readAsOf"`
+	ReadAsOf             cockroach_util_hlc.Timestamp `protobuf:"bytes,7,opt,name=readAsOf" json:"readAsOf"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *BackfillerSpec) Reset()                    { *m = BackfillerSpec{} }
 func (m *BackfillerSpec) String() string            { return proto.CompactTextString(m) }
 func (*BackfillerSpec) ProtoMessage()               {}
 func (*BackfillerSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{13} }
+func (dst *BackfillerSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BackfillerSpec.Merge(dst, src)
+}
+func (m *BackfillerSpec) XXX_Size() int {
+	return xxx_messageInfo_BackfillerSpec.Size(m)
+}
+func (m *BackfillerSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_BackfillerSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BackfillerSpec proto.InternalMessageInfo
 
 // FlowSpec describes a "flow" which is a subgraph of a distributed SQL
 // computation consisting of processors and streams.
 type FlowSpec struct {
 	FlowID FlowID `protobuf:"bytes,1,opt,name=flow_id,json=flowId,customtype=FlowID" json:"flow_id"`
 	// The NodeID of the gateway that planned this Flow. Used for debugging.
-	Gateway    github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,3,opt,name=gateway,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"gateway"`
-	Processors []ProcessorSpec                                     `protobuf:"bytes,2,rep,name=processors" json:"processors"`
+	Gateway              github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,3,opt,name=gateway,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"gateway"`
+	Processors           []ProcessorSpec                                     `protobuf:"bytes,2,rep,name=processors" json:"processors"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *FlowSpec) Reset()                    { *m = FlowSpec{} }
 func (m *FlowSpec) String() string            { return proto.CompactTextString(m) }
 func (*FlowSpec) ProtoMessage()               {}
 func (*FlowSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{14} }
+func (dst *FlowSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FlowSpec.Merge(dst, src)
+}
+func (m *FlowSpec) XXX_Size() int {
+	return xxx_messageInfo_FlowSpec.Size(m)
+}
+func (m *FlowSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_FlowSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FlowSpec proto.InternalMessageInfo
 
 // JobProgress identifies the job to report progress on. This reporting
 // happens outside this package.
@@ -655,13 +863,26 @@ type JobProgress struct {
 	// process.
 	Contribution float32 `protobuf:"fixed32,2,opt,name=contribution" json:"contribution"`
 	// slot is the index into the job details for this processor's completion.
-	Slot int32 `protobuf:"varint,3,opt,name=slot" json:"slot"`
+	Slot                 int32    `protobuf:"varint,3,opt,name=slot" json:"slot"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *JobProgress) Reset()                    { *m = JobProgress{} }
 func (m *JobProgress) String() string            { return proto.CompactTextString(m) }
 func (*JobProgress) ProtoMessage()               {}
 func (*JobProgress) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{15} }
+func (dst *JobProgress) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_JobProgress.Merge(dst, src)
+}
+func (m *JobProgress) XXX_Size() int {
+	return xxx_messageInfo_JobProgress.Size(m)
+}
+func (m *JobProgress) XXX_DiscardUnknown() {
+	xxx_messageInfo_JobProgress.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_JobProgress proto.InternalMessageInfo
 
 // ReadCSVSpec is the specification for a processor that reads a CSV
 // file at uri with descriptor table_desc, specified delimiter (comma),
@@ -678,14 +899,27 @@ type ReadCSVSpec struct {
 	TableDesc cockroach_sql_sqlbase1.TableDescriptor `protobuf:"bytes,3,opt,name=table_desc,json=tableDesc" json:"table_desc"`
 	// uri is a storageccl.ExportStorage URI pointing to the CSV files to be
 	// read. The map key must be unique across the entire IMPORT job.
-	Uri      map[int32]string `protobuf:"bytes,7,rep,name=uri" json:"uri,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Progress JobProgress      `protobuf:"bytes,6,opt,name=progress" json:"progress"`
+	Uri                  map[int32]string `protobuf:"bytes,7,rep,name=uri" json:"uri,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Progress             JobProgress      `protobuf:"bytes,6,opt,name=progress" json:"progress"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
 }
 
 func (m *ReadCSVSpec) Reset()                    { *m = ReadCSVSpec{} }
 func (m *ReadCSVSpec) String() string            { return proto.CompactTextString(m) }
 func (*ReadCSVSpec) ProtoMessage()               {}
 func (*ReadCSVSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{16} }
+func (dst *ReadCSVSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReadCSVSpec.Merge(dst, src)
+}
+func (m *ReadCSVSpec) XXX_Size() int {
+	return xxx_messageInfo_ReadCSVSpec.Size(m)
+}
+func (m *ReadCSVSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReadCSVSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReadCSVSpec proto.InternalMessageInfo
 
 // SSTWriterSpec is the specification for a processor that consumes rows, uses
 // tempStorage to sort them, then writes them to SST files at uri. walltime is
@@ -699,20 +933,35 @@ type SSTWriterSpec struct {
 	// walltimeNanos is the MVCC time at which the created KVs will be written.
 	WalltimeNanos int64 `protobuf:"varint,3,opt,name=walltimeNanos" json:"walltimeNanos"`
 	// spans is an array of span boundaries and corresponding filenames.
-	Spans    []SSTWriterSpec_SpanName `protobuf:"bytes,4,rep,name=spans" json:"spans"`
-	Progress JobProgress              `protobuf:"bytes,5,opt,name=progress" json:"progress"`
+	Spans                []SSTWriterSpec_SpanName `protobuf:"bytes,4,rep,name=spans" json:"spans"`
+	Progress             JobProgress              `protobuf:"bytes,5,opt,name=progress" json:"progress"`
+	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
+	XXX_sizecache        int32                    `json:"-"`
 }
 
 func (m *SSTWriterSpec) Reset()                    { *m = SSTWriterSpec{} }
 func (m *SSTWriterSpec) String() string            { return proto.CompactTextString(m) }
 func (*SSTWriterSpec) ProtoMessage()               {}
 func (*SSTWriterSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{17} }
+func (dst *SSTWriterSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSTWriterSpec.Merge(dst, src)
+}
+func (m *SSTWriterSpec) XXX_Size() int {
+	return xxx_messageInfo_SSTWriterSpec.Size(m)
+}
+func (m *SSTWriterSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSTWriterSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSTWriterSpec proto.InternalMessageInfo
 
 type SSTWriterSpec_SpanName struct {
 	// name is the file name that will be written by the export store.
 	Name string `protobuf:"bytes,1,opt,name=name" json:"name"`
 	// end is the end key of a span.
-	End []byte `protobuf:"bytes,2,opt,name=end" json:"end,omitempty"`
+	End                  []byte   `protobuf:"bytes,2,opt,name=end" json:"end,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *SSTWriterSpec_SpanName) Reset()         { *m = SSTWriterSpec_SpanName{} }
@@ -721,6 +970,17 @@ func (*SSTWriterSpec_SpanName) ProtoMessage()    {}
 func (*SSTWriterSpec_SpanName) Descriptor() ([]byte, []int) {
 	return fileDescriptorProcessors, []int{17, 0}
 }
+func (dst *SSTWriterSpec_SpanName) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSTWriterSpec_SpanName.Merge(dst, src)
+}
+func (m *SSTWriterSpec_SpanName) XXX_Size() int {
+	return xxx_messageInfo_SSTWriterSpec_SpanName.Size(m)
+}
+func (m *SSTWriterSpec_SpanName) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSTWriterSpec_SpanName.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSTWriterSpec_SpanName proto.InternalMessageInfo
 
 // SketchSpec contains the specification for a generated statistic.
 type SketchSpec struct {
@@ -735,13 +995,26 @@ type SketchSpec struct {
 	// Only used by the SampleAggregator.
 	HistogramMaxBuckets uint32 `protobuf:"varint,4,opt,name=histogram_max_buckets,json=histogramMaxBuckets" json:"histogram_max_buckets"`
 	// Only used by the SampleAggregator.
-	StatName string `protobuf:"bytes,5,opt,name=stat_name,json=statName" json:"stat_name"`
+	StatName             string   `protobuf:"bytes,5,opt,name=stat_name,json=statName" json:"stat_name"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *SketchSpec) Reset()                    { *m = SketchSpec{} }
 func (m *SketchSpec) String() string            { return proto.CompactTextString(m) }
 func (*SketchSpec) ProtoMessage()               {}
 func (*SketchSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{18} }
+func (dst *SketchSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SketchSpec.Merge(dst, src)
+}
+func (m *SketchSpec) XXX_Size() int {
+	return xxx_messageInfo_SketchSpec.Size(m)
+}
+func (m *SketchSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_SketchSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SketchSpec proto.InternalMessageInfo
 
 // SamplerSpec is the specification of a "sampler" processor which
 // returns a sample (random subset) of the input columns and computes
@@ -775,14 +1048,27 @@ func (*SketchSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessor
 // Rows have NULLs on either all the sampled row columns or on all the
 // sketch columns.
 type SamplerSpec struct {
-	Sketches   []SketchSpec `protobuf:"bytes,1,rep,name=sketches" json:"sketches"`
-	SampleSize uint32       `protobuf:"varint,2,opt,name=sample_size,json=sampleSize" json:"sample_size"`
+	Sketches             []SketchSpec `protobuf:"bytes,1,rep,name=sketches" json:"sketches"`
+	SampleSize           uint32       `protobuf:"varint,2,opt,name=sample_size,json=sampleSize" json:"sample_size"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
 }
 
 func (m *SamplerSpec) Reset()                    { *m = SamplerSpec{} }
 func (m *SamplerSpec) String() string            { return proto.CompactTextString(m) }
 func (*SamplerSpec) ProtoMessage()               {}
 func (*SamplerSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{19} }
+func (dst *SamplerSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SamplerSpec.Merge(dst, src)
+}
+func (m *SamplerSpec) XXX_Size() int {
+	return xxx_messageInfo_SamplerSpec.Size(m)
+}
+func (m *SamplerSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_SamplerSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SamplerSpec proto.InternalMessageInfo
 
 // SampleAggregatorSpec is the specification of a processor that aggregates the
 // results from multiple sampler processors and writes out the statistics to
@@ -806,14 +1092,27 @@ type SampleAggregatorSpec struct {
 	SampleSize uint32 `protobuf:"varint,2,opt,name=sample_size,json=sampleSize" json:"sample_size"`
 	// The i-th value indicates the ColumnID of the i-th sampled row column.
 	// These are necessary for writing out the statistic data.
-	SampledColumnIDs []github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ColumnID `protobuf:"varint,3,rep,name=sampled_column_ids,json=sampledColumnIds,casttype=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ColumnID" json:"sampled_column_ids,omitempty"`
-	TableID          github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID         `protobuf:"varint,4,opt,name=table_id,json=tableId,casttype=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ID" json:"table_id"`
+	SampledColumnIDs     []github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ColumnID `protobuf:"varint,3,rep,name=sampled_column_ids,json=sampledColumnIds,casttype=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ColumnID" json:"sampled_column_ids,omitempty"`
+	TableID              github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID         `protobuf:"varint,4,opt,name=table_id,json=tableId,casttype=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ID" json:"table_id"`
+	XXX_NoUnkeyedLiteral struct{}                                                    `json:"-"`
+	XXX_sizecache        int32                                                       `json:"-"`
 }
 
 func (m *SampleAggregatorSpec) Reset()                    { *m = SampleAggregatorSpec{} }
 func (m *SampleAggregatorSpec) String() string            { return proto.CompactTextString(m) }
 func (*SampleAggregatorSpec) ProtoMessage()               {}
 func (*SampleAggregatorSpec) Descriptor() ([]byte, []int) { return fileDescriptorProcessors, []int{20} }
+func (dst *SampleAggregatorSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SampleAggregatorSpec.Merge(dst, src)
+}
+func (m *SampleAggregatorSpec) XXX_Size() int {
+	return xxx_messageInfo_SampleAggregatorSpec.Size(m)
+}
+func (m *SampleAggregatorSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_SampleAggregatorSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SampleAggregatorSpec proto.InternalMessageInfo
 
 // InterleavedReaderJoinerSpec is the specification for a processor that performs
 // KV operations to retrieve rows from 2+ tables from an interleaved hierarchy,
@@ -845,8 +1144,10 @@ type InterleavedReaderJoinerSpec struct {
 	// table stream has M columns, in this expression ordinal references @1 to @N
 	// refer to columns of the left table and variables @(N+1) to @(N+M) refer to
 	// columns in the right table.
-	OnExpr Expression                      `protobuf:"bytes,4,opt,name=on_expr,json=onExpr" json:"on_expr"`
-	Type   cockroach_sql_sqlbase3.JoinType `protobuf:"varint,5,opt,name=type,enum=cockroach.sql.sqlbase.JoinType" json:"type"`
+	OnExpr               Expression                      `protobuf:"bytes,4,opt,name=on_expr,json=onExpr" json:"on_expr"`
+	Type                 cockroach_sql_sqlbase3.JoinType `protobuf:"varint,5,opt,name=type,enum=cockroach.sql.sqlbase.JoinType" json:"type"`
+	XXX_NoUnkeyedLiteral struct{}                        `json:"-"`
+	XXX_sizecache        int32                           `json:"-"`
 }
 
 func (m *InterleavedReaderJoinerSpec) Reset()         { *m = InterleavedReaderJoinerSpec{} }
@@ -855,6 +1156,17 @@ func (*InterleavedReaderJoinerSpec) ProtoMessage()    {}
 func (*InterleavedReaderJoinerSpec) Descriptor() ([]byte, []int) {
 	return fileDescriptorProcessors, []int{21}
 }
+func (dst *InterleavedReaderJoinerSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InterleavedReaderJoinerSpec.Merge(dst, src)
+}
+func (m *InterleavedReaderJoinerSpec) XXX_Size() int {
+	return xxx_messageInfo_InterleavedReaderJoinerSpec.Size(m)
+}
+func (m *InterleavedReaderJoinerSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_InterleavedReaderJoinerSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InterleavedReaderJoinerSpec proto.InternalMessageInfo
 
 type InterleavedReaderJoinerSpec_Table struct {
 	Desc cockroach_sql_sqlbase1.TableDescriptor `protobuf:"bytes,1,opt,name=desc" json:"desc"`
@@ -880,7 +1192,9 @@ type InterleavedReaderJoinerSpec_Table struct {
 	// all tables to do a single pass-through scan. InterleavedReaderJoiner will
 	// then check if a given row for a table is within any of its spans.
 	// There must exist at least one non-empty set of spans for some table.
-	Spans []TableReaderSpan `protobuf:"bytes,5,rep,name=spans" json:"spans"`
+	Spans                []TableReaderSpan `protobuf:"bytes,5,rep,name=spans" json:"spans"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
 }
 
 func (m *InterleavedReaderJoinerSpec_Table) Reset()         { *m = InterleavedReaderJoinerSpec_Table{} }
@@ -889,6 +1203,17 @@ func (*InterleavedReaderJoinerSpec_Table) ProtoMessage()    {}
 func (*InterleavedReaderJoinerSpec_Table) Descriptor() ([]byte, []int) {
 	return fileDescriptorProcessors, []int{21, 0}
 }
+func (dst *InterleavedReaderJoinerSpec_Table) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InterleavedReaderJoinerSpec_Table.Merge(dst, src)
+}
+func (m *InterleavedReaderJoinerSpec_Table) XXX_Size() int {
+	return xxx_messageInfo_InterleavedReaderJoinerSpec_Table.Size(m)
+}
+func (m *InterleavedReaderJoinerSpec_Table) XXX_DiscardUnknown() {
+	xxx_messageInfo_InterleavedReaderJoinerSpec_Table.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InterleavedReaderJoinerSpec_Table proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*ProcessorSpec)(nil), "cockroach.sql.distsqlrun.ProcessorSpec")
@@ -909,6 +1234,7 @@ func init() {
 	proto.RegisterType((*FlowSpec)(nil), "cockroach.sql.distsqlrun.FlowSpec")
 	proto.RegisterType((*JobProgress)(nil), "cockroach.sql.distsqlrun.JobProgress")
 	proto.RegisterType((*ReadCSVSpec)(nil), "cockroach.sql.distsqlrun.ReadCSVSpec")
+	proto.RegisterMapType((map[int32]string)(nil), "cockroach.sql.distsqlrun.ReadCSVSpec.UriEntry")
 	proto.RegisterType((*SSTWriterSpec)(nil), "cockroach.sql.distsqlrun.SSTWriterSpec")
 	proto.RegisterType((*SSTWriterSpec_SpanName)(nil), "cockroach.sql.distsqlrun.SSTWriterSpec.SpanName")
 	proto.RegisterType((*SketchSpec)(nil), "cockroach.sql.distsqlrun.SketchSpec")

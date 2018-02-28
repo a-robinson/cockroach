@@ -21,13 +21,26 @@ type CSVOptions struct {
 	// comment is an comment rune; zero value means comments not enabled.
 	Comment int32 `protobuf:"varint,2,opt,name=comment" json:"comment"`
 	// nullif, if not nil, is the string which identifies a NULL. Can be the empty string.
-	Nullif *string `protobuf:"bytes,3,opt,name=nullif" json:"nullif,omitempty"`
+	Nullif               *string  `protobuf:"bytes,3,opt,name=nullif" json:"nullif,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *CSVOptions) Reset()                    { *m = CSVOptions{} }
 func (m *CSVOptions) String() string            { return proto.CompactTextString(m) }
 func (*CSVOptions) ProtoMessage()               {}
 func (*CSVOptions) Descriptor() ([]byte, []int) { return fileDescriptorCsv, []int{0} }
+func (dst *CSVOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVOptions.Merge(dst, src)
+}
+func (m *CSVOptions) XXX_Size() int {
+	return xxx_messageInfo_CSVOptions.Size(m)
+}
+func (m *CSVOptions) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVOptions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVOptions proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*CSVOptions)(nil), "cockroach.roachpb.CSVOptions")

@@ -62,13 +62,26 @@ type ReplicaState struct {
 	// records may have been garbage collected (as measured by txn.LastActive()).
 	// Transaction at lower timestamps must not be allowed to write their initial
 	// transaction entry.
-	TxnSpanGCThreshold *cockroach_util_hlc.Timestamp `protobuf:"bytes,9,opt,name=txn_span_gc_threshold,json=txnSpanGcThreshold" json:"txn_span_gc_threshold,omitempty" cockroachdb:"randnullable"`
+	TxnSpanGCThreshold   *cockroach_util_hlc.Timestamp `protobuf:"bytes,9,opt,name=txn_span_gc_threshold,json=txnSpanGcThreshold" json:"txn_span_gc_threshold,omitempty" cockroachdb:"randnullable"`
+	XXX_NoUnkeyedLiteral struct{}                      `json:"-"`
+	XXX_sizecache        int32                         `json:"-"`
 }
 
 func (m *ReplicaState) Reset()                    { *m = ReplicaState{} }
 func (m *ReplicaState) String() string            { return proto.CompactTextString(m) }
 func (*ReplicaState) ProtoMessage()               {}
 func (*ReplicaState) Descriptor() ([]byte, []int) { return fileDescriptorState, []int{0} }
+func (dst *ReplicaState) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReplicaState.Merge(dst, src)
+}
+func (m *ReplicaState) XXX_Size() int {
+	return xxx_messageInfo_ReplicaState.Size(m)
+}
+func (m *ReplicaState) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReplicaState.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReplicaState proto.InternalMessageInfo
 
 type RangeInfo struct {
 	ReplicaState `protobuf:"bytes,1,opt,name=state,embedded=state" json:"state"`
@@ -80,13 +93,26 @@ type RangeInfo struct {
 	// See storage.Replica.mu.raftLogSize.
 	RaftLogSize int64 `protobuf:"varint,6,opt,name=raft_log_size,json=raftLogSize,proto3" json:"raft_log_size,omitempty"`
 	// Approximately the amount of quota available.
-	ApproximateProposalQuota int64 `protobuf:"varint,7,opt,name=approximate_proposal_quota,json=approximateProposalQuota,proto3" json:"approximate_proposal_quota,omitempty"`
+	ApproximateProposalQuota int64    `protobuf:"varint,7,opt,name=approximate_proposal_quota,json=approximateProposalQuota,proto3" json:"approximate_proposal_quota,omitempty"`
+	XXX_NoUnkeyedLiteral     struct{} `json:"-"`
+	XXX_sizecache            int32    `json:"-"`
 }
 
 func (m *RangeInfo) Reset()                    { *m = RangeInfo{} }
 func (m *RangeInfo) String() string            { return proto.CompactTextString(m) }
 func (*RangeInfo) ProtoMessage()               {}
 func (*RangeInfo) Descriptor() ([]byte, []int) { return fileDescriptorState, []int{1} }
+func (dst *RangeInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeInfo.Merge(dst, src)
+}
+func (m *RangeInfo) XXX_Size() int {
+	return xxx_messageInfo_RangeInfo.Size(m)
+}
+func (m *RangeInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeInfo proto.InternalMessageInfo
 
 // CommandQueueSnapshot is a snapshot of the command queue graph for rendering
 // on an admin UI debug page. While the actual CommandQueue uses interval trees
@@ -95,22 +121,37 @@ type CommandQueuesSnapshot struct {
 	// Timestamp in nanoseconds when this snapshot was taken.
 	Timestamp cockroach_util_hlc.Timestamp `protobuf:"bytes,1,opt,name=timestamp" json:"timestamp"`
 	// localScope and globalScope are maps from command ids to commands.
-	LocalScope  map[int64]CommandQueuesSnapshot_Command `protobuf:"bytes,2,rep,name=localScope" json:"localScope" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
-	GlobalScope map[int64]CommandQueuesSnapshot_Command `protobuf:"bytes,3,rep,name=globalScope" json:"globalScope" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	LocalScope           map[int64]CommandQueuesSnapshot_Command `protobuf:"bytes,2,rep,name=localScope" json:"localScope" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	GlobalScope          map[int64]CommandQueuesSnapshot_Command `protobuf:"bytes,3,rep,name=globalScope" json:"globalScope" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	XXX_NoUnkeyedLiteral struct{}                                `json:"-"`
+	XXX_sizecache        int32                                   `json:"-"`
 }
 
 func (m *CommandQueuesSnapshot) Reset()                    { *m = CommandQueuesSnapshot{} }
 func (m *CommandQueuesSnapshot) String() string            { return proto.CompactTextString(m) }
 func (*CommandQueuesSnapshot) ProtoMessage()               {}
 func (*CommandQueuesSnapshot) Descriptor() ([]byte, []int) { return fileDescriptorState, []int{2} }
+func (dst *CommandQueuesSnapshot) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CommandQueuesSnapshot.Merge(dst, src)
+}
+func (m *CommandQueuesSnapshot) XXX_Size() int {
+	return xxx_messageInfo_CommandQueuesSnapshot.Size(m)
+}
+func (m *CommandQueuesSnapshot) XXX_DiscardUnknown() {
+	xxx_messageInfo_CommandQueuesSnapshot.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CommandQueuesSnapshot proto.InternalMessageInfo
 
 type CommandQueuesSnapshot_Command struct {
-	Id        int64                        `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Key       string                       `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	EndKey    string                       `protobuf:"bytes,3,opt,name=end_key,json=endKey,proto3" json:"end_key,omitempty"`
-	Readonly  bool                         `protobuf:"varint,4,opt,name=readonly,proto3" json:"readonly,omitempty"`
-	Timestamp cockroach_util_hlc.Timestamp `protobuf:"bytes,5,opt,name=timestamp" json:"timestamp"`
-	Prereqs   []int64                      `protobuf:"varint,6,rep,packed,name=prereqs" json:"prereqs,omitempty"`
+	Id                   int64                        `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Key                  string                       `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	EndKey               string                       `protobuf:"bytes,3,opt,name=end_key,json=endKey,proto3" json:"end_key,omitempty"`
+	Readonly             bool                         `protobuf:"varint,4,opt,name=readonly,proto3" json:"readonly,omitempty"`
+	Timestamp            cockroach_util_hlc.Timestamp `protobuf:"bytes,5,opt,name=timestamp" json:"timestamp"`
+	Prereqs              []int64                      `protobuf:"varint,6,rep,packed,name=prereqs" json:"prereqs,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *CommandQueuesSnapshot_Command) Reset()         { *m = CommandQueuesSnapshot_Command{} }
@@ -119,11 +160,24 @@ func (*CommandQueuesSnapshot_Command) ProtoMessage()    {}
 func (*CommandQueuesSnapshot_Command) Descriptor() ([]byte, []int) {
 	return fileDescriptorState, []int{2, 0}
 }
+func (dst *CommandQueuesSnapshot_Command) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CommandQueuesSnapshot_Command.Merge(dst, src)
+}
+func (m *CommandQueuesSnapshot_Command) XXX_Size() int {
+	return xxx_messageInfo_CommandQueuesSnapshot_Command.Size(m)
+}
+func (m *CommandQueuesSnapshot_Command) XXX_DiscardUnknown() {
+	xxx_messageInfo_CommandQueuesSnapshot_Command.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CommandQueuesSnapshot_Command proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*ReplicaState)(nil), "cockroach.storage.storagebase.ReplicaState")
 	proto.RegisterType((*RangeInfo)(nil), "cockroach.storage.storagebase.RangeInfo")
 	proto.RegisterType((*CommandQueuesSnapshot)(nil), "cockroach.storage.storagebase.CommandQueuesSnapshot")
+	proto.RegisterMapType((map[int64]CommandQueuesSnapshot_Command)(nil), "cockroach.storage.storagebase.CommandQueuesSnapshot.GlobalScopeEntry")
+	proto.RegisterMapType((map[int64]CommandQueuesSnapshot_Command)(nil), "cockroach.storage.storagebase.CommandQueuesSnapshot.LocalScopeEntry")
 	proto.RegisterType((*CommandQueuesSnapshot_Command)(nil), "cockroach.storage.storagebase.CommandQueuesSnapshot.Command")
 }
 func (this *ReplicaState) Equal(that interface{}) bool {

@@ -46,13 +46,26 @@ type Info struct {
 	// alternatively, we could set jsonpb.Unmarshaler.AllowUnknownFields
 	// to true in httputil.doJSONRequest, but that comes at the expense
 	// of run-time type checking, which is nice to have.
-	Dependencies *string `protobuf:"bytes,10000,opt,name=dependencies" json:"dependencies,omitempty"`
+	Dependencies         *string  `protobuf:"bytes,10000,opt,name=dependencies" json:"dependencies,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Info) Reset()                    { *m = Info{} }
 func (m *Info) String() string            { return proto.CompactTextString(m) }
 func (*Info) ProtoMessage()               {}
 func (*Info) Descriptor() ([]byte, []int) { return fileDescriptorInfo, []int{0} }
+func (dst *Info) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Info.Merge(dst, src)
+}
+func (m *Info) XXX_Size() int {
+	return xxx_messageInfo_Info.Size(m)
+}
+func (m *Info) XXX_DiscardUnknown() {
+	xxx_messageInfo_Info.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Info proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*Info)(nil), "cockroach.build.Info")

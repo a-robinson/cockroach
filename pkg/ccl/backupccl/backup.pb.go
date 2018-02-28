@@ -94,14 +94,27 @@ type BackupDescriptor struct {
 	FormatVersion uint32                                                `protobuf:"varint,8,opt,name=format_version,json=formatVersion,proto3" json:"format_version,omitempty"`
 	ClusterID     github_com_cockroachdb_cockroach_pkg_util_uuid.UUID   `protobuf:"bytes,9,opt,name=cluster_id,json=clusterId,proto3,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"cluster_id"`
 	// node_id and build_info of the gateway node (which writes the descriptor).
-	NodeID    github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,10,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
-	BuildInfo cockroach_build.Info                                `protobuf:"bytes,11,opt,name=build_info,json=buildInfo" json:"build_info"`
+	NodeID               github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,10,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
+	BuildInfo            cockroach_build.Info                                `protobuf:"bytes,11,opt,name=build_info,json=buildInfo" json:"build_info"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *BackupDescriptor) Reset()                    { *m = BackupDescriptor{} }
 func (m *BackupDescriptor) String() string            { return proto.CompactTextString(m) }
 func (*BackupDescriptor) ProtoMessage()               {}
 func (*BackupDescriptor) Descriptor() ([]byte, []int) { return fileDescriptorBackup, []int{0} }
+func (dst *BackupDescriptor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BackupDescriptor.Merge(dst, src)
+}
+func (m *BackupDescriptor) XXX_Size() int {
+	return xxx_messageInfo_BackupDescriptor.Size(m)
+}
+func (m *BackupDescriptor) XXX_DiscardUnknown() {
+	xxx_messageInfo_BackupDescriptor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BackupDescriptor proto.InternalMessageInfo
 
 // BackupDescriptor_File represents a file that contains the diff for a key
 // range between two timestamps.
@@ -112,19 +125,34 @@ type BackupDescriptor_File struct {
 	EntryCounts cockroach_roachpb3.BulkOpSummary `protobuf:"bytes,6,opt,name=entry_counts,json=entryCounts" json:"entry_counts"`
 	// StartTime 0 is sometimes legitimately used, so it is only meaningful if
 	// EndTime is non-zero, otherwise both just inherit from containing backup.
-	StartTime cockroach_util_hlc.Timestamp `protobuf:"bytes,7,opt,name=start_time,json=startTime" json:"start_time"`
-	EndTime   cockroach_util_hlc.Timestamp `protobuf:"bytes,8,opt,name=end_time,json=endTime" json:"end_time"`
+	StartTime            cockroach_util_hlc.Timestamp `protobuf:"bytes,7,opt,name=start_time,json=startTime" json:"start_time"`
+	EndTime              cockroach_util_hlc.Timestamp `protobuf:"bytes,8,opt,name=end_time,json=endTime" json:"end_time"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *BackupDescriptor_File) Reset()                    { *m = BackupDescriptor_File{} }
 func (m *BackupDescriptor_File) String() string            { return proto.CompactTextString(m) }
 func (*BackupDescriptor_File) ProtoMessage()               {}
 func (*BackupDescriptor_File) Descriptor() ([]byte, []int) { return fileDescriptorBackup, []int{0, 0} }
+func (dst *BackupDescriptor_File) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BackupDescriptor_File.Merge(dst, src)
+}
+func (m *BackupDescriptor_File) XXX_Size() int {
+	return xxx_messageInfo_BackupDescriptor_File.Size(m)
+}
+func (m *BackupDescriptor_File) XXX_DiscardUnknown() {
+	xxx_messageInfo_BackupDescriptor_File.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BackupDescriptor_File proto.InternalMessageInfo
 
 type BackupDescriptor_DescriptorRevision struct {
-	Time cockroach_util_hlc.Timestamp                        `protobuf:"bytes,1,opt,name=time" json:"time"`
-	ID   github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID `protobuf:"varint,2,opt,name=ID,proto3,casttype=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ID" json:"ID,omitempty"`
-	Desc *cockroach_sql_sqlbase1.Descriptor                  `protobuf:"bytes,3,opt,name=desc" json:"desc,omitempty"`
+	Time                 cockroach_util_hlc.Timestamp                        `protobuf:"bytes,1,opt,name=time" json:"time"`
+	ID                   github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID `protobuf:"varint,2,opt,name=ID,proto3,casttype=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ID" json:"ID,omitempty"`
+	Desc                 *cockroach_sql_sqlbase1.Descriptor                  `protobuf:"bytes,3,opt,name=desc" json:"desc,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *BackupDescriptor_DescriptorRevision) Reset()         { *m = BackupDescriptor_DescriptorRevision{} }
@@ -133,6 +161,17 @@ func (*BackupDescriptor_DescriptorRevision) ProtoMessage()    {}
 func (*BackupDescriptor_DescriptorRevision) Descriptor() ([]byte, []int) {
 	return fileDescriptorBackup, []int{0, 1}
 }
+func (dst *BackupDescriptor_DescriptorRevision) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BackupDescriptor_DescriptorRevision.Merge(dst, src)
+}
+func (m *BackupDescriptor_DescriptorRevision) XXX_Size() int {
+	return xxx_messageInfo_BackupDescriptor_DescriptorRevision.Size(m)
+}
+func (m *BackupDescriptor_DescriptorRevision) XXX_DiscardUnknown() {
+	xxx_messageInfo_BackupDescriptor_DescriptorRevision.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BackupDescriptor_DescriptorRevision proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*BackupDescriptor)(nil), "cockroach.ccl.backupccl.BackupDescriptor")

@@ -205,34 +205,73 @@ func (DrainMode) EnumDescriptor() ([]byte, []int) { return fileDescriptorAdmin, 
 
 // DatabasesRequest requests a list of databases.
 type DatabasesRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DatabasesRequest) Reset()                    { *m = DatabasesRequest{} }
 func (m *DatabasesRequest) String() string            { return proto.CompactTextString(m) }
 func (*DatabasesRequest) ProtoMessage()               {}
 func (*DatabasesRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{0} }
+func (dst *DatabasesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DatabasesRequest.Merge(dst, src)
+}
+func (m *DatabasesRequest) XXX_Size() int {
+	return xxx_messageInfo_DatabasesRequest.Size(m)
+}
+func (m *DatabasesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DatabasesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DatabasesRequest proto.InternalMessageInfo
 
 // DatabasesResponse contains a list of databases.
 type DatabasesResponse struct {
-	Databases []string `protobuf:"bytes,1,rep,name=databases" json:"databases,omitempty"`
+	Databases            []string `protobuf:"bytes,1,rep,name=databases" json:"databases,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DatabasesResponse) Reset()                    { *m = DatabasesResponse{} }
 func (m *DatabasesResponse) String() string            { return proto.CompactTextString(m) }
 func (*DatabasesResponse) ProtoMessage()               {}
 func (*DatabasesResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{1} }
+func (dst *DatabasesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DatabasesResponse.Merge(dst, src)
+}
+func (m *DatabasesResponse) XXX_Size() int {
+	return xxx_messageInfo_DatabasesResponse.Size(m)
+}
+func (m *DatabasesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DatabasesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DatabasesResponse proto.InternalMessageInfo
 
 // DatabaseDetailsRequest requests detailed information about the specified
 // database
 type DatabaseDetailsRequest struct {
 	// database is the name of the database we are querying.
-	Database string `protobuf:"bytes,1,opt,name=database,proto3" json:"database,omitempty"`
+	Database             string   `protobuf:"bytes,1,opt,name=database,proto3" json:"database,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DatabaseDetailsRequest) Reset()                    { *m = DatabaseDetailsRequest{} }
 func (m *DatabaseDetailsRequest) String() string            { return proto.CompactTextString(m) }
 func (*DatabaseDetailsRequest) ProtoMessage()               {}
 func (*DatabaseDetailsRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{2} }
+func (dst *DatabaseDetailsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DatabaseDetailsRequest.Merge(dst, src)
+}
+func (m *DatabaseDetailsRequest) XXX_Size() int {
+	return xxx_messageInfo_DatabaseDetailsRequest.Size(m)
+}
+func (m *DatabaseDetailsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DatabaseDetailsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DatabaseDetailsRequest proto.InternalMessageInfo
 
 // DatabaseDetailsResponse contains grant information and table names for a
 // database.
@@ -249,19 +288,34 @@ type DatabaseDetailsResponse struct {
 	// The zone configuration in effect for this database.
 	ZoneConfig cockroach_config.ZoneConfig `protobuf:"bytes,4,opt,name=zone_config,json=zoneConfig" json:"zone_config"`
 	// The level at which this object's zone configuration is set.
-	ZoneConfigLevel ZoneConfigurationLevel `protobuf:"varint,5,opt,name=zone_config_level,json=zoneConfigLevel,proto3,enum=cockroach.server.serverpb.ZoneConfigurationLevel" json:"zone_config_level,omitempty"`
+	ZoneConfigLevel      ZoneConfigurationLevel `protobuf:"varint,5,opt,name=zone_config_level,json=zoneConfigLevel,proto3,enum=cockroach.server.serverpb.ZoneConfigurationLevel" json:"zone_config_level,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
+	XXX_sizecache        int32                  `json:"-"`
 }
 
 func (m *DatabaseDetailsResponse) Reset()                    { *m = DatabaseDetailsResponse{} }
 func (m *DatabaseDetailsResponse) String() string            { return proto.CompactTextString(m) }
 func (*DatabaseDetailsResponse) ProtoMessage()               {}
 func (*DatabaseDetailsResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{3} }
+func (dst *DatabaseDetailsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DatabaseDetailsResponse.Merge(dst, src)
+}
+func (m *DatabaseDetailsResponse) XXX_Size() int {
+	return xxx_messageInfo_DatabaseDetailsResponse.Size(m)
+}
+func (m *DatabaseDetailsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DatabaseDetailsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DatabaseDetailsResponse proto.InternalMessageInfo
 
 type DatabaseDetailsResponse_Grant struct {
 	// user is the user that this grant applies to.
 	User string `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	// privileges are the abilities this grant gives to the user.
-	Privileges []string `protobuf:"bytes,2,rep,name=privileges" json:"privileges,omitempty"`
+	Privileges           []string `protobuf:"bytes,2,rep,name=privileges" json:"privileges,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DatabaseDetailsResponse_Grant) Reset()         { *m = DatabaseDetailsResponse_Grant{} }
@@ -270,19 +324,43 @@ func (*DatabaseDetailsResponse_Grant) ProtoMessage()    {}
 func (*DatabaseDetailsResponse_Grant) Descriptor() ([]byte, []int) {
 	return fileDescriptorAdmin, []int{3, 0}
 }
+func (dst *DatabaseDetailsResponse_Grant) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DatabaseDetailsResponse_Grant.Merge(dst, src)
+}
+func (m *DatabaseDetailsResponse_Grant) XXX_Size() int {
+	return xxx_messageInfo_DatabaseDetailsResponse_Grant.Size(m)
+}
+func (m *DatabaseDetailsResponse_Grant) XXX_DiscardUnknown() {
+	xxx_messageInfo_DatabaseDetailsResponse_Grant.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DatabaseDetailsResponse_Grant proto.InternalMessageInfo
 
 // TableDetailsRequest is a request for detailed information about a table.
 type TableDetailsRequest struct {
 	// database is the database that contains the table we're interested in.
 	Database string `protobuf:"bytes,1,opt,name=database,proto3" json:"database,omitempty"`
 	// table is the name of the table that we're querying.
-	Table string `protobuf:"bytes,2,opt,name=table,proto3" json:"table,omitempty"`
+	Table                string   `protobuf:"bytes,2,opt,name=table,proto3" json:"table,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TableDetailsRequest) Reset()                    { *m = TableDetailsRequest{} }
 func (m *TableDetailsRequest) String() string            { return proto.CompactTextString(m) }
 func (*TableDetailsRequest) ProtoMessage()               {}
 func (*TableDetailsRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{4} }
+func (dst *TableDetailsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDetailsRequest.Merge(dst, src)
+}
+func (m *TableDetailsRequest) XXX_Size() int {
+	return xxx_messageInfo_TableDetailsRequest.Size(m)
+}
+func (m *TableDetailsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDetailsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDetailsRequest proto.InternalMessageInfo
 
 // TableDetailsResponse contains grants, column names, and indexes for
 // a table.
@@ -309,20 +387,35 @@ type TableDetailsResponse struct {
 	// descriptor_id is an identifier used to uniquely identify this table.
 	// It can be used to find events pertaining to this table by filtering on
 	// the 'target_id' field of events.
-	DescriptorID int64 `protobuf:"varint,8,opt,name=descriptor_id,json=descriptorId,proto3" json:"descriptor_id,omitempty"`
+	DescriptorID         int64    `protobuf:"varint,8,opt,name=descriptor_id,json=descriptorId,proto3" json:"descriptor_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TableDetailsResponse) Reset()                    { *m = TableDetailsResponse{} }
 func (m *TableDetailsResponse) String() string            { return proto.CompactTextString(m) }
 func (*TableDetailsResponse) ProtoMessage()               {}
 func (*TableDetailsResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{5} }
+func (dst *TableDetailsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDetailsResponse.Merge(dst, src)
+}
+func (m *TableDetailsResponse) XXX_Size() int {
+	return xxx_messageInfo_TableDetailsResponse.Size(m)
+}
+func (m *TableDetailsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDetailsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDetailsResponse proto.InternalMessageInfo
 
 // Grant is an entry from SHOW GRANTS.
 type TableDetailsResponse_Grant struct {
 	// user is the user that this grant applies to.
 	User string `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	// privileges are the abilities this grant gives to the user.
-	Privileges []string `protobuf:"bytes,2,rep,name=privileges" json:"privileges,omitempty"`
+	Privileges           []string `protobuf:"bytes,2,rep,name=privileges" json:"privileges,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TableDetailsResponse_Grant) Reset()         { *m = TableDetailsResponse_Grant{} }
@@ -331,6 +424,17 @@ func (*TableDetailsResponse_Grant) ProtoMessage()    {}
 func (*TableDetailsResponse_Grant) Descriptor() ([]byte, []int) {
 	return fileDescriptorAdmin, []int{5, 0}
 }
+func (dst *TableDetailsResponse_Grant) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDetailsResponse_Grant.Merge(dst, src)
+}
+func (m *TableDetailsResponse_Grant) XXX_Size() int {
+	return xxx_messageInfo_TableDetailsResponse_Grant.Size(m)
+}
+func (m *TableDetailsResponse_Grant) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDetailsResponse_Grant.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDetailsResponse_Grant proto.InternalMessageInfo
 
 type TableDetailsResponse_Column struct {
 	// name is the name of the column.
@@ -340,7 +444,9 @@ type TableDetailsResponse_Column struct {
 	// nullable is whether this column can contain NULL.
 	Nullable bool `protobuf:"varint,3,opt,name=nullable,proto3" json:"nullable,omitempty"`
 	// default_value is the default value of this column.
-	DefaultValue string `protobuf:"bytes,4,opt,name=default_value,json=defaultValue,proto3" json:"default_value,omitempty"`
+	DefaultValue         string   `protobuf:"bytes,4,opt,name=default_value,json=defaultValue,proto3" json:"default_value,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TableDetailsResponse_Column) Reset()         { *m = TableDetailsResponse_Column{} }
@@ -349,6 +455,17 @@ func (*TableDetailsResponse_Column) ProtoMessage()    {}
 func (*TableDetailsResponse_Column) Descriptor() ([]byte, []int) {
 	return fileDescriptorAdmin, []int{5, 1}
 }
+func (dst *TableDetailsResponse_Column) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDetailsResponse_Column.Merge(dst, src)
+}
+func (m *TableDetailsResponse_Column) XXX_Size() int {
+	return xxx_messageInfo_TableDetailsResponse_Column.Size(m)
+}
+func (m *TableDetailsResponse_Column) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDetailsResponse_Column.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDetailsResponse_Column proto.InternalMessageInfo
 
 type TableDetailsResponse_Index struct {
 	// name is the name of this index.
@@ -364,7 +481,9 @@ type TableDetailsResponse_Index struct {
 	// storing is an internal variable that's passed along.
 	Storing bool `protobuf:"varint,6,opt,name=storing,proto3" json:"storing,omitempty"`
 	// implicit is an internal variable that's passed along.
-	Implicit bool `protobuf:"varint,7,opt,name=implicit,proto3" json:"implicit,omitempty"`
+	Implicit             bool     `protobuf:"varint,7,opt,name=implicit,proto3" json:"implicit,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TableDetailsResponse_Index) Reset()         { *m = TableDetailsResponse_Index{} }
@@ -373,6 +492,17 @@ func (*TableDetailsResponse_Index) ProtoMessage()    {}
 func (*TableDetailsResponse_Index) Descriptor() ([]byte, []int) {
 	return fileDescriptorAdmin, []int{5, 2}
 }
+func (dst *TableDetailsResponse_Index) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableDetailsResponse_Index.Merge(dst, src)
+}
+func (m *TableDetailsResponse_Index) XXX_Size() int {
+	return xxx_messageInfo_TableDetailsResponse_Index.Size(m)
+}
+func (m *TableDetailsResponse_Index) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableDetailsResponse_Index.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableDetailsResponse_Index proto.InternalMessageInfo
 
 // TableStatsRequest is a request for detailed, computationally expensive
 // information about a table.
@@ -380,13 +510,26 @@ type TableStatsRequest struct {
 	// database is the database that contains the table we're interested in.
 	Database string `protobuf:"bytes,1,opt,name=database,proto3" json:"database,omitempty"`
 	// table is the name of the table that we're querying.
-	Table string `protobuf:"bytes,2,opt,name=table,proto3" json:"table,omitempty"`
+	Table                string   `protobuf:"bytes,2,opt,name=table,proto3" json:"table,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TableStatsRequest) Reset()                    { *m = TableStatsRequest{} }
 func (m *TableStatsRequest) String() string            { return proto.CompactTextString(m) }
 func (*TableStatsRequest) ProtoMessage()               {}
 func (*TableStatsRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{6} }
+func (dst *TableStatsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableStatsRequest.Merge(dst, src)
+}
+func (m *TableStatsRequest) XXX_Size() int {
+	return xxx_messageInfo_TableStatsRequest.Size(m)
+}
+func (m *TableStatsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableStatsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableStatsRequest proto.InternalMessageInfo
 
 // TableStatsResponse contains detailed, computationally expensive information
 // about a table.
@@ -410,13 +553,26 @@ type TableStatsResponse struct {
 	ApproximateDiskBytes uint64 `protobuf:"varint,6,opt,name=approximate_disk_bytes,json=approximateDiskBytes,proto3" json:"approximate_disk_bytes,omitempty"`
 	// A list of nodes which should contain data for this table (according to
 	// cluster metadata), but could not be contacted during this request.
-	MissingNodes []TableStatsResponse_MissingNode `protobuf:"bytes,5,rep,name=missing_nodes,json=missingNodes" json:"missing_nodes"`
+	MissingNodes         []TableStatsResponse_MissingNode `protobuf:"bytes,5,rep,name=missing_nodes,json=missingNodes" json:"missing_nodes"`
+	XXX_NoUnkeyedLiteral struct{}                         `json:"-"`
+	XXX_sizecache        int32                            `json:"-"`
 }
 
 func (m *TableStatsResponse) Reset()                    { *m = TableStatsResponse{} }
 func (m *TableStatsResponse) String() string            { return proto.CompactTextString(m) }
 func (*TableStatsResponse) ProtoMessage()               {}
 func (*TableStatsResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{7} }
+func (dst *TableStatsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableStatsResponse.Merge(dst, src)
+}
+func (m *TableStatsResponse) XXX_Size() int {
+	return xxx_messageInfo_TableStatsResponse.Size(m)
+}
+func (m *TableStatsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableStatsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableStatsResponse proto.InternalMessageInfo
 
 // MissingNode represents information on a node which should contain data
 // for this table, but could not be contacted during this request.
@@ -424,7 +580,9 @@ type TableStatsResponse_MissingNode struct {
 	// The ID of the missing node.
 	NodeID string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// The error message that resulted when the query sent to this node failed.
-	ErrorMessage string `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	ErrorMessage         string   `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TableStatsResponse_MissingNode) Reset()         { *m = TableStatsResponse_MissingNode{} }
@@ -433,59 +591,135 @@ func (*TableStatsResponse_MissingNode) ProtoMessage()    {}
 func (*TableStatsResponse_MissingNode) Descriptor() ([]byte, []int) {
 	return fileDescriptorAdmin, []int{7, 0}
 }
+func (dst *TableStatsResponse_MissingNode) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TableStatsResponse_MissingNode.Merge(dst, src)
+}
+func (m *TableStatsResponse_MissingNode) XXX_Size() int {
+	return xxx_messageInfo_TableStatsResponse_MissingNode.Size(m)
+}
+func (m *TableStatsResponse_MissingNode) XXX_DiscardUnknown() {
+	xxx_messageInfo_TableStatsResponse_MissingNode.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TableStatsResponse_MissingNode proto.InternalMessageInfo
 
 // NonTableStatsRequest requests statistics on cluster data ranges that do not
 // belong to SQL tables.
 type NonTableStatsRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *NonTableStatsRequest) Reset()                    { *m = NonTableStatsRequest{} }
 func (m *NonTableStatsRequest) String() string            { return proto.CompactTextString(m) }
 func (*NonTableStatsRequest) ProtoMessage()               {}
 func (*NonTableStatsRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{8} }
+func (dst *NonTableStatsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NonTableStatsRequest.Merge(dst, src)
+}
+func (m *NonTableStatsRequest) XXX_Size() int {
+	return xxx_messageInfo_NonTableStatsRequest.Size(m)
+}
+func (m *NonTableStatsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_NonTableStatsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NonTableStatsRequest proto.InternalMessageInfo
 
 // NonTableStatsResponse returns statistics on various cluster data ranges
 // that do not belong to SQL tables. The statistics for each range are returned
 // as a TableStatsResponse.
 type NonTableStatsResponse struct {
 	// Information on time series ranges,
-	TimeSeriesStats *TableStatsResponse `protobuf:"bytes,1,opt,name=time_series_stats,json=timeSeriesStats" json:"time_series_stats,omitempty"`
+	TimeSeriesStats      *TableStatsResponse `protobuf:"bytes,1,opt,name=time_series_stats,json=timeSeriesStats" json:"time_series_stats,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
+	XXX_sizecache        int32               `json:"-"`
 }
 
 func (m *NonTableStatsResponse) Reset()                    { *m = NonTableStatsResponse{} }
 func (m *NonTableStatsResponse) String() string            { return proto.CompactTextString(m) }
 func (*NonTableStatsResponse) ProtoMessage()               {}
 func (*NonTableStatsResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{9} }
+func (dst *NonTableStatsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NonTableStatsResponse.Merge(dst, src)
+}
+func (m *NonTableStatsResponse) XXX_Size() int {
+	return xxx_messageInfo_NonTableStatsResponse.Size(m)
+}
+func (m *NonTableStatsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_NonTableStatsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NonTableStatsResponse proto.InternalMessageInfo
 
 // UsersRequest requests a list of users.
 type UsersRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *UsersRequest) Reset()                    { *m = UsersRequest{} }
 func (m *UsersRequest) String() string            { return proto.CompactTextString(m) }
 func (*UsersRequest) ProtoMessage()               {}
 func (*UsersRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{10} }
+func (dst *UsersRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UsersRequest.Merge(dst, src)
+}
+func (m *UsersRequest) XXX_Size() int {
+	return xxx_messageInfo_UsersRequest.Size(m)
+}
+func (m *UsersRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_UsersRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UsersRequest proto.InternalMessageInfo
 
 // UsersResponse returns a list of users.
 type UsersResponse struct {
 	// usernames is a list of users for the CockroachDB cluster.
-	Users []UsersResponse_User `protobuf:"bytes,1,rep,name=users" json:"users"`
+	Users                []UsersResponse_User `protobuf:"bytes,1,rep,name=users" json:"users"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
 }
 
 func (m *UsersResponse) Reset()                    { *m = UsersResponse{} }
 func (m *UsersResponse) String() string            { return proto.CompactTextString(m) }
 func (*UsersResponse) ProtoMessage()               {}
 func (*UsersResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{11} }
+func (dst *UsersResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UsersResponse.Merge(dst, src)
+}
+func (m *UsersResponse) XXX_Size() int {
+	return xxx_messageInfo_UsersResponse.Size(m)
+}
+func (m *UsersResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_UsersResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UsersResponse proto.InternalMessageInfo
 
 // User is a CockroachDB user.
 type UsersResponse_User struct {
-	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Username             string   `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *UsersResponse_User) Reset()                    { *m = UsersResponse_User{} }
 func (m *UsersResponse_User) String() string            { return proto.CompactTextString(m) }
 func (*UsersResponse_User) ProtoMessage()               {}
 func (*UsersResponse_User) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{11, 0} }
+func (dst *UsersResponse_User) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UsersResponse_User.Merge(dst, src)
+}
+func (m *UsersResponse_User) XXX_Size() int {
+	return xxx_messageInfo_UsersResponse_User.Size(m)
+}
+func (m *UsersResponse_User) XXX_DiscardUnknown() {
+	xxx_messageInfo_UsersResponse_User.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UsersResponse_User proto.InternalMessageInfo
 
 // EventsRequest is a request for event log entries, optionally filtered
 // by the specified event type and/or target_id.
@@ -496,24 +730,50 @@ type EventsRequest struct {
 	// this is omitted or set to 0, the default maximum number of results are
 	// returned. When set to > 0, at most only that number of results are
 	// returned. When set to < 0, an unlimited number of results are returned.
-	Limit int32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit                int32    `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *EventsRequest) Reset()                    { *m = EventsRequest{} }
 func (m *EventsRequest) String() string            { return proto.CompactTextString(m) }
 func (*EventsRequest) ProtoMessage()               {}
 func (*EventsRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{12} }
+func (dst *EventsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventsRequest.Merge(dst, src)
+}
+func (m *EventsRequest) XXX_Size() int {
+	return xxx_messageInfo_EventsRequest.Size(m)
+}
+func (m *EventsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventsRequest proto.InternalMessageInfo
 
 // EventsResponse contains a set of event log entries. This is always limited
 // to the latest N entries (N is enforced in the associated endpoint).
 type EventsResponse struct {
-	Events []EventsResponse_Event `protobuf:"bytes,1,rep,name=events" json:"events"`
+	Events               []EventsResponse_Event `protobuf:"bytes,1,rep,name=events" json:"events"`
+	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
+	XXX_sizecache        int32                  `json:"-"`
 }
 
 func (m *EventsResponse) Reset()                    { *m = EventsResponse{} }
 func (m *EventsResponse) String() string            { return proto.CompactTextString(m) }
 func (*EventsResponse) ProtoMessage()               {}
 func (*EventsResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{13} }
+func (dst *EventsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventsResponse.Merge(dst, src)
+}
+func (m *EventsResponse) XXX_Size() int {
+	return xxx_messageInfo_EventsResponse.Size(m)
+}
+func (m *EventsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventsResponse proto.InternalMessageInfo
 
 type EventsResponse_Event struct {
 	// timestamp is the time at which the event occurred.
@@ -528,79 +788,170 @@ type EventsResponse_Event struct {
 	// depending on the event.
 	Info string `protobuf:"bytes,5,opt,name=info,proto3" json:"info,omitempty"`
 	// unique_id is a unique identifier for this event.
-	UniqueID []byte `protobuf:"bytes,6,opt,name=unique_id,json=uniqueId,proto3" json:"unique_id,omitempty"`
+	UniqueID             []byte   `protobuf:"bytes,6,opt,name=unique_id,json=uniqueId,proto3" json:"unique_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *EventsResponse_Event) Reset()                    { *m = EventsResponse_Event{} }
 func (m *EventsResponse_Event) String() string            { return proto.CompactTextString(m) }
 func (*EventsResponse_Event) ProtoMessage()               {}
 func (*EventsResponse_Event) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{13, 0} }
+func (dst *EventsResponse_Event) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventsResponse_Event.Merge(dst, src)
+}
+func (m *EventsResponse_Event) XXX_Size() int {
+	return xxx_messageInfo_EventsResponse_Event.Size(m)
+}
+func (m *EventsResponse_Event) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventsResponse_Event.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventsResponse_Event proto.InternalMessageInfo
 
 // SetUIDataRequest stores the given key/value pairs in the system.ui table.
 type SetUIDataRequest struct {
 	// key_values is a map of keys to bytes values. Each key will be stored
 	// with its corresponding value as a separate row in system.ui.
-	KeyValues map[string][]byte `protobuf:"bytes,1,rep,name=key_values,json=keyValues" json:"key_values,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	KeyValues            map[string][]byte `protobuf:"bytes,1,rep,name=key_values,json=keyValues" json:"key_values,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
 }
 
 func (m *SetUIDataRequest) Reset()                    { *m = SetUIDataRequest{} }
 func (m *SetUIDataRequest) String() string            { return proto.CompactTextString(m) }
 func (*SetUIDataRequest) ProtoMessage()               {}
 func (*SetUIDataRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{14} }
+func (dst *SetUIDataRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SetUIDataRequest.Merge(dst, src)
+}
+func (m *SetUIDataRequest) XXX_Size() int {
+	return xxx_messageInfo_SetUIDataRequest.Size(m)
+}
+func (m *SetUIDataRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SetUIDataRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SetUIDataRequest proto.InternalMessageInfo
 
 // SetUIDataResponse is currently an empty response.
 type SetUIDataResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *SetUIDataResponse) Reset()                    { *m = SetUIDataResponse{} }
 func (m *SetUIDataResponse) String() string            { return proto.CompactTextString(m) }
 func (*SetUIDataResponse) ProtoMessage()               {}
 func (*SetUIDataResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{15} }
+func (dst *SetUIDataResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SetUIDataResponse.Merge(dst, src)
+}
+func (m *SetUIDataResponse) XXX_Size() int {
+	return xxx_messageInfo_SetUIDataResponse.Size(m)
+}
+func (m *SetUIDataResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SetUIDataResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SetUIDataResponse proto.InternalMessageInfo
 
 // GETUIDataRequest requests the values for the given keys from the system.ui
 // table.
 type GetUIDataRequest struct {
-	Keys []string `protobuf:"bytes,1,rep,name=keys" json:"keys,omitempty"`
+	Keys                 []string `protobuf:"bytes,1,rep,name=keys" json:"keys,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *GetUIDataRequest) Reset()                    { *m = GetUIDataRequest{} }
 func (m *GetUIDataRequest) String() string            { return proto.CompactTextString(m) }
 func (*GetUIDataRequest) ProtoMessage()               {}
 func (*GetUIDataRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{16} }
+func (dst *GetUIDataRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUIDataRequest.Merge(dst, src)
+}
+func (m *GetUIDataRequest) XXX_Size() int {
+	return xxx_messageInfo_GetUIDataRequest.Size(m)
+}
+func (m *GetUIDataRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUIDataRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetUIDataRequest proto.InternalMessageInfo
 
 // GetUIDataResponse contains the requested values and the times at which
 // the values were last updated.
 type GetUIDataResponse struct {
 	// key_values maps keys to their retrieved values. If this doesn't contain a
 	// a requested key, that key was not found.
-	KeyValues map[string]GetUIDataResponse_Value `protobuf:"bytes,1,rep,name=key_values,json=keyValues" json:"key_values" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	KeyValues            map[string]GetUIDataResponse_Value `protobuf:"bytes,1,rep,name=key_values,json=keyValues" json:"key_values" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	XXX_NoUnkeyedLiteral struct{}                           `json:"-"`
+	XXX_sizecache        int32                              `json:"-"`
 }
 
 func (m *GetUIDataResponse) Reset()                    { *m = GetUIDataResponse{} }
 func (m *GetUIDataResponse) String() string            { return proto.CompactTextString(m) }
 func (*GetUIDataResponse) ProtoMessage()               {}
 func (*GetUIDataResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{17} }
+func (dst *GetUIDataResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUIDataResponse.Merge(dst, src)
+}
+func (m *GetUIDataResponse) XXX_Size() int {
+	return xxx_messageInfo_GetUIDataResponse.Size(m)
+}
+func (m *GetUIDataResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUIDataResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetUIDataResponse proto.InternalMessageInfo
 
 type GetUIDataResponse_Value struct {
 	// value is the value of the requested key.
 	Value []byte `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
 	// last_updated is the time at which the value was last updated.
-	LastUpdated time.Time `protobuf:"bytes,2,opt,name=last_updated,json=lastUpdated,stdtime" json:"last_updated"`
+	LastUpdated          time.Time `protobuf:"bytes,2,opt,name=last_updated,json=lastUpdated,stdtime" json:"last_updated"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
 }
 
 func (m *GetUIDataResponse_Value) Reset()                    { *m = GetUIDataResponse_Value{} }
 func (m *GetUIDataResponse_Value) String() string            { return proto.CompactTextString(m) }
 func (*GetUIDataResponse_Value) ProtoMessage()               {}
 func (*GetUIDataResponse_Value) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{17, 0} }
+func (dst *GetUIDataResponse_Value) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUIDataResponse_Value.Merge(dst, src)
+}
+func (m *GetUIDataResponse_Value) XXX_Size() int {
+	return xxx_messageInfo_GetUIDataResponse_Value.Size(m)
+}
+func (m *GetUIDataResponse_Value) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUIDataResponse_Value.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetUIDataResponse_Value proto.InternalMessageInfo
 
 // ClusterRequest requests metadata for the cluster.
 type ClusterRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ClusterRequest) Reset()                    { *m = ClusterRequest{} }
 func (m *ClusterRequest) String() string            { return proto.CompactTextString(m) }
 func (*ClusterRequest) ProtoMessage()               {}
 func (*ClusterRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{18} }
+func (dst *ClusterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ClusterRequest.Merge(dst, src)
+}
+func (m *ClusterRequest) XXX_Size() int {
+	return xxx_messageInfo_ClusterRequest.Size(m)
+}
+func (m *ClusterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ClusterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ClusterRequest proto.InternalMessageInfo
 
 // ClusterResponse contains metadata for the cluster.
 type ClusterResponse struct {
@@ -609,13 +960,26 @@ type ClusterResponse struct {
 	// True if diagnostics reporting is enabled for the cluster.
 	ReportingEnabled bool `protobuf:"varint,2,opt,name=reporting_enabled,json=reportingEnabled,proto3" json:"reporting_enabled,omitempty"`
 	// True if enterprise features are enabled for the cluster.
-	EnterpriseEnabled bool `protobuf:"varint,3,opt,name=enterprise_enabled,json=enterpriseEnabled,proto3" json:"enterprise_enabled,omitempty"`
+	EnterpriseEnabled    bool     `protobuf:"varint,3,opt,name=enterprise_enabled,json=enterpriseEnabled,proto3" json:"enterprise_enabled,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ClusterResponse) Reset()                    { *m = ClusterResponse{} }
 func (m *ClusterResponse) String() string            { return proto.CompactTextString(m) }
 func (*ClusterResponse) ProtoMessage()               {}
 func (*ClusterResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{19} }
+func (dst *ClusterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ClusterResponse.Merge(dst, src)
+}
+func (m *ClusterResponse) XXX_Size() int {
+	return xxx_messageInfo_ClusterResponse.Size(m)
+}
+func (m *ClusterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ClusterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ClusterResponse proto.InternalMessageInfo
 
 // DrainRequest requests the server to enter the specified draining mode. The
 // server first deactivates all the modes specified in 'off' and then activates
@@ -629,67 +993,134 @@ type DrainRequest struct {
 	Off []int32 `protobuf:"varint,2,rep,packed,name=off" json:"off,omitempty"`
 	// When true, terminates the process after the given drain modes have been
 	// activated.
-	Shutdown bool `protobuf:"varint,3,opt,name=shutdown,proto3" json:"shutdown,omitempty"`
+	Shutdown             bool     `protobuf:"varint,3,opt,name=shutdown,proto3" json:"shutdown,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DrainRequest) Reset()                    { *m = DrainRequest{} }
 func (m *DrainRequest) String() string            { return proto.CompactTextString(m) }
 func (*DrainRequest) ProtoMessage()               {}
 func (*DrainRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{20} }
+func (dst *DrainRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DrainRequest.Merge(dst, src)
+}
+func (m *DrainRequest) XXX_Size() int {
+	return xxx_messageInfo_DrainRequest.Size(m)
+}
+func (m *DrainRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DrainRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DrainRequest proto.InternalMessageInfo
 
 // DrainResponse is the response to a successful DrainRequest and lists the
 // modes which are activated after having processing the request.
 type DrainResponse struct {
-	On []int32 `protobuf:"varint,1,rep,packed,name=on" json:"on,omitempty"`
+	On                   []int32  `protobuf:"varint,1,rep,packed,name=on" json:"on,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DrainResponse) Reset()                    { *m = DrainResponse{} }
 func (m *DrainResponse) String() string            { return proto.CompactTextString(m) }
 func (*DrainResponse) ProtoMessage()               {}
 func (*DrainResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{21} }
+func (dst *DrainResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DrainResponse.Merge(dst, src)
+}
+func (m *DrainResponse) XXX_Size() int {
+	return xxx_messageInfo_DrainResponse.Size(m)
+}
+func (m *DrainResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DrainResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DrainResponse proto.InternalMessageInfo
 
 // DecommissionStatusRequest requests the decommissioning status for the
 // specified or, if none are specified, all nodes.
 type DecommissionStatusRequest struct {
-	NodeIDs []github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,rep,packed,name=node_ids,json=nodeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_ids,omitempty"`
+	NodeIDs              []github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,rep,packed,name=node_ids,json=nodeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_ids,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                              `json:"-"`
+	XXX_sizecache        int32                                                 `json:"-"`
 }
 
 func (m *DecommissionStatusRequest) Reset()                    { *m = DecommissionStatusRequest{} }
 func (m *DecommissionStatusRequest) String() string            { return proto.CompactTextString(m) }
 func (*DecommissionStatusRequest) ProtoMessage()               {}
 func (*DecommissionStatusRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{22} }
+func (dst *DecommissionStatusRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DecommissionStatusRequest.Merge(dst, src)
+}
+func (m *DecommissionStatusRequest) XXX_Size() int {
+	return xxx_messageInfo_DecommissionStatusRequest.Size(m)
+}
+func (m *DecommissionStatusRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DecommissionStatusRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DecommissionStatusRequest proto.InternalMessageInfo
 
 // DecommissionRequest requests the server to set the Decommissioning flag on
 // all nodes specified by 'node_id' to the value of 'decommissioning'.
 //
 // If no 'node_id' is given, targets the recipient node.
 type DecommissionRequest struct {
-	NodeIDs         []github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,rep,packed,name=node_ids,json=nodeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_ids,omitempty"`
-	Decommissioning bool                                                  `protobuf:"varint,2,opt,name=decommissioning,proto3" json:"decommissioning,omitempty"`
+	NodeIDs              []github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,rep,packed,name=node_ids,json=nodeIds,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_ids,omitempty"`
+	Decommissioning      bool                                                  `protobuf:"varint,2,opt,name=decommissioning,proto3" json:"decommissioning,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                              `json:"-"`
+	XXX_sizecache        int32                                                 `json:"-"`
 }
 
 func (m *DecommissionRequest) Reset()                    { *m = DecommissionRequest{} }
 func (m *DecommissionRequest) String() string            { return proto.CompactTextString(m) }
 func (*DecommissionRequest) ProtoMessage()               {}
 func (*DecommissionRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{23} }
+func (dst *DecommissionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DecommissionRequest.Merge(dst, src)
+}
+func (m *DecommissionRequest) XXX_Size() int {
+	return xxx_messageInfo_DecommissionRequest.Size(m)
+}
+func (m *DecommissionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DecommissionRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DecommissionRequest proto.InternalMessageInfo
 
 // DecommissionStatusResponse lists decommissioning statuses for a number of NodeIDs.
 type DecommissionStatusResponse struct {
 	// Status of all affected nodes.
-	Status []DecommissionStatusResponse_Status `protobuf:"bytes,2,rep,name=status" json:"status"`
+	Status               []DecommissionStatusResponse_Status `protobuf:"bytes,2,rep,name=status" json:"status"`
+	XXX_NoUnkeyedLiteral struct{}                            `json:"-"`
+	XXX_sizecache        int32                               `json:"-"`
 }
 
 func (m *DecommissionStatusResponse) Reset()                    { *m = DecommissionStatusResponse{} }
 func (m *DecommissionStatusResponse) String() string            { return proto.CompactTextString(m) }
 func (*DecommissionStatusResponse) ProtoMessage()               {}
 func (*DecommissionStatusResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{24} }
+func (dst *DecommissionStatusResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DecommissionStatusResponse.Merge(dst, src)
+}
+func (m *DecommissionStatusResponse) XXX_Size() int {
+	return xxx_messageInfo_DecommissionStatusResponse.Size(m)
+}
+func (m *DecommissionStatusResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DecommissionStatusResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DecommissionStatusResponse proto.InternalMessageInfo
 
 type DecommissionStatusResponse_Status struct {
-	NodeID          github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
-	IsLive          bool                                                `protobuf:"varint,2,opt,name=is_live,json=isLive,proto3" json:"is_live,omitempty"`
-	ReplicaCount    int64                                               `protobuf:"varint,3,opt,name=replica_count,json=replicaCount,proto3" json:"replica_count,omitempty"`
-	Decommissioning bool                                                `protobuf:"varint,4,opt,name=decommissioning,proto3" json:"decommissioning,omitempty"`
-	Draining        bool                                                `protobuf:"varint,5,opt,name=draining,proto3" json:"draining,omitempty"`
+	NodeID               github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
+	IsLive               bool                                                `protobuf:"varint,2,opt,name=is_live,json=isLive,proto3" json:"is_live,omitempty"`
+	ReplicaCount         int64                                               `protobuf:"varint,3,opt,name=replica_count,json=replicaCount,proto3" json:"replica_count,omitempty"`
+	Decommissioning      bool                                                `protobuf:"varint,4,opt,name=decommissioning,proto3" json:"decommissioning,omitempty"`
+	Draining             bool                                                `protobuf:"varint,5,opt,name=draining,proto3" json:"draining,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *DecommissionStatusResponse_Status) Reset()         { *m = DecommissionStatusResponse_Status{} }
@@ -698,146 +1129,315 @@ func (*DecommissionStatusResponse_Status) ProtoMessage()    {}
 func (*DecommissionStatusResponse_Status) Descriptor() ([]byte, []int) {
 	return fileDescriptorAdmin, []int{24, 0}
 }
+func (dst *DecommissionStatusResponse_Status) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DecommissionStatusResponse_Status.Merge(dst, src)
+}
+func (m *DecommissionStatusResponse_Status) XXX_Size() int {
+	return xxx_messageInfo_DecommissionStatusResponse_Status.Size(m)
+}
+func (m *DecommissionStatusResponse_Status) XXX_DiscardUnknown() {
+	xxx_messageInfo_DecommissionStatusResponse_Status.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DecommissionStatusResponse_Status proto.InternalMessageInfo
 
 // SettingsRequest inquires what are the current settings in the cluster.
 type SettingsRequest struct {
 	// The array of setting names to retrieve.
 	// An empty keys array means "all".
-	Keys []string `protobuf:"bytes,1,rep,name=keys" json:"keys,omitempty"`
+	Keys                 []string `protobuf:"bytes,1,rep,name=keys" json:"keys,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *SettingsRequest) Reset()                    { *m = SettingsRequest{} }
 func (m *SettingsRequest) String() string            { return proto.CompactTextString(m) }
 func (*SettingsRequest) ProtoMessage()               {}
 func (*SettingsRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{25} }
+func (dst *SettingsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SettingsRequest.Merge(dst, src)
+}
+func (m *SettingsRequest) XXX_Size() int {
+	return xxx_messageInfo_SettingsRequest.Size(m)
+}
+func (m *SettingsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SettingsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SettingsRequest proto.InternalMessageInfo
 
 // SettingsResponse is the response to SettingsRequest.
 type SettingsResponse struct {
-	KeyValues map[string]SettingsResponse_Value `protobuf:"bytes,1,rep,name=key_values,json=keyValues" json:"key_values" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	KeyValues            map[string]SettingsResponse_Value `protobuf:"bytes,1,rep,name=key_values,json=keyValues" json:"key_values" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	XXX_NoUnkeyedLiteral struct{}                          `json:"-"`
+	XXX_sizecache        int32                             `json:"-"`
 }
 
 func (m *SettingsResponse) Reset()                    { *m = SettingsResponse{} }
 func (m *SettingsResponse) String() string            { return proto.CompactTextString(m) }
 func (*SettingsResponse) ProtoMessage()               {}
 func (*SettingsResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{26} }
+func (dst *SettingsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SettingsResponse.Merge(dst, src)
+}
+func (m *SettingsResponse) XXX_Size() int {
+	return xxx_messageInfo_SettingsResponse.Size(m)
+}
+func (m *SettingsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SettingsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SettingsResponse proto.InternalMessageInfo
 
 type SettingsResponse_Value struct {
-	Value       string `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
-	Type        string `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
-	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Value                string   `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	Type                 string   `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	Description          string   `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *SettingsResponse_Value) Reset()                    { *m = SettingsResponse_Value{} }
 func (m *SettingsResponse_Value) String() string            { return proto.CompactTextString(m) }
 func (*SettingsResponse_Value) ProtoMessage()               {}
 func (*SettingsResponse_Value) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{26, 0} }
+func (dst *SettingsResponse_Value) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SettingsResponse_Value.Merge(dst, src)
+}
+func (m *SettingsResponse_Value) XXX_Size() int {
+	return xxx_messageInfo_SettingsResponse_Value.Size(m)
+}
+func (m *SettingsResponse_Value) XXX_DiscardUnknown() {
+	xxx_messageInfo_SettingsResponse_Value.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SettingsResponse_Value proto.InternalMessageInfo
 
 // HealthRequest inquires whether the addressed node is healthy.
 type HealthRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *HealthRequest) Reset()                    { *m = HealthRequest{} }
 func (m *HealthRequest) String() string            { return proto.CompactTextString(m) }
 func (*HealthRequest) ProtoMessage()               {}
 func (*HealthRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{27} }
+func (dst *HealthRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HealthRequest.Merge(dst, src)
+}
+func (m *HealthRequest) XXX_Size() int {
+	return xxx_messageInfo_HealthRequest.Size(m)
+}
+func (m *HealthRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_HealthRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HealthRequest proto.InternalMessageInfo
 
 // HealthResponse is the response to HealthRequest. It currently does not
 // contain any information. The request fails however if the node is not live.
 // TODO(tschottdorf): Should it contain information, and if so, what?
 type HealthResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *HealthResponse) Reset()                    { *m = HealthResponse{} }
 func (m *HealthResponse) String() string            { return proto.CompactTextString(m) }
 func (*HealthResponse) ProtoMessage()               {}
 func (*HealthResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{28} }
+func (dst *HealthResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HealthResponse.Merge(dst, src)
+}
+func (m *HealthResponse) XXX_Size() int {
+	return xxx_messageInfo_HealthResponse.Size(m)
+}
+func (m *HealthResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_HealthResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HealthResponse proto.InternalMessageInfo
 
 // LivenessRequest requests liveness data for all nodes on the cluster.
 type LivenessRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *LivenessRequest) Reset()                    { *m = LivenessRequest{} }
 func (m *LivenessRequest) String() string            { return proto.CompactTextString(m) }
 func (*LivenessRequest) ProtoMessage()               {}
 func (*LivenessRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{29} }
+func (dst *LivenessRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LivenessRequest.Merge(dst, src)
+}
+func (m *LivenessRequest) XXX_Size() int {
+	return xxx_messageInfo_LivenessRequest.Size(m)
+}
+func (m *LivenessRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_LivenessRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LivenessRequest proto.InternalMessageInfo
 
 // LivenessResponse contains the liveness status of each node on the cluster.
 type LivenessResponse struct {
-	Livenesses []cockroach_storage.Liveness                                                                 `protobuf:"bytes,1,rep,name=livenesses" json:"livenesses"`
-	Statuses   map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]cockroach_storage.NodeLivenessStatus `protobuf:"bytes,2,rep,name=statuses,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"statuses" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3,enum=cockroach.storage.NodeLivenessStatus"`
+	Livenesses           []cockroach_storage.Liveness                                                                 `protobuf:"bytes,1,rep,name=livenesses" json:"livenesses"`
+	Statuses             map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]cockroach_storage.NodeLivenessStatus `protobuf:"bytes,2,rep,name=statuses,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"statuses" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3,enum=cockroach.storage.NodeLivenessStatus"`
+	XXX_NoUnkeyedLiteral struct{}                                                                                     `json:"-"`
+	XXX_sizecache        int32                                                                                        `json:"-"`
 }
 
 func (m *LivenessResponse) Reset()                    { *m = LivenessResponse{} }
 func (m *LivenessResponse) String() string            { return proto.CompactTextString(m) }
 func (*LivenessResponse) ProtoMessage()               {}
 func (*LivenessResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{30} }
+func (dst *LivenessResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LivenessResponse.Merge(dst, src)
+}
+func (m *LivenessResponse) XXX_Size() int {
+	return xxx_messageInfo_LivenessResponse.Size(m)
+}
+func (m *LivenessResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_LivenessResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LivenessResponse proto.InternalMessageInfo
 
 // JobsRequest requests system job information of the given status and type.
 type JobsRequest struct {
-	Limit  int32                   `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Status string                  `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	Type   cockroach_sql_jobs.Type `protobuf:"varint,3,opt,name=type,proto3,enum=cockroach.sql.jobs.Type" json:"type,omitempty"`
+	Limit                int32                   `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Status               string                  `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	Type                 cockroach_sql_jobs.Type `protobuf:"varint,3,opt,name=type,proto3,enum=cockroach.sql.jobs.Type" json:"type,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
 }
 
 func (m *JobsRequest) Reset()                    { *m = JobsRequest{} }
 func (m *JobsRequest) String() string            { return proto.CompactTextString(m) }
 func (*JobsRequest) ProtoMessage()               {}
 func (*JobsRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{31} }
+func (dst *JobsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_JobsRequest.Merge(dst, src)
+}
+func (m *JobsRequest) XXX_Size() int {
+	return xxx_messageInfo_JobsRequest.Size(m)
+}
+func (m *JobsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_JobsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_JobsRequest proto.InternalMessageInfo
 
 // JobsResponse contains the job record for each matching job.
 type JobsResponse struct {
-	Jobs []JobsResponse_Job `protobuf:"bytes,1,rep,name=jobs" json:"jobs"`
+	Jobs                 []JobsResponse_Job `protobuf:"bytes,1,rep,name=jobs" json:"jobs"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
 }
 
 func (m *JobsResponse) Reset()                    { *m = JobsResponse{} }
 func (m *JobsResponse) String() string            { return proto.CompactTextString(m) }
 func (*JobsResponse) ProtoMessage()               {}
 func (*JobsResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{32} }
+func (dst *JobsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_JobsResponse.Merge(dst, src)
+}
+func (m *JobsResponse) XXX_Size() int {
+	return xxx_messageInfo_JobsResponse.Size(m)
+}
+func (m *JobsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_JobsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_JobsResponse proto.InternalMessageInfo
 
 type JobsResponse_Job struct {
-	ID                int64                                                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Type              string                                                `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
-	Description       string                                                `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Username          string                                                `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
-	DescriptorIDs     []github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID `protobuf:"varint,5,rep,packed,name=descriptor_ids,json=descriptorIds,casttype=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ID" json:"descriptor_ids,omitempty"`
-	Status            string                                                `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
-	Created           *time.Time                                            `protobuf:"bytes,7,opt,name=created,stdtime" json:"created,omitempty"`
-	Started           *time.Time                                            `protobuf:"bytes,8,opt,name=started,stdtime" json:"started,omitempty"`
-	Finished          *time.Time                                            `protobuf:"bytes,9,opt,name=finished,stdtime" json:"finished,omitempty"`
-	Modified          *time.Time                                            `protobuf:"bytes,10,opt,name=modified,stdtime" json:"modified,omitempty"`
-	FractionCompleted float32                                               `protobuf:"fixed32,11,opt,name=fraction_completed,json=fractionCompleted,proto3" json:"fraction_completed,omitempty"`
-	Error             string                                                `protobuf:"bytes,12,opt,name=error,proto3" json:"error,omitempty"`
+	ID                   int64                                                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Type                 string                                                `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	Description          string                                                `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Username             string                                                `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
+	DescriptorIDs        []github_com_cockroachdb_cockroach_pkg_sql_sqlbase.ID `protobuf:"varint,5,rep,packed,name=descriptor_ids,json=descriptorIds,casttype=github.com/cockroachdb/cockroach/pkg/sql/sqlbase.ID" json:"descriptor_ids,omitempty"`
+	Status               string                                                `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	Created              *time.Time                                            `protobuf:"bytes,7,opt,name=created,stdtime" json:"created,omitempty"`
+	Started              *time.Time                                            `protobuf:"bytes,8,opt,name=started,stdtime" json:"started,omitempty"`
+	Finished             *time.Time                                            `protobuf:"bytes,9,opt,name=finished,stdtime" json:"finished,omitempty"`
+	Modified             *time.Time                                            `protobuf:"bytes,10,opt,name=modified,stdtime" json:"modified,omitempty"`
+	FractionCompleted    float32                                               `protobuf:"fixed32,11,opt,name=fraction_completed,json=fractionCompleted,proto3" json:"fraction_completed,omitempty"`
+	Error                string                                                `protobuf:"bytes,12,opt,name=error,proto3" json:"error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                              `json:"-"`
+	XXX_sizecache        int32                                                 `json:"-"`
 }
 
 func (m *JobsResponse_Job) Reset()                    { *m = JobsResponse_Job{} }
 func (m *JobsResponse_Job) String() string            { return proto.CompactTextString(m) }
 func (*JobsResponse_Job) ProtoMessage()               {}
 func (*JobsResponse_Job) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{32, 0} }
+func (dst *JobsResponse_Job) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_JobsResponse_Job.Merge(dst, src)
+}
+func (m *JobsResponse_Job) XXX_Size() int {
+	return xxx_messageInfo_JobsResponse_Job.Size(m)
+}
+func (m *JobsResponse_Job) XXX_DiscardUnknown() {
+	xxx_messageInfo_JobsResponse_Job.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_JobsResponse_Job proto.InternalMessageInfo
 
 // LocationsRequest requests system locality location information.
 type LocationsRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *LocationsRequest) Reset()                    { *m = LocationsRequest{} }
 func (m *LocationsRequest) String() string            { return proto.CompactTextString(m) }
 func (*LocationsRequest) ProtoMessage()               {}
 func (*LocationsRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{33} }
+func (dst *LocationsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LocationsRequest.Merge(dst, src)
+}
+func (m *LocationsRequest) XXX_Size() int {
+	return xxx_messageInfo_LocationsRequest.Size(m)
+}
+func (m *LocationsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_LocationsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LocationsRequest proto.InternalMessageInfo
 
 // JobsResponse contains the job record for each matching job.
 type LocationsResponse struct {
-	Locations []LocationsResponse_Location `protobuf:"bytes,1,rep,name=locations" json:"locations"`
+	Locations            []LocationsResponse_Location `protobuf:"bytes,1,rep,name=locations" json:"locations"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *LocationsResponse) Reset()                    { *m = LocationsResponse{} }
 func (m *LocationsResponse) String() string            { return proto.CompactTextString(m) }
 func (*LocationsResponse) ProtoMessage()               {}
 func (*LocationsResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{34} }
+func (dst *LocationsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LocationsResponse.Merge(dst, src)
+}
+func (m *LocationsResponse) XXX_Size() int {
+	return xxx_messageInfo_LocationsResponse.Size(m)
+}
+func (m *LocationsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_LocationsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LocationsResponse proto.InternalMessageInfo
 
 type LocationsResponse_Location struct {
-	LocalityKey   string  `protobuf:"bytes,1,opt,name=locality_key,json=localityKey,proto3" json:"locality_key,omitempty"`
-	LocalityValue string  `protobuf:"bytes,2,opt,name=locality_value,json=localityValue,proto3" json:"locality_value,omitempty"`
-	Latitude      float64 `protobuf:"fixed64,3,opt,name=latitude,proto3" json:"latitude,omitempty"`
-	Longitude     float64 `protobuf:"fixed64,4,opt,name=longitude,proto3" json:"longitude,omitempty"`
+	LocalityKey          string   `protobuf:"bytes,1,opt,name=locality_key,json=localityKey,proto3" json:"locality_key,omitempty"`
+	LocalityValue        string   `protobuf:"bytes,2,opt,name=locality_value,json=localityValue,proto3" json:"locality_value,omitempty"`
+	Latitude             float64  `protobuf:"fixed64,3,opt,name=latitude,proto3" json:"latitude,omitempty"`
+	Longitude            float64  `protobuf:"fixed64,4,opt,name=longitude,proto3" json:"longitude,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *LocationsResponse_Location) Reset()         { *m = LocationsResponse_Location{} }
@@ -846,6 +1446,17 @@ func (*LocationsResponse_Location) ProtoMessage()    {}
 func (*LocationsResponse_Location) Descriptor() ([]byte, []int) {
 	return fileDescriptorAdmin, []int{34, 0}
 }
+func (dst *LocationsResponse_Location) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LocationsResponse_Location.Merge(dst, src)
+}
+func (m *LocationsResponse_Location) XXX_Size() int {
+	return xxx_messageInfo_LocationsResponse_Location.Size(m)
+}
+func (m *LocationsResponse_Location) XXX_DiscardUnknown() {
+	xxx_messageInfo_LocationsResponse_Location.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LocationsResponse_Location proto.InternalMessageInfo
 
 // RangeLogRequest request the history of a range from the range log.
 type RangeLogRequest struct {
@@ -857,33 +1468,61 @@ type RangeLogRequest struct {
 	// this is omitted or set to 0, the default maximum number of results are
 	// returned. When set to > 0, at most only that number of results are
 	// returned. When set to < 0, an unlimited number of results are returned.
-	Limit int32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit                int32    `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RangeLogRequest) Reset()                    { *m = RangeLogRequest{} }
 func (m *RangeLogRequest) String() string            { return proto.CompactTextString(m) }
 func (*RangeLogRequest) ProtoMessage()               {}
 func (*RangeLogRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{35} }
+func (dst *RangeLogRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeLogRequest.Merge(dst, src)
+}
+func (m *RangeLogRequest) XXX_Size() int {
+	return xxx_messageInfo_RangeLogRequest.Size(m)
+}
+func (m *RangeLogRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeLogRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeLogRequest proto.InternalMessageInfo
 
 // RangeLogResponse contains a list of entries from the range log table.
 type RangeLogResponse struct {
-	Events []RangeLogResponse_Event `protobuf:"bytes,2,rep,name=events" json:"events"`
+	Events               []RangeLogResponse_Event `protobuf:"bytes,2,rep,name=events" json:"events"`
+	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
+	XXX_sizecache        int32                    `json:"-"`
 }
 
 func (m *RangeLogResponse) Reset()                    { *m = RangeLogResponse{} }
 func (m *RangeLogResponse) String() string            { return proto.CompactTextString(m) }
 func (*RangeLogResponse) ProtoMessage()               {}
 func (*RangeLogResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{36} }
+func (dst *RangeLogResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeLogResponse.Merge(dst, src)
+}
+func (m *RangeLogResponse) XXX_Size() int {
+	return xxx_messageInfo_RangeLogResponse.Size(m)
+}
+func (m *RangeLogResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeLogResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeLogResponse proto.InternalMessageInfo
 
 // To avoid porting the pretty printing of keys and descriptors to
 // javascript, they will be precomputed on the serverside.
 type RangeLogResponse_PrettyInfo struct {
-	UpdatedDesc    string `protobuf:"bytes,1,opt,name=updated_desc,json=updatedDesc,proto3" json:"updated_desc,omitempty"`
-	NewDesc        string `protobuf:"bytes,2,opt,name=new_desc,json=newDesc,proto3" json:"new_desc,omitempty"`
-	AddedReplica   string `protobuf:"bytes,3,opt,name=added_replica,json=addedReplica,proto3" json:"added_replica,omitempty"`
-	RemovedReplica string `protobuf:"bytes,4,opt,name=removed_replica,json=removedReplica,proto3" json:"removed_replica,omitempty"`
-	Reason         string `protobuf:"bytes,5,opt,name=reason,proto3" json:"reason,omitempty"`
-	Details        string `protobuf:"bytes,6,opt,name=details,proto3" json:"details,omitempty"`
+	UpdatedDesc          string   `protobuf:"bytes,1,opt,name=updated_desc,json=updatedDesc,proto3" json:"updated_desc,omitempty"`
+	NewDesc              string   `protobuf:"bytes,2,opt,name=new_desc,json=newDesc,proto3" json:"new_desc,omitempty"`
+	AddedReplica         string   `protobuf:"bytes,3,opt,name=added_replica,json=addedReplica,proto3" json:"added_replica,omitempty"`
+	RemovedReplica       string   `protobuf:"bytes,4,opt,name=removed_replica,json=removedReplica,proto3" json:"removed_replica,omitempty"`
+	Reason               string   `protobuf:"bytes,5,opt,name=reason,proto3" json:"reason,omitempty"`
+	Details              string   `protobuf:"bytes,6,opt,name=details,proto3" json:"details,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RangeLogResponse_PrettyInfo) Reset()         { *m = RangeLogResponse_PrettyInfo{} }
@@ -892,38 +1531,88 @@ func (*RangeLogResponse_PrettyInfo) ProtoMessage()    {}
 func (*RangeLogResponse_PrettyInfo) Descriptor() ([]byte, []int) {
 	return fileDescriptorAdmin, []int{36, 0}
 }
+func (dst *RangeLogResponse_PrettyInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeLogResponse_PrettyInfo.Merge(dst, src)
+}
+func (m *RangeLogResponse_PrettyInfo) XXX_Size() int {
+	return xxx_messageInfo_RangeLogResponse_PrettyInfo.Size(m)
+}
+func (m *RangeLogResponse_PrettyInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeLogResponse_PrettyInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeLogResponse_PrettyInfo proto.InternalMessageInfo
 
 type RangeLogResponse_Event struct {
-	Event      cockroach_storage1.RangeLogEvent `protobuf:"bytes,1,opt,name=event" json:"event"`
-	PrettyInfo RangeLogResponse_PrettyInfo      `protobuf:"bytes,2,opt,name=pretty_info,json=prettyInfo" json:"pretty_info"`
+	Event                cockroach_storage1.RangeLogEvent `protobuf:"bytes,1,opt,name=event" json:"event"`
+	PrettyInfo           RangeLogResponse_PrettyInfo      `protobuf:"bytes,2,opt,name=pretty_info,json=prettyInfo" json:"pretty_info"`
+	XXX_NoUnkeyedLiteral struct{}                         `json:"-"`
+	XXX_sizecache        int32                            `json:"-"`
 }
 
 func (m *RangeLogResponse_Event) Reset()                    { *m = RangeLogResponse_Event{} }
 func (m *RangeLogResponse_Event) String() string            { return proto.CompactTextString(m) }
 func (*RangeLogResponse_Event) ProtoMessage()               {}
 func (*RangeLogResponse_Event) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{36, 1} }
+func (dst *RangeLogResponse_Event) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeLogResponse_Event.Merge(dst, src)
+}
+func (m *RangeLogResponse_Event) XXX_Size() int {
+	return xxx_messageInfo_RangeLogResponse_Event.Size(m)
+}
+func (m *RangeLogResponse_Event) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeLogResponse_Event.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeLogResponse_Event proto.InternalMessageInfo
 
 // QueryPlanRequest requests the query plans for a SQL string.
 type QueryPlanRequest struct {
 	// query is the SQL query string.
-	Query string `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	Query                string   `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *QueryPlanRequest) Reset()                    { *m = QueryPlanRequest{} }
 func (m *QueryPlanRequest) String() string            { return proto.CompactTextString(m) }
 func (*QueryPlanRequest) ProtoMessage()               {}
 func (*QueryPlanRequest) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{37} }
+func (dst *QueryPlanRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryPlanRequest.Merge(dst, src)
+}
+func (m *QueryPlanRequest) XXX_Size() int {
+	return xxx_messageInfo_QueryPlanRequest.Size(m)
+}
+func (m *QueryPlanRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryPlanRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryPlanRequest proto.InternalMessageInfo
 
 // QueryPlanResponse contains the query plans for a SQL string (currently only
 // the distsql physical query plan).
 type QueryPlanResponse struct {
-	DistSQLPhysicalQueryPlan string `protobuf:"bytes,1,opt,name=distsql_physical_query_plan,json=distsqlPhysicalQueryPlan,proto3" json:"distsql_physical_query_plan,omitempty"`
+	DistSQLPhysicalQueryPlan string   `protobuf:"bytes,1,opt,name=distsql_physical_query_plan,json=distsqlPhysicalQueryPlan,proto3" json:"distsql_physical_query_plan,omitempty"`
+	XXX_NoUnkeyedLiteral     struct{} `json:"-"`
+	XXX_sizecache            int32    `json:"-"`
 }
 
 func (m *QueryPlanResponse) Reset()                    { *m = QueryPlanResponse{} }
 func (m *QueryPlanResponse) String() string            { return proto.CompactTextString(m) }
 func (*QueryPlanResponse) ProtoMessage()               {}
 func (*QueryPlanResponse) Descriptor() ([]byte, []int) { return fileDescriptorAdmin, []int{38} }
+func (dst *QueryPlanResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryPlanResponse.Merge(dst, src)
+}
+func (m *QueryPlanResponse) XXX_Size() int {
+	return xxx_messageInfo_QueryPlanResponse.Size(m)
+}
+func (m *QueryPlanResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryPlanResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryPlanResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*DatabasesRequest)(nil), "cockroach.server.serverpb.DatabasesRequest")
@@ -948,9 +1637,11 @@ func init() {
 	proto.RegisterType((*EventsResponse)(nil), "cockroach.server.serverpb.EventsResponse")
 	proto.RegisterType((*EventsResponse_Event)(nil), "cockroach.server.serverpb.EventsResponse.Event")
 	proto.RegisterType((*SetUIDataRequest)(nil), "cockroach.server.serverpb.SetUIDataRequest")
+	proto.RegisterMapType((map[string][]byte)(nil), "cockroach.server.serverpb.SetUIDataRequest.KeyValuesEntry")
 	proto.RegisterType((*SetUIDataResponse)(nil), "cockroach.server.serverpb.SetUIDataResponse")
 	proto.RegisterType((*GetUIDataRequest)(nil), "cockroach.server.serverpb.GetUIDataRequest")
 	proto.RegisterType((*GetUIDataResponse)(nil), "cockroach.server.serverpb.GetUIDataResponse")
+	proto.RegisterMapType((map[string]GetUIDataResponse_Value)(nil), "cockroach.server.serverpb.GetUIDataResponse.KeyValuesEntry")
 	proto.RegisterType((*GetUIDataResponse_Value)(nil), "cockroach.server.serverpb.GetUIDataResponse.Value")
 	proto.RegisterType((*ClusterRequest)(nil), "cockroach.server.serverpb.ClusterRequest")
 	proto.RegisterType((*ClusterResponse)(nil), "cockroach.server.serverpb.ClusterResponse")
@@ -962,11 +1653,13 @@ func init() {
 	proto.RegisterType((*DecommissionStatusResponse_Status)(nil), "cockroach.server.serverpb.DecommissionStatusResponse.Status")
 	proto.RegisterType((*SettingsRequest)(nil), "cockroach.server.serverpb.SettingsRequest")
 	proto.RegisterType((*SettingsResponse)(nil), "cockroach.server.serverpb.SettingsResponse")
+	proto.RegisterMapType((map[string]SettingsResponse_Value)(nil), "cockroach.server.serverpb.SettingsResponse.KeyValuesEntry")
 	proto.RegisterType((*SettingsResponse_Value)(nil), "cockroach.server.serverpb.SettingsResponse.Value")
 	proto.RegisterType((*HealthRequest)(nil), "cockroach.server.serverpb.HealthRequest")
 	proto.RegisterType((*HealthResponse)(nil), "cockroach.server.serverpb.HealthResponse")
 	proto.RegisterType((*LivenessRequest)(nil), "cockroach.server.serverpb.LivenessRequest")
 	proto.RegisterType((*LivenessResponse)(nil), "cockroach.server.serverpb.LivenessResponse")
+	proto.RegisterMapType((map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]cockroach_storage.NodeLivenessStatus)(nil), "cockroach.server.serverpb.LivenessResponse.StatusesEntry")
 	proto.RegisterType((*JobsRequest)(nil), "cockroach.server.serverpb.JobsRequest")
 	proto.RegisterType((*JobsResponse)(nil), "cockroach.server.serverpb.JobsResponse")
 	proto.RegisterType((*JobsResponse_Job)(nil), "cockroach.server.serverpb.JobsResponse.Job")

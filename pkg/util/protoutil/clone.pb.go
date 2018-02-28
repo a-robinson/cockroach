@@ -32,14 +32,27 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type RecursiveAndUncloneable struct {
-	R    *RecursiveAndUncloneable                            `protobuf:"bytes,1,opt,name=r" json:"r,omitempty"`
-	Uuid github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,2,opt,name=uuid,proto3,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"uuid"`
+	R                    *RecursiveAndUncloneable                            `protobuf:"bytes,1,opt,name=r" json:"r,omitempty"`
+	Uuid                 github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,2,opt,name=uuid,proto3,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"uuid"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *RecursiveAndUncloneable) Reset()                    { *m = RecursiveAndUncloneable{} }
 func (m *RecursiveAndUncloneable) String() string            { return proto.CompactTextString(m) }
 func (*RecursiveAndUncloneable) ProtoMessage()               {}
 func (*RecursiveAndUncloneable) Descriptor() ([]byte, []int) { return fileDescriptorClone, []int{0} }
+func (dst *RecursiveAndUncloneable) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RecursiveAndUncloneable.Merge(dst, src)
+}
+func (m *RecursiveAndUncloneable) XXX_Size() int {
+	return xxx_messageInfo_RecursiveAndUncloneable.Size(m)
+}
+func (m *RecursiveAndUncloneable) XXX_DiscardUnknown() {
+	xxx_messageInfo_RecursiveAndUncloneable.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RecursiveAndUncloneable proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*RecursiveAndUncloneable)(nil), "cockroach.util.protoutil.RecursiveAndUncloneable")

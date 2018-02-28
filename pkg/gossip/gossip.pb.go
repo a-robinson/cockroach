@@ -50,13 +50,26 @@ type BootstrapInfo struct {
 	// Addresses of other nodes in the cluster.
 	Addresses []cockroach_util.UnresolvedAddr `protobuf:"bytes,1,rep,name=addresses" json:"addresses"`
 	// Timestamp at which the bootstrap info was written.
-	Timestamp cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=timestamp" json:"timestamp"`
+	Timestamp            cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=timestamp" json:"timestamp"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *BootstrapInfo) Reset()                    { *m = BootstrapInfo{} }
 func (m *BootstrapInfo) String() string            { return proto.CompactTextString(m) }
 func (*BootstrapInfo) ProtoMessage()               {}
 func (*BootstrapInfo) Descriptor() ([]byte, []int) { return fileDescriptorGossip, []int{0} }
+func (dst *BootstrapInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BootstrapInfo.Merge(dst, src)
+}
+func (m *BootstrapInfo) XXX_Size() int {
+	return xxx_messageInfo_BootstrapInfo.Size(m)
+}
+func (m *BootstrapInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_BootstrapInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BootstrapInfo proto.InternalMessageInfo
 
 // Request is the request struct passed with the Gossip RPC.
 type Request struct {
@@ -70,13 +83,26 @@ type Request struct {
 	// Delta of Infos originating at sender.
 	Delta map[string]*Info `protobuf:"bytes,4,rep,name=delta" json:"delta,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
 	// Cluster ID to prevent illegal connections.
-	ClusterID github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,5,opt,name=cluster_id,json=clusterId,proto3,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"cluster_id"`
+	ClusterID            github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,5,opt,name=cluster_id,json=clusterId,proto3,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"cluster_id"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *Request) Reset()                    { *m = Request{} }
 func (m *Request) String() string            { return proto.CompactTextString(m) }
 func (*Request) ProtoMessage()               {}
 func (*Request) Descriptor() ([]byte, []int) { return fileDescriptorGossip, []int{1} }
+func (dst *Request) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Request.Merge(dst, src)
+}
+func (m *Request) XXX_Size() int {
+	return xxx_messageInfo_Request.Size(m)
+}
+func (m *Request) XXX_DiscardUnknown() {
+	xxx_messageInfo_Request.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Request proto.InternalMessageInfo
 
 // Response is returned from the Gossip.Gossip RPC.
 // Delta will be nil in the event that Alternate is set.
@@ -94,23 +120,49 @@ type Response struct {
 	Delta map[string]*Info `protobuf:"bytes,5,rep,name=delta" json:"delta,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
 	// Map of high water timestamps from infos originating at other
 	// nodes, as seen by the responder.
-	HighWaterStamps map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]int64 `protobuf:"bytes,6,rep,name=high_water_stamps,json=highWaterStamps,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"high_water_stamps" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`
+	HighWaterStamps      map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]int64 `protobuf:"bytes,6,rep,name=high_water_stamps,json=highWaterStamps,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"high_water_stamps" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}                                                      `json:"-"`
+	XXX_sizecache        int32                                                         `json:"-"`
 }
 
 func (m *Response) Reset()                    { *m = Response{} }
 func (m *Response) String() string            { return proto.CompactTextString(m) }
 func (*Response) ProtoMessage()               {}
 func (*Response) Descriptor() ([]byte, []int) { return fileDescriptorGossip, []int{2} }
+func (dst *Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Response.Merge(dst, src)
+}
+func (m *Response) XXX_Size() int {
+	return xxx_messageInfo_Response.Size(m)
+}
+func (m *Response) XXX_DiscardUnknown() {
+	xxx_messageInfo_Response.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Response proto.InternalMessageInfo
 
 // InfoStatus contains information about the current status of the infoStore.
 type InfoStatus struct {
-	Infos map[string]Info `protobuf:"bytes,1,rep,name=infos" json:"infos" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	Infos                map[string]Info `protobuf:"bytes,1,rep,name=infos" json:"infos" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
 }
 
 func (m *InfoStatus) Reset()                    { *m = InfoStatus{} }
 func (m *InfoStatus) String() string            { return proto.CompactTextString(m) }
 func (*InfoStatus) ProtoMessage()               {}
 func (*InfoStatus) Descriptor() ([]byte, []int) { return fileDescriptorGossip, []int{3} }
+func (dst *InfoStatus) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InfoStatus.Merge(dst, src)
+}
+func (m *InfoStatus) XXX_Size() int {
+	return xxx_messageInfo_InfoStatus.Size(m)
+}
+func (m *InfoStatus) XXX_DiscardUnknown() {
+	xxx_messageInfo_InfoStatus.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InfoStatus proto.InternalMessageInfo
 
 // Info is the basic unit of information traded over the
 // gossip network.
@@ -125,19 +177,37 @@ type Info struct {
 	// Originating node's ID.
 	NodeID github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,5,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
 	// Peer node ID which passed this info.
-	PeerID github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,6,opt,name=peer_id,json=peerId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"peer_id,omitempty"`
+	PeerID               github_com_cockroachdb_cockroach_pkg_roachpb.NodeID `protobuf:"varint,6,opt,name=peer_id,json=peerId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"peer_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *Info) Reset()                    { *m = Info{} }
 func (m *Info) String() string            { return proto.CompactTextString(m) }
 func (*Info) ProtoMessage()               {}
 func (*Info) Descriptor() ([]byte, []int) { return fileDescriptorGossip, []int{4} }
+func (dst *Info) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Info.Merge(dst, src)
+}
+func (m *Info) XXX_Size() int {
+	return xxx_messageInfo_Info.Size(m)
+}
+func (m *Info) XXX_DiscardUnknown() {
+	xxx_messageInfo_Info.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Info proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*BootstrapInfo)(nil), "cockroach.gossip.BootstrapInfo")
 	proto.RegisterType((*Request)(nil), "cockroach.gossip.Request")
+	proto.RegisterMapType((map[string]*Info)(nil), "cockroach.gossip.Request.DeltaEntry")
+	proto.RegisterMapType((map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]int64)(nil), "cockroach.gossip.Request.HighWaterStampsEntry")
 	proto.RegisterType((*Response)(nil), "cockroach.gossip.Response")
+	proto.RegisterMapType((map[string]*Info)(nil), "cockroach.gossip.Response.DeltaEntry")
+	proto.RegisterMapType((map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]int64)(nil), "cockroach.gossip.Response.HighWaterStampsEntry")
 	proto.RegisterType((*InfoStatus)(nil), "cockroach.gossip.InfoStatus")
+	proto.RegisterMapType((map[string]Info)(nil), "cockroach.gossip.InfoStatus.InfosEntry")
 	proto.RegisterType((*Info)(nil), "cockroach.gossip.Info")
 }
 

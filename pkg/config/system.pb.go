@@ -38,13 +38,26 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type SystemConfig struct {
-	Values []cockroach_roachpb1.KeyValue `protobuf:"bytes,1,rep,name=values" json:"values"`
+	Values               []cockroach_roachpb1.KeyValue `protobuf:"bytes,1,rep,name=values" json:"values"`
+	XXX_NoUnkeyedLiteral struct{}                      `json:"-"`
+	XXX_sizecache        int32                         `json:"-"`
 }
 
 func (m *SystemConfig) Reset()                    { *m = SystemConfig{} }
 func (m *SystemConfig) String() string            { return proto.CompactTextString(m) }
 func (*SystemConfig) ProtoMessage()               {}
 func (*SystemConfig) Descriptor() ([]byte, []int) { return fileDescriptorSystem, []int{0} }
+func (dst *SystemConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SystemConfig.Merge(dst, src)
+}
+func (m *SystemConfig) XXX_Size() int {
+	return xxx_messageInfo_SystemConfig.Size(m)
+}
+func (m *SystemConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_SystemConfig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SystemConfig proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*SystemConfig)(nil), "cockroach.config.SystemConfig")

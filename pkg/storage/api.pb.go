@@ -56,14 +56,27 @@ const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 // StoreRequestHeader locates a Store on a Node.
 type StoreRequestHeader struct {
-	NodeID  github_com_cockroachdb_cockroach_pkg_roachpb.NodeID  `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
-	StoreID github_com_cockroachdb_cockroach_pkg_roachpb.StoreID `protobuf:"varint,2,opt,name=store_id,json=storeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.StoreID" json:"store_id,omitempty"`
+	NodeID               github_com_cockroachdb_cockroach_pkg_roachpb.NodeID  `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"node_id,omitempty"`
+	StoreID              github_com_cockroachdb_cockroach_pkg_roachpb.StoreID `protobuf:"varint,2,opt,name=store_id,json=storeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.StoreID" json:"store_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                             `json:"-"`
+	XXX_sizecache        int32                                                `json:"-"`
 }
 
 func (m *StoreRequestHeader) Reset()                    { *m = StoreRequestHeader{} }
 func (m *StoreRequestHeader) String() string            { return proto.CompactTextString(m) }
 func (*StoreRequestHeader) ProtoMessage()               {}
 func (*StoreRequestHeader) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{0} }
+func (dst *StoreRequestHeader) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StoreRequestHeader.Merge(dst, src)
+}
+func (m *StoreRequestHeader) XXX_Size() int {
+	return xxx_messageInfo_StoreRequestHeader.Size(m)
+}
+func (m *StoreRequestHeader) XXX_DiscardUnknown() {
+	xxx_messageInfo_StoreRequestHeader.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StoreRequestHeader proto.InternalMessageInfo
 
 // A CollectChecksumRequest asks the addressed replica for the result of a
 // roachpb.ComputeChecksumRequest.
@@ -71,14 +84,27 @@ type CollectChecksumRequest struct {
 	StoreRequestHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
 	RangeID            github_com_cockroachdb_cockroach_pkg_roachpb.RangeID `protobuf:"varint,2,opt,name=range_id,json=rangeId,proto3,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.RangeID" json:"range_id,omitempty"`
 	// checksum_id identifies the corresponding roachpb.ComputeChecksumRequest.
-	ChecksumID github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,3,opt,name=checksum_id,json=checksumId,proto3,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"checksum_id"`
-	Checksum   []byte                                              `protobuf:"bytes,4,opt,name=checksum,proto3" json:"checksum,omitempty"`
+	ChecksumID           github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,3,opt,name=checksum_id,json=checksumId,proto3,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"checksum_id"`
+	Checksum             []byte                                              `protobuf:"bytes,4,opt,name=checksum,proto3" json:"checksum,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *CollectChecksumRequest) Reset()                    { *m = CollectChecksumRequest{} }
 func (m *CollectChecksumRequest) String() string            { return proto.CompactTextString(m) }
 func (*CollectChecksumRequest) ProtoMessage()               {}
 func (*CollectChecksumRequest) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{1} }
+func (dst *CollectChecksumRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CollectChecksumRequest.Merge(dst, src)
+}
+func (m *CollectChecksumRequest) XXX_Size() int {
+	return xxx_messageInfo_CollectChecksumRequest.Size(m)
+}
+func (m *CollectChecksumRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CollectChecksumRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CollectChecksumRequest proto.InternalMessageInfo
 
 type CollectChecksumResponse struct {
 	Checksum []byte `protobuf:"bytes,1,opt,name=checksum,proto3" json:"checksum,omitempty"`
@@ -89,13 +115,26 @@ type CollectChecksumResponse struct {
 	// See https://github.com/cockroachdb/cockroach/issues/21128.
 	Snapshot *cockroach_roachpb1.RaftSnapshotData `protobuf:"bytes,2,opt,name=snapshot" json:"snapshot,omitempty"`
 	// delta carries the stats of the range minus the recomputed stats.
-	Delta cockroach_storage_engine_enginepb.MVCCNetworkStats `protobuf:"bytes,3,opt,name=delta" json:"delta"`
+	Delta                cockroach_storage_engine_enginepb.MVCCNetworkStats `protobuf:"bytes,3,opt,name=delta" json:"delta"`
+	XXX_NoUnkeyedLiteral struct{}                                           `json:"-"`
+	XXX_sizecache        int32                                              `json:"-"`
 }
 
 func (m *CollectChecksumResponse) Reset()                    { *m = CollectChecksumResponse{} }
 func (m *CollectChecksumResponse) String() string            { return proto.CompactTextString(m) }
 func (*CollectChecksumResponse) ProtoMessage()               {}
 func (*CollectChecksumResponse) Descriptor() ([]byte, []int) { return fileDescriptorApi, []int{2} }
+func (dst *CollectChecksumResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CollectChecksumResponse.Merge(dst, src)
+}
+func (m *CollectChecksumResponse) XXX_Size() int {
+	return xxx_messageInfo_CollectChecksumResponse.Size(m)
+}
+func (m *CollectChecksumResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CollectChecksumResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CollectChecksumResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*StoreRequestHeader)(nil), "cockroach.storage.StoreRequestHeader")

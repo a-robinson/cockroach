@@ -41,12 +41,25 @@ type LegacyTimestamp struct {
 	// times are equal. It is effectively bounded by (maximum clock
 	// skew)/(minimal ns between events) and nearly impossible to
 	// overflow.
-	Logical int32 `protobuf:"varint,2,opt,name=logical" json:"logical"`
+	Logical              int32    `protobuf:"varint,2,opt,name=logical" json:"logical"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *LegacyTimestamp) Reset()                    { *m = LegacyTimestamp{} }
 func (*LegacyTimestamp) ProtoMessage()               {}
 func (*LegacyTimestamp) Descriptor() ([]byte, []int) { return fileDescriptorLegacyTimestamp, []int{0} }
+func (dst *LegacyTimestamp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LegacyTimestamp.Merge(dst, src)
+}
+func (m *LegacyTimestamp) XXX_Size() int {
+	return xxx_messageInfo_LegacyTimestamp.Size(m)
+}
+func (m *LegacyTimestamp) XXX_DiscardUnknown() {
+	xxx_messageInfo_LegacyTimestamp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LegacyTimestamp proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*LegacyTimestamp)(nil), "cockroach.util.hlc.LegacyTimestamp")

@@ -68,14 +68,27 @@ type DataKeysRegistry struct {
 	// Map of key_id to SecretKey (raw key is included).
 	DataKeys map[string]*SecretKey `protobuf:"bytes,2,rep,name=data_keys,json=dataKeys" json:"data_keys,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
 	// Active key IDs. Empty means no keys loaded yet.
-	ActiveStoreKey string `protobuf:"bytes,3,opt,name=active_store_key,json=activeStoreKey,proto3" json:"active_store_key,omitempty"`
-	ActiveDataKey  string `protobuf:"bytes,4,opt,name=active_data_key,json=activeDataKey,proto3" json:"active_data_key,omitempty"`
+	ActiveStoreKey       string   `protobuf:"bytes,3,opt,name=active_store_key,json=activeStoreKey,proto3" json:"active_store_key,omitempty"`
+	ActiveDataKey        string   `protobuf:"bytes,4,opt,name=active_data_key,json=activeDataKey,proto3" json:"active_data_key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DataKeysRegistry) Reset()                    { *m = DataKeysRegistry{} }
 func (m *DataKeysRegistry) String() string            { return proto.CompactTextString(m) }
 func (*DataKeysRegistry) ProtoMessage()               {}
 func (*DataKeysRegistry) Descriptor() ([]byte, []int) { return fileDescriptorKeyRegistry, []int{0} }
+func (dst *DataKeysRegistry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DataKeysRegistry.Merge(dst, src)
+}
+func (m *DataKeysRegistry) XXX_Size() int {
+	return xxx_messageInfo_DataKeysRegistry.Size(m)
+}
+func (m *DataKeysRegistry) XXX_DiscardUnknown() {
+	xxx_messageInfo_DataKeysRegistry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DataKeysRegistry proto.InternalMessageInfo
 
 // KeyInfo contains information about the key, but not the key itself.
 // This is safe to pass around, log, and store.
@@ -93,13 +106,26 @@ type KeyInfo struct {
 	// This does not apply to store keys, only data keys.
 	WasExposed bool `protobuf:"varint,5,opt,name=was_exposed,json=wasExposed,proto3" json:"was_exposed,omitempty"`
 	// ID of the key that caused this key to be created.
-	ParentKeyId string `protobuf:"bytes,6,opt,name=parent_key_id,json=parentKeyId,proto3" json:"parent_key_id,omitempty"`
+	ParentKeyId          string   `protobuf:"bytes,6,opt,name=parent_key_id,json=parentKeyId,proto3" json:"parent_key_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *KeyInfo) Reset()                    { *m = KeyInfo{} }
 func (m *KeyInfo) String() string            { return proto.CompactTextString(m) }
 func (*KeyInfo) ProtoMessage()               {}
 func (*KeyInfo) Descriptor() ([]byte, []int) { return fileDescriptorKeyRegistry, []int{1} }
+func (dst *KeyInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_KeyInfo.Merge(dst, src)
+}
+func (m *KeyInfo) XXX_Size() int {
+	return xxx_messageInfo_KeyInfo.Size(m)
+}
+func (m *KeyInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_KeyInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_KeyInfo proto.InternalMessageInfo
 
 // SecretKey contains the information about the key AND the raw key itself.
 // This should never be logged, displayed, or stored outside of the key registry.
@@ -107,16 +133,31 @@ func (*KeyInfo) Descriptor() ([]byte, []int) { return fileDescriptorKeyRegistry,
 type SecretKey struct {
 	Info *KeyInfo `protobuf:"bytes,1,opt,name=info" json:"info,omitempty"`
 	// The raw key.
-	Key []byte `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	Key                  []byte   `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *SecretKey) Reset()                    { *m = SecretKey{} }
 func (m *SecretKey) String() string            { return proto.CompactTextString(m) }
 func (*SecretKey) ProtoMessage()               {}
 func (*SecretKey) Descriptor() ([]byte, []int) { return fileDescriptorKeyRegistry, []int{2} }
+func (dst *SecretKey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SecretKey.Merge(dst, src)
+}
+func (m *SecretKey) XXX_Size() int {
+	return xxx_messageInfo_SecretKey.Size(m)
+}
+func (m *SecretKey) XXX_DiscardUnknown() {
+	xxx_messageInfo_SecretKey.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SecretKey proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*DataKeysRegistry)(nil), "cockroach.ccl.storageccl.engineccl.enginepbccl.DataKeysRegistry")
+	proto.RegisterMapType((map[string]*SecretKey)(nil), "cockroach.ccl.storageccl.engineccl.enginepbccl.DataKeysRegistry.DataKeysEntry")
+	proto.RegisterMapType((map[string]*KeyInfo)(nil), "cockroach.ccl.storageccl.engineccl.enginepbccl.DataKeysRegistry.StoreKeysEntry")
 	proto.RegisterType((*KeyInfo)(nil), "cockroach.ccl.storageccl.engineccl.enginepbccl.KeyInfo")
 	proto.RegisterType((*SecretKey)(nil), "cockroach.ccl.storageccl.engineccl.enginepbccl.SecretKey")
 	proto.RegisterEnum("cockroach.ccl.storageccl.engineccl.enginepbccl.EncryptionType", EncryptionType_name, EncryptionType_value)

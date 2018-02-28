@@ -18,20 +18,46 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 type BootstrapRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *BootstrapRequest) Reset()                    { *m = BootstrapRequest{} }
 func (m *BootstrapRequest) String() string            { return proto.CompactTextString(m) }
 func (*BootstrapRequest) ProtoMessage()               {}
 func (*BootstrapRequest) Descriptor() ([]byte, []int) { return fileDescriptorInit, []int{0} }
+func (dst *BootstrapRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BootstrapRequest.Merge(dst, src)
+}
+func (m *BootstrapRequest) XXX_Size() int {
+	return xxx_messageInfo_BootstrapRequest.Size(m)
+}
+func (m *BootstrapRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_BootstrapRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BootstrapRequest proto.InternalMessageInfo
 
 type BootstrapResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *BootstrapResponse) Reset()                    { *m = BootstrapResponse{} }
 func (m *BootstrapResponse) String() string            { return proto.CompactTextString(m) }
 func (*BootstrapResponse) ProtoMessage()               {}
 func (*BootstrapResponse) Descriptor() ([]byte, []int) { return fileDescriptorInit, []int{1} }
+func (dst *BootstrapResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BootstrapResponse.Merge(dst, src)
+}
+func (m *BootstrapResponse) XXX_Size() int {
+	return xxx_messageInfo_BootstrapResponse.Size(m)
+}
+func (m *BootstrapResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_BootstrapResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BootstrapResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*BootstrapRequest)(nil), "cockroach.server.serverpb.BootstrapRequest")

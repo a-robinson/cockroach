@@ -69,13 +69,26 @@ type GCPolicy struct {
 	// TTLSeconds specifies the maximum age of a value before it's
 	// garbage collected. Only older versions of values are garbage
 	// collected. Specifying <=0 mean older versions are never GC'd.
-	TTLSeconds int32 `protobuf:"varint,1,opt,name=ttl_seconds,json=ttlSeconds" json:"ttl_seconds"`
+	TTLSeconds           int32    `protobuf:"varint,1,opt,name=ttl_seconds,json=ttlSeconds" json:"ttl_seconds"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *GCPolicy) Reset()                    { *m = GCPolicy{} }
 func (m *GCPolicy) String() string            { return proto.CompactTextString(m) }
 func (*GCPolicy) ProtoMessage()               {}
 func (*GCPolicy) Descriptor() ([]byte, []int) { return fileDescriptorZone, []int{0} }
+func (dst *GCPolicy) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GCPolicy.Merge(dst, src)
+}
+func (m *GCPolicy) XXX_Size() int {
+	return xxx_messageInfo_GCPolicy.Size(m)
+}
+func (m *GCPolicy) XXX_DiscardUnknown() {
+	xxx_messageInfo_GCPolicy.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GCPolicy proto.InternalMessageInfo
 
 // Constraint constrains the stores a replica can be stored on.
 type Constraint struct {
@@ -83,12 +96,25 @@ type Constraint struct {
 	// Key is only set if this is a constraint on locality.
 	Key string `protobuf:"bytes,2,opt,name=key" json:"key"`
 	// Value to constrain to.
-	Value string `protobuf:"bytes,3,opt,name=value" json:"value"`
+	Value                string   `protobuf:"bytes,3,opt,name=value" json:"value"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Constraint) Reset()                    { *m = Constraint{} }
 func (*Constraint) ProtoMessage()               {}
 func (*Constraint) Descriptor() ([]byte, []int) { return fileDescriptorZone, []int{1} }
+func (dst *Constraint) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Constraint.Merge(dst, src)
+}
+func (m *Constraint) XXX_Size() int {
+	return xxx_messageInfo_Constraint.Size(m)
+}
+func (m *Constraint) XXX_DiscardUnknown() {
+	xxx_messageInfo_Constraint.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Constraint proto.InternalMessageInfo
 
 // Constraints is a collection of constraints.
 type Constraints struct {
@@ -97,14 +123,27 @@ type Constraints struct {
 	// to all replicas of the range.
 	// As of v2.0, only REQUIRED constraints are allowed when num_replicas is
 	// set to a non-zero value.
-	NumReplicas int32        `protobuf:"varint,7,opt,name=num_replicas,json=numReplicas" json:"num_replicas"`
-	Constraints []Constraint `protobuf:"bytes,6,rep,name=constraints" json:"constraints"`
+	NumReplicas          int32        `protobuf:"varint,7,opt,name=num_replicas,json=numReplicas" json:"num_replicas"`
+	Constraints          []Constraint `protobuf:"bytes,6,rep,name=constraints" json:"constraints"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
 }
 
 func (m *Constraints) Reset()                    { *m = Constraints{} }
 func (m *Constraints) String() string            { return proto.CompactTextString(m) }
 func (*Constraints) ProtoMessage()               {}
 func (*Constraints) Descriptor() ([]byte, []int) { return fileDescriptorZone, []int{2} }
+func (dst *Constraints) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Constraints.Merge(dst, src)
+}
+func (m *Constraints) XXX_Size() int {
+	return xxx_messageInfo_Constraints.Size(m)
+}
+func (m *Constraints) XXX_DiscardUnknown() {
+	xxx_messageInfo_Constraints.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Constraints proto.InternalMessageInfo
 
 // ZoneConfig holds configuration that applies to one or more ranges.
 type ZoneConfig struct {
@@ -134,13 +173,26 @@ type ZoneConfig struct {
 	// allow binary searching. SubzoneSpans can be easily derived from a
 	// TableDescriptor, but are denormalized here to make GetZoneConfigForKey
 	// lookups efficient.
-	SubzoneSpans []SubzoneSpan `protobuf:"bytes,7,rep,name=subzone_spans,json=subzoneSpans" json:"subzone_spans" yaml:"-"`
+	SubzoneSpans         []SubzoneSpan `protobuf:"bytes,7,rep,name=subzone_spans,json=subzoneSpans" json:"subzone_spans" yaml:"-"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
 }
 
 func (m *ZoneConfig) Reset()                    { *m = ZoneConfig{} }
 func (m *ZoneConfig) String() string            { return proto.CompactTextString(m) }
 func (*ZoneConfig) ProtoMessage()               {}
 func (*ZoneConfig) Descriptor() ([]byte, []int) { return fileDescriptorZone, []int{3} }
+func (dst *ZoneConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ZoneConfig.Merge(dst, src)
+}
+func (m *ZoneConfig) XXX_Size() int {
+	return xxx_messageInfo_ZoneConfig.Size(m)
+}
+func (m *ZoneConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_ZoneConfig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ZoneConfig proto.InternalMessageInfo
 
 type Subzone struct {
 	// IndexID is the ID of the SQL table index that the subzone represents. It
@@ -152,13 +204,26 @@ type Subzone struct {
 	PartitionName string `protobuf:"bytes,2,opt,name=partition_name,json=partitionName" json:"partition_name"`
 	// Config stores the ZoneConfig that applies to this Subzone. It never
 	// contains nested subzones.
-	Config ZoneConfig `protobuf:"bytes,3,opt,name=config" json:"config"`
+	Config               ZoneConfig `protobuf:"bytes,3,opt,name=config" json:"config"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
 }
 
 func (m *Subzone) Reset()                    { *m = Subzone{} }
 func (m *Subzone) String() string            { return proto.CompactTextString(m) }
 func (*Subzone) ProtoMessage()               {}
 func (*Subzone) Descriptor() ([]byte, []int) { return fileDescriptorZone, []int{4} }
+func (dst *Subzone) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Subzone.Merge(dst, src)
+}
+func (m *Subzone) XXX_Size() int {
+	return xxx_messageInfo_Subzone.Size(m)
+}
+func (m *Subzone) XXX_DiscardUnknown() {
+	xxx_messageInfo_Subzone.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Subzone proto.InternalMessageInfo
 
 type SubzoneSpan struct {
 	// Key stores a key suffix that represents the inclusive lower bound for this
@@ -174,13 +239,26 @@ type SubzoneSpan struct {
 	EndKey github_com_cockroachdb_cockroach_pkg_roachpb.Key `protobuf:"bytes,2,opt,name=end_key,json=endKey,casttype=github.com/cockroachdb/cockroach/pkg/roachpb.Key" json:"end_key,omitempty"`
 	// SubzoneIndex is the slice index of the Subzone this span belongs to in the
 	// parent ZoneConfig's Subzones field.
-	SubzoneIndex int32 `protobuf:"varint,3,opt,name=subzone_index,json=subzoneIndex" json:"subzone_index"`
+	SubzoneIndex         int32    `protobuf:"varint,3,opt,name=subzone_index,json=subzoneIndex" json:"subzone_index"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *SubzoneSpan) Reset()                    { *m = SubzoneSpan{} }
 func (m *SubzoneSpan) String() string            { return proto.CompactTextString(m) }
 func (*SubzoneSpan) ProtoMessage()               {}
 func (*SubzoneSpan) Descriptor() ([]byte, []int) { return fileDescriptorZone, []int{5} }
+func (dst *SubzoneSpan) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SubzoneSpan.Merge(dst, src)
+}
+func (m *SubzoneSpan) XXX_Size() int {
+	return xxx_messageInfo_SubzoneSpan.Size(m)
+}
+func (m *SubzoneSpan) XXX_DiscardUnknown() {
+	xxx_messageInfo_SubzoneSpan.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SubzoneSpan proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*GCPolicy)(nil), "cockroach.config.GCPolicy")

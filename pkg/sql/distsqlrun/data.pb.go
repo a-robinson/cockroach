@@ -192,12 +192,25 @@ type Error struct {
 	// Types that are valid to be assigned to Detail:
 	//	*Error_PGError
 	//	*Error_RetryableTxnError
-	Detail isError_Detail `protobuf_oneof:"detail"`
+	Detail               isError_Detail `protobuf_oneof:"detail"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *Error) Reset()                    { *m = Error{} }
 func (*Error) ProtoMessage()               {}
 func (*Error) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{0} }
+func (dst *Error) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Error.Merge(dst, src)
+}
+func (m *Error) XXX_Size() int {
+	return xxx_messageInfo_Error.Size(m)
+}
+func (m *Error) XXX_DiscardUnknown() {
+	xxx_messageInfo_Error.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Error proto.InternalMessageInfo
 
 type isError_Detail interface {
 	isError_Detail()
@@ -315,34 +328,73 @@ type Expression struct {
 	Version string `protobuf:"bytes,1,opt,name=version" json:"version"`
 	// SQL expressions are passed as a string, with ordinal references
 	// (@1, @2, @3 ..) used for "input" variables.
-	Expr string `protobuf:"bytes,2,opt,name=expr" json:"expr"`
+	Expr                 string   `protobuf:"bytes,2,opt,name=expr" json:"expr"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Expression) Reset()                    { *m = Expression{} }
 func (m *Expression) String() string            { return proto.CompactTextString(m) }
 func (*Expression) ProtoMessage()               {}
 func (*Expression) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{1} }
+func (dst *Expression) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Expression.Merge(dst, src)
+}
+func (m *Expression) XXX_Size() int {
+	return xxx_messageInfo_Expression.Size(m)
+}
+func (m *Expression) XXX_DiscardUnknown() {
+	xxx_messageInfo_Expression.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Expression proto.InternalMessageInfo
 
 // Ordering defines an order - specifically a list of column indices and
 // directions. See sqlbase.ColumnOrdering.
 type Ordering struct {
-	Columns []Ordering_Column `protobuf:"bytes,1,rep,name=columns" json:"columns"`
+	Columns              []Ordering_Column `protobuf:"bytes,1,rep,name=columns" json:"columns"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
 }
 
 func (m *Ordering) Reset()                    { *m = Ordering{} }
 func (m *Ordering) String() string            { return proto.CompactTextString(m) }
 func (*Ordering) ProtoMessage()               {}
 func (*Ordering) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{2} }
+func (dst *Ordering) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ordering.Merge(dst, src)
+}
+func (m *Ordering) XXX_Size() int {
+	return xxx_messageInfo_Ordering.Size(m)
+}
+func (m *Ordering) XXX_DiscardUnknown() {
+	xxx_messageInfo_Ordering.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Ordering proto.InternalMessageInfo
 
 type Ordering_Column struct {
-	ColIdx    uint32                    `protobuf:"varint,1,opt,name=col_idx,json=colIdx" json:"col_idx"`
-	Direction Ordering_Column_Direction `protobuf:"varint,2,opt,name=direction,enum=cockroach.sql.distsqlrun.Ordering_Column_Direction" json:"direction"`
+	ColIdx               uint32                    `protobuf:"varint,1,opt,name=col_idx,json=colIdx" json:"col_idx"`
+	Direction            Ordering_Column_Direction `protobuf:"varint,2,opt,name=direction,enum=cockroach.sql.distsqlrun.Ordering_Column_Direction" json:"direction"`
+	XXX_NoUnkeyedLiteral struct{}                  `json:"-"`
+	XXX_sizecache        int32                     `json:"-"`
 }
 
 func (m *Ordering_Column) Reset()                    { *m = Ordering_Column{} }
 func (m *Ordering_Column) String() string            { return proto.CompactTextString(m) }
 func (*Ordering_Column) ProtoMessage()               {}
 func (*Ordering_Column) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{2, 0} }
+func (dst *Ordering_Column) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ordering_Column.Merge(dst, src)
+}
+func (m *Ordering_Column) XXX_Size() int {
+	return xxx_messageInfo_Ordering_Column.Size(m)
+}
+func (m *Ordering_Column) XXX_DiscardUnknown() {
+	xxx_messageInfo_Ordering_Column.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Ordering_Column proto.InternalMessageInfo
 
 // StreamEndpointSpec describes one of the endpoints (input or output) of a physical
 // stream.
@@ -359,13 +411,26 @@ type StreamEndpointSpec struct {
 	// For SYNC_RESPONSE streams, the ID is unused.
 	StreamID StreamID `protobuf:"varint,2,opt,name=stream_id,json=streamId,casttype=StreamID" json:"stream_id"`
 	// Serving address for the target host, only used for outgoing REMOTE streams.
-	TargetAddr string `protobuf:"bytes,3,opt,name=target_addr,json=targetAddr" json:"target_addr"`
+	TargetAddr           string   `protobuf:"bytes,3,opt,name=target_addr,json=targetAddr" json:"target_addr"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *StreamEndpointSpec) Reset()                    { *m = StreamEndpointSpec{} }
 func (m *StreamEndpointSpec) String() string            { return proto.CompactTextString(m) }
 func (*StreamEndpointSpec) ProtoMessage()               {}
 func (*StreamEndpointSpec) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{3} }
+func (dst *StreamEndpointSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StreamEndpointSpec.Merge(dst, src)
+}
+func (m *StreamEndpointSpec) XXX_Size() int {
+	return xxx_messageInfo_StreamEndpointSpec.Size(m)
+}
+func (m *StreamEndpointSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_StreamEndpointSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StreamEndpointSpec proto.InternalMessageInfo
 
 // InputSyncSpec is the specification for an input synchronizer; it decides how
 // to interleave rows from multiple input streams.
@@ -374,13 +439,26 @@ type InputSyncSpec struct {
 	Ordering Ordering             `protobuf:"bytes,2,opt,name=ordering" json:"ordering"`
 	Streams  []StreamEndpointSpec `protobuf:"bytes,3,rep,name=streams" json:"streams"`
 	// Schema for the streams entering this synchronizer.
-	ColumnTypes []cockroach_sql_sqlbase1.ColumnType `protobuf:"bytes,4,rep,name=column_types,json=columnTypes" json:"column_types"`
+	ColumnTypes          []cockroach_sql_sqlbase1.ColumnType `protobuf:"bytes,4,rep,name=column_types,json=columnTypes" json:"column_types"`
+	XXX_NoUnkeyedLiteral struct{}                            `json:"-"`
+	XXX_sizecache        int32                               `json:"-"`
 }
 
 func (m *InputSyncSpec) Reset()                    { *m = InputSyncSpec{} }
 func (m *InputSyncSpec) String() string            { return proto.CompactTextString(m) }
 func (*InputSyncSpec) ProtoMessage()               {}
 func (*InputSyncSpec) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{4} }
+func (dst *InputSyncSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InputSyncSpec.Merge(dst, src)
+}
+func (m *InputSyncSpec) XXX_Size() int {
+	return xxx_messageInfo_InputSyncSpec.Size(m)
+}
+func (m *InputSyncSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_InputSyncSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InputSyncSpec proto.InternalMessageInfo
 
 // OutputRouterSpec is the specification for the output router of a processor;
 // it decides how to send results to multiple output streams.
@@ -394,13 +472,26 @@ type OutputRouterSpec struct {
 	// disable_buffering disables output buffering. Generally buffering should be
 	// enabled to prevent deadlocks. However some plans are known not to deadlock,
 	// and so can set this flag to prevent unbounded buffering causing OOMs.
-	DisableBuffering bool `protobuf:"varint,5,opt,name=disable_buffering,json=disableBuffering" json:"disable_buffering"`
+	DisableBuffering     bool     `protobuf:"varint,5,opt,name=disable_buffering,json=disableBuffering" json:"disable_buffering"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *OutputRouterSpec) Reset()                    { *m = OutputRouterSpec{} }
 func (m *OutputRouterSpec) String() string            { return proto.CompactTextString(m) }
 func (*OutputRouterSpec) ProtoMessage()               {}
 func (*OutputRouterSpec) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{5} }
+func (dst *OutputRouterSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_OutputRouterSpec.Merge(dst, src)
+}
+func (m *OutputRouterSpec) XXX_Size() int {
+	return xxx_messageInfo_OutputRouterSpec.Size(m)
+}
+func (m *OutputRouterSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_OutputRouterSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_OutputRouterSpec proto.InternalMessageInfo
 
 type OutputRouterSpec_RangeRouterSpec struct {
 	// spans is a slice of Span. Input matching a span will be routed to its
@@ -413,7 +504,9 @@ type OutputRouterSpec_RangeRouterSpec struct {
 	// encodings is a slice of columns and encodings. Each will be appended to a
 	// []byte, which is used as input to the spans. Columns from the input rows
 	// potentially need to be recoded to match the encoding used for the spans.
-	Encodings []OutputRouterSpec_RangeRouterSpec_ColumnEncoding `protobuf:"bytes,3,rep,name=encodings" json:"encodings"`
+	Encodings            []OutputRouterSpec_RangeRouterSpec_ColumnEncoding `protobuf:"bytes,3,rep,name=encodings" json:"encodings"`
+	XXX_NoUnkeyedLiteral struct{}                                          `json:"-"`
+	XXX_sizecache        int32                                             `json:"-"`
 }
 
 func (m *OutputRouterSpec_RangeRouterSpec) Reset()         { *m = OutputRouterSpec_RangeRouterSpec{} }
@@ -422,6 +515,17 @@ func (*OutputRouterSpec_RangeRouterSpec) ProtoMessage()    {}
 func (*OutputRouterSpec_RangeRouterSpec) Descriptor() ([]byte, []int) {
 	return fileDescriptorData, []int{5, 0}
 }
+func (dst *OutputRouterSpec_RangeRouterSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_OutputRouterSpec_RangeRouterSpec.Merge(dst, src)
+}
+func (m *OutputRouterSpec_RangeRouterSpec) XXX_Size() int {
+	return xxx_messageInfo_OutputRouterSpec_RangeRouterSpec.Size(m)
+}
+func (m *OutputRouterSpec_RangeRouterSpec) XXX_DiscardUnknown() {
+	xxx_messageInfo_OutputRouterSpec_RangeRouterSpec.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_OutputRouterSpec_RangeRouterSpec proto.InternalMessageInfo
 
 type OutputRouterSpec_RangeRouterSpec_ColumnEncoding struct {
 	// column is the index of a column to encode.
@@ -429,7 +533,9 @@ type OutputRouterSpec_RangeRouterSpec_ColumnEncoding struct {
 	// encoding specifies how a particular column is to be encoded for
 	// generating the sort key for a row. This needs to correspond to the way
 	// the Span.{start,end} keys have been generated.
-	Encoding cockroach_sql_sqlbase2.DatumEncoding `protobuf:"varint,2,opt,name=encoding,enum=cockroach.sql.sqlbase.DatumEncoding" json:"encoding"`
+	Encoding             cockroach_sql_sqlbase2.DatumEncoding `protobuf:"varint,2,opt,name=encoding,enum=cockroach.sql.sqlbase.DatumEncoding" json:"encoding"`
+	XXX_NoUnkeyedLiteral struct{}                             `json:"-"`
+	XXX_sizecache        int32                                `json:"-"`
 }
 
 func (m *OutputRouterSpec_RangeRouterSpec_ColumnEncoding) Reset() {
@@ -442,13 +548,26 @@ func (*OutputRouterSpec_RangeRouterSpec_ColumnEncoding) ProtoMessage() {}
 func (*OutputRouterSpec_RangeRouterSpec_ColumnEncoding) Descriptor() ([]byte, []int) {
 	return fileDescriptorData, []int{5, 0, 0}
 }
+func (dst *OutputRouterSpec_RangeRouterSpec_ColumnEncoding) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_OutputRouterSpec_RangeRouterSpec_ColumnEncoding.Merge(dst, src)
+}
+func (m *OutputRouterSpec_RangeRouterSpec_ColumnEncoding) XXX_Size() int {
+	return xxx_messageInfo_OutputRouterSpec_RangeRouterSpec_ColumnEncoding.Size(m)
+}
+func (m *OutputRouterSpec_RangeRouterSpec_ColumnEncoding) XXX_DiscardUnknown() {
+	xxx_messageInfo_OutputRouterSpec_RangeRouterSpec_ColumnEncoding.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_OutputRouterSpec_RangeRouterSpec_ColumnEncoding proto.InternalMessageInfo
 
 // Span matches bytes in [start, end).
 type OutputRouterSpec_RangeRouterSpec_Span struct {
 	Start []byte `protobuf:"bytes,1,opt,name=start" json:"start,omitempty"`
 	End   []byte `protobuf:"bytes,2,opt,name=end" json:"end,omitempty"`
 	// stream is the index of the destination stream.
-	Stream int32 `protobuf:"varint,3,opt,name=stream" json:"stream"`
+	Stream               int32    `protobuf:"varint,3,opt,name=stream" json:"stream"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *OutputRouterSpec_RangeRouterSpec_Span) Reset()         { *m = OutputRouterSpec_RangeRouterSpec_Span{} }
@@ -457,27 +576,64 @@ func (*OutputRouterSpec_RangeRouterSpec_Span) ProtoMessage()    {}
 func (*OutputRouterSpec_RangeRouterSpec_Span) Descriptor() ([]byte, []int) {
 	return fileDescriptorData, []int{5, 0, 1}
 }
+func (dst *OutputRouterSpec_RangeRouterSpec_Span) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_OutputRouterSpec_RangeRouterSpec_Span.Merge(dst, src)
+}
+func (m *OutputRouterSpec_RangeRouterSpec_Span) XXX_Size() int {
+	return xxx_messageInfo_OutputRouterSpec_RangeRouterSpec_Span.Size(m)
+}
+func (m *OutputRouterSpec_RangeRouterSpec_Span) XXX_DiscardUnknown() {
+	xxx_messageInfo_OutputRouterSpec_RangeRouterSpec_Span.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_OutputRouterSpec_RangeRouterSpec_Span proto.InternalMessageInfo
 
 type DatumInfo struct {
-	Encoding cockroach_sql_sqlbase2.DatumEncoding `protobuf:"varint,1,opt,name=encoding,enum=cockroach.sql.sqlbase.DatumEncoding" json:"encoding"`
-	Type     cockroach_sql_sqlbase1.ColumnType    `protobuf:"bytes,2,opt,name=type" json:"type"`
+	Encoding             cockroach_sql_sqlbase2.DatumEncoding `protobuf:"varint,1,opt,name=encoding,enum=cockroach.sql.sqlbase.DatumEncoding" json:"encoding"`
+	Type                 cockroach_sql_sqlbase1.ColumnType    `protobuf:"bytes,2,opt,name=type" json:"type"`
+	XXX_NoUnkeyedLiteral struct{}                             `json:"-"`
+	XXX_sizecache        int32                                `json:"-"`
 }
 
 func (m *DatumInfo) Reset()                    { *m = DatumInfo{} }
 func (m *DatumInfo) String() string            { return proto.CompactTextString(m) }
 func (*DatumInfo) ProtoMessage()               {}
 func (*DatumInfo) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{6} }
+func (dst *DatumInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DatumInfo.Merge(dst, src)
+}
+func (m *DatumInfo) XXX_Size() int {
+	return xxx_messageInfo_DatumInfo.Size(m)
+}
+func (m *DatumInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_DatumInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DatumInfo proto.InternalMessageInfo
 
 // ProducerHeader is a message that is sent once at the beginning of a stream.
 type ProducerHeader struct {
-	FlowID   FlowID   `protobuf:"bytes,1,opt,name=flow_id,json=flowId,customtype=FlowID" json:"flow_id"`
-	StreamID StreamID `protobuf:"varint,2,opt,name=stream_id,json=streamId,casttype=StreamID" json:"stream_id"`
+	FlowID               FlowID   `protobuf:"bytes,1,opt,name=flow_id,json=flowId,customtype=FlowID" json:"flow_id"`
+	StreamID             StreamID `protobuf:"varint,2,opt,name=stream_id,json=streamId,casttype=StreamID" json:"stream_id"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ProducerHeader) Reset()                    { *m = ProducerHeader{} }
 func (m *ProducerHeader) String() string            { return proto.CompactTextString(m) }
 func (*ProducerHeader) ProtoMessage()               {}
 func (*ProducerHeader) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{7} }
+func (dst *ProducerHeader) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProducerHeader.Merge(dst, src)
+}
+func (m *ProducerHeader) XXX_Size() int {
+	return xxx_messageInfo_ProducerHeader.Size(m)
+}
+func (m *ProducerHeader) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProducerHeader.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProducerHeader proto.InternalMessageInfo
 
 // ProducerData is a message that can be sent multiple times as part of a stream
 // from a producer to a consumer. It contains 0 or more rows and/or 0 or more
@@ -490,13 +646,26 @@ type ProducerData struct {
 	// passed instead.
 	NumEmptyRows int32 `protobuf:"varint,3,opt,name=num_empty_rows,json=numEmptyRows" json:"num_empty_rows"`
 	// A bunch of metadata messages.
-	Metadata []RemoteProducerMetadata `protobuf:"bytes,2,rep,name=metadata" json:"metadata"`
+	Metadata             []RemoteProducerMetadata `protobuf:"bytes,2,rep,name=metadata" json:"metadata"`
+	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
+	XXX_sizecache        int32                    `json:"-"`
 }
 
 func (m *ProducerData) Reset()                    { *m = ProducerData{} }
 func (m *ProducerData) String() string            { return proto.CompactTextString(m) }
 func (*ProducerData) ProtoMessage()               {}
 func (*ProducerData) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{8} }
+func (dst *ProducerData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProducerData.Merge(dst, src)
+}
+func (m *ProducerData) XXX_Size() int {
+	return xxx_messageInfo_ProducerData.Size(m)
+}
+func (m *ProducerData) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProducerData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProducerData proto.InternalMessageInfo
 
 type ProducerMessage struct {
 	Header *ProducerHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
@@ -506,14 +675,27 @@ type ProducerMessage struct {
 	// TODO(andrei): It'd be nice if the typing information for streams would be
 	// configured statically at plan creation time, instead of being discovered
 	// dynamically through the first rows that flow.
-	Typing []DatumInfo  `protobuf:"bytes,2,rep,name=typing" json:"typing"`
-	Data   ProducerData `protobuf:"bytes,3,opt,name=data" json:"data"`
+	Typing               []DatumInfo  `protobuf:"bytes,2,rep,name=typing" json:"typing"`
+	Data                 ProducerData `protobuf:"bytes,3,opt,name=data" json:"data"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
 }
 
 func (m *ProducerMessage) Reset()                    { *m = ProducerMessage{} }
 func (m *ProducerMessage) String() string            { return proto.CompactTextString(m) }
 func (*ProducerMessage) ProtoMessage()               {}
 func (*ProducerMessage) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{9} }
+func (dst *ProducerMessage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProducerMessage.Merge(dst, src)
+}
+func (m *ProducerMessage) XXX_Size() int {
+	return xxx_messageInfo_ProducerMessage.Size(m)
+}
+func (m *ProducerMessage) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProducerMessage.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProducerMessage proto.InternalMessageInfo
 
 // RemoteProducerMetadata represents records that a producer wants to pass to
 // a consumer, other than data rows. It's named RemoteProducerMetadata to not
@@ -525,13 +707,26 @@ type RemoteProducerMetadata struct {
 	//	*RemoteProducerMetadata_Error
 	//	*RemoteProducerMetadata_TraceData_
 	//	*RemoteProducerMetadata_TxnMeta
-	Value isRemoteProducerMetadata_Value `protobuf_oneof:"value"`
+	Value                isRemoteProducerMetadata_Value `protobuf_oneof:"value"`
+	XXX_NoUnkeyedLiteral struct{}                       `json:"-"`
+	XXX_sizecache        int32                          `json:"-"`
 }
 
 func (m *RemoteProducerMetadata) Reset()                    { *m = RemoteProducerMetadata{} }
 func (m *RemoteProducerMetadata) String() string            { return proto.CompactTextString(m) }
 func (*RemoteProducerMetadata) ProtoMessage()               {}
 func (*RemoteProducerMetadata) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{10} }
+func (dst *RemoteProducerMetadata) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RemoteProducerMetadata.Merge(dst, src)
+}
+func (m *RemoteProducerMetadata) XXX_Size() int {
+	return xxx_messageInfo_RemoteProducerMetadata.Size(m)
+}
+func (m *RemoteProducerMetadata) XXX_DiscardUnknown() {
+	xxx_messageInfo_RemoteProducerMetadata.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RemoteProducerMetadata proto.InternalMessageInfo
 
 type isRemoteProducerMetadata_Value interface {
 	isRemoteProducerMetadata_Value()
@@ -705,7 +900,9 @@ func _RemoteProducerMetadata_OneofSizer(msg proto.Message) (n int) {
 }
 
 type RemoteProducerMetadata_RangeInfos struct {
-	RangeInfo []cockroach_roachpb3.RangeInfo `protobuf:"bytes,1,rep,name=range_info,json=rangeInfo" json:"range_info"`
+	RangeInfo            []cockroach_roachpb3.RangeInfo `protobuf:"bytes,1,rep,name=range_info,json=rangeInfo" json:"range_info"`
+	XXX_NoUnkeyedLiteral struct{}                       `json:"-"`
+	XXX_sizecache        int32                          `json:"-"`
 }
 
 func (m *RemoteProducerMetadata_RangeInfos) Reset()         { *m = RemoteProducerMetadata_RangeInfos{} }
@@ -714,9 +911,22 @@ func (*RemoteProducerMetadata_RangeInfos) ProtoMessage()    {}
 func (*RemoteProducerMetadata_RangeInfos) Descriptor() ([]byte, []int) {
 	return fileDescriptorData, []int{10, 0}
 }
+func (dst *RemoteProducerMetadata_RangeInfos) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RemoteProducerMetadata_RangeInfos.Merge(dst, src)
+}
+func (m *RemoteProducerMetadata_RangeInfos) XXX_Size() int {
+	return xxx_messageInfo_RemoteProducerMetadata_RangeInfos.Size(m)
+}
+func (m *RemoteProducerMetadata_RangeInfos) XXX_DiscardUnknown() {
+	xxx_messageInfo_RemoteProducerMetadata_RangeInfos.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RemoteProducerMetadata_RangeInfos proto.InternalMessageInfo
 
 type RemoteProducerMetadata_TraceData struct {
-	CollectedSpans []cockroach_util_tracing.RecordedSpan `protobuf:"bytes,1,rep,name=collected_spans,json=collectedSpans" json:"collected_spans"`
+	CollectedSpans       []cockroach_util_tracing.RecordedSpan `protobuf:"bytes,1,rep,name=collected_spans,json=collectedSpans" json:"collected_spans"`
+	XXX_NoUnkeyedLiteral struct{}                              `json:"-"`
+	XXX_sizecache        int32                                 `json:"-"`
 }
 
 func (m *RemoteProducerMetadata_TraceData) Reset()         { *m = RemoteProducerMetadata_TraceData{} }
@@ -725,6 +935,17 @@ func (*RemoteProducerMetadata_TraceData) ProtoMessage()    {}
 func (*RemoteProducerMetadata_TraceData) Descriptor() ([]byte, []int) {
 	return fileDescriptorData, []int{10, 1}
 }
+func (dst *RemoteProducerMetadata_TraceData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RemoteProducerMetadata_TraceData.Merge(dst, src)
+}
+func (m *RemoteProducerMetadata_TraceData) XXX_Size() int {
+	return xxx_messageInfo_RemoteProducerMetadata_TraceData.Size(m)
+}
+func (m *RemoteProducerMetadata_TraceData) XXX_DiscardUnknown() {
+	xxx_messageInfo_RemoteProducerMetadata_TraceData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RemoteProducerMetadata_TraceData proto.InternalMessageInfo
 
 // DistSQLVersionGossipInfo represents the DistSQL server version information
 // that gets gossiped for each node. This is used by planners to avoid planning
@@ -733,26 +954,52 @@ func (*RemoteProducerMetadata_TraceData) Descriptor() ([]byte, []int) {
 // For the meaning of the fields, see the corresponding constants in
 // distsqlrun/server.go.
 type DistSQLVersionGossipInfo struct {
-	Version            DistSQLVersion `protobuf:"varint,1,opt,name=version,casttype=DistSQLVersion" json:"version"`
-	MinAcceptedVersion DistSQLVersion `protobuf:"varint,2,opt,name=min_accepted_version,json=minAcceptedVersion,casttype=DistSQLVersion" json:"min_accepted_version"`
+	Version              DistSQLVersion `protobuf:"varint,1,opt,name=version,casttype=DistSQLVersion" json:"version"`
+	MinAcceptedVersion   DistSQLVersion `protobuf:"varint,2,opt,name=min_accepted_version,json=minAcceptedVersion,casttype=DistSQLVersion" json:"min_accepted_version"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *DistSQLVersionGossipInfo) Reset()                    { *m = DistSQLVersionGossipInfo{} }
 func (m *DistSQLVersionGossipInfo) String() string            { return proto.CompactTextString(m) }
 func (*DistSQLVersionGossipInfo) ProtoMessage()               {}
 func (*DistSQLVersionGossipInfo) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{11} }
+func (dst *DistSQLVersionGossipInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DistSQLVersionGossipInfo.Merge(dst, src)
+}
+func (m *DistSQLVersionGossipInfo) XXX_Size() int {
+	return xxx_messageInfo_DistSQLVersionGossipInfo.Size(m)
+}
+func (m *DistSQLVersionGossipInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_DistSQLVersionGossipInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DistSQLVersionGossipInfo proto.InternalMessageInfo
 
 // DistSQLDrainingInfo represents the DistSQL draining state that gets gossiped
 // for each node. This is used by planners to avoid planning on nodes that are
 // known to be draining.
 type DistSQLDrainingInfo struct {
-	Draining bool `protobuf:"varint,1,opt,name=draining" json:"draining"`
+	Draining             bool     `protobuf:"varint,1,opt,name=draining" json:"draining"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DistSQLDrainingInfo) Reset()                    { *m = DistSQLDrainingInfo{} }
 func (m *DistSQLDrainingInfo) String() string            { return proto.CompactTextString(m) }
 func (*DistSQLDrainingInfo) ProtoMessage()               {}
 func (*DistSQLDrainingInfo) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{12} }
+func (dst *DistSQLDrainingInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DistSQLDrainingInfo.Merge(dst, src)
+}
+func (m *DistSQLDrainingInfo) XXX_Size() int {
+	return xxx_messageInfo_DistSQLDrainingInfo.Size(m)
+}
+func (m *DistSQLDrainingInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_DistSQLDrainingInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DistSQLDrainingInfo proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*Error)(nil), "cockroach.sql.distsqlrun.Error")

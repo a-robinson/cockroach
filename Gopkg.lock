@@ -449,8 +449,7 @@
     "vanity",
     "vanity/command"
   ]
-  revision = "1adfc126b41513cc696b209667c8656ea7aac67c"
-  version = "v1.0.0"
+  revision = "f56b3d2b264ebbda0d75b799e6c200f6b6947e97"
 
 [[projects]]
   branch = "master"

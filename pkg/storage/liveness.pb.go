@@ -71,15 +71,28 @@ type Liveness struct {
 	// is later than the expiration timestamp).
 	Epoch int64 `protobuf:"varint,2,opt,name=epoch,proto3" json:"epoch,omitempty"`
 	// The timestamp at which this liveness record expires.
-	Expiration      cockroach_util_hlc1.LegacyTimestamp `protobuf:"bytes,3,opt,name=expiration" json:"expiration"`
-	Draining        bool                                `protobuf:"varint,4,opt,name=draining,proto3" json:"draining,omitempty"`
-	Decommissioning bool                                `protobuf:"varint,5,opt,name=decommissioning,proto3" json:"decommissioning,omitempty"`
+	Expiration           cockroach_util_hlc1.LegacyTimestamp `protobuf:"bytes,3,opt,name=expiration" json:"expiration"`
+	Draining             bool                                `protobuf:"varint,4,opt,name=draining,proto3" json:"draining,omitempty"`
+	Decommissioning      bool                                `protobuf:"varint,5,opt,name=decommissioning,proto3" json:"decommissioning,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                            `json:"-"`
+	XXX_sizecache        int32                               `json:"-"`
 }
 
 func (m *Liveness) Reset()                    { *m = Liveness{} }
 func (m *Liveness) String() string            { return proto.CompactTextString(m) }
 func (*Liveness) ProtoMessage()               {}
 func (*Liveness) Descriptor() ([]byte, []int) { return fileDescriptorLiveness, []int{0} }
+func (dst *Liveness) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Liveness.Merge(dst, src)
+}
+func (m *Liveness) XXX_Size() int {
+	return xxx_messageInfo_Liveness.Size(m)
+}
+func (m *Liveness) XXX_DiscardUnknown() {
+	xxx_messageInfo_Liveness.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Liveness proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*Liveness)(nil), "cockroach.storage.Liveness")

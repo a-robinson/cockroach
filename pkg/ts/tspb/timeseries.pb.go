@@ -144,13 +144,26 @@ type TimeSeriesDatapoint struct {
 	// since the unix epoch.
 	TimestampNanos int64 `protobuf:"varint,1,opt,name=timestamp_nanos,json=timestampNanos" json:"timestamp_nanos"`
 	// A floating point representation of the value of this datapoint.
-	Value float64 `protobuf:"fixed64,2,opt,name=value" json:"value"`
+	Value                float64  `protobuf:"fixed64,2,opt,name=value" json:"value"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TimeSeriesDatapoint) Reset()                    { *m = TimeSeriesDatapoint{} }
 func (m *TimeSeriesDatapoint) String() string            { return proto.CompactTextString(m) }
 func (*TimeSeriesDatapoint) ProtoMessage()               {}
 func (*TimeSeriesDatapoint) Descriptor() ([]byte, []int) { return fileDescriptorTimeseries, []int{0} }
+func (dst *TimeSeriesDatapoint) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TimeSeriesDatapoint.Merge(dst, src)
+}
+func (m *TimeSeriesDatapoint) XXX_Size() int {
+	return xxx_messageInfo_TimeSeriesDatapoint.Size(m)
+}
+func (m *TimeSeriesDatapoint) XXX_DiscardUnknown() {
+	xxx_messageInfo_TimeSeriesDatapoint.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TimeSeriesDatapoint proto.InternalMessageInfo
 
 // TimeSeriesData is a set of measurements of a single named variable at
 // multiple points in time. This message contains a name and a source which, in
@@ -163,13 +176,26 @@ type TimeSeriesData struct {
 	// A string which identifies the unique source from which the variable was measured.
 	Source string `protobuf:"bytes,2,opt,name=source" json:"source"`
 	// Datapoints representing one or more measurements taken from the variable.
-	Datapoints []TimeSeriesDatapoint `protobuf:"bytes,3,rep,name=datapoints" json:"datapoints"`
+	Datapoints           []TimeSeriesDatapoint `protobuf:"bytes,3,rep,name=datapoints" json:"datapoints"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
 func (m *TimeSeriesData) Reset()                    { *m = TimeSeriesData{} }
 func (m *TimeSeriesData) String() string            { return proto.CompactTextString(m) }
 func (*TimeSeriesData) ProtoMessage()               {}
 func (*TimeSeriesData) Descriptor() ([]byte, []int) { return fileDescriptorTimeseries, []int{1} }
+func (dst *TimeSeriesData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TimeSeriesData.Merge(dst, src)
+}
+func (m *TimeSeriesData) XXX_Size() int {
+	return xxx_messageInfo_TimeSeriesData.Size(m)
+}
+func (m *TimeSeriesData) XXX_DiscardUnknown() {
+	xxx_messageInfo_TimeSeriesData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TimeSeriesData proto.InternalMessageInfo
 
 // Each Query defines a specific metric to query over the time span of
 // this request.
@@ -187,13 +213,26 @@ type Query struct {
 	Derivative *TimeSeriesQueryDerivative `protobuf:"varint,4,opt,name=derivative,enum=cockroach.ts.tspb.TimeSeriesQueryDerivative,def=0" json:"derivative,omitempty"`
 	// An optional list of sources to restrict the time series query. If no
 	// sources are provided, all available sources will be queried.
-	Sources []string `protobuf:"bytes,5,rep,name=sources" json:"sources,omitempty"`
+	Sources              []string `protobuf:"bytes,5,rep,name=sources" json:"sources,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Query) Reset()                    { *m = Query{} }
 func (m *Query) String() string            { return proto.CompactTextString(m) }
 func (*Query) ProtoMessage()               {}
 func (*Query) Descriptor() ([]byte, []int) { return fileDescriptorTimeseries, []int{2} }
+func (dst *Query) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Query.Merge(dst, src)
+}
+func (m *Query) XXX_Size() int {
+	return xxx_messageInfo_Query.Size(m)
+}
+func (m *Query) XXX_DiscardUnknown() {
+	xxx_messageInfo_Query.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Query proto.InternalMessageInfo
 
 const Default_Query_Downsampler TimeSeriesQueryAggregator = TimeSeriesQueryAggregator_AVG
 const Default_Query_SourceAggregator TimeSeriesQueryAggregator = TimeSeriesQueryAggregator_SUM
@@ -249,13 +288,26 @@ type TimeSeriesQueryRequest struct {
 	// Duration of requested sample period in nanoseconds. Returned data for each
 	// query will be downsampled into periods of the supplied length. The
 	// supplied duration must be a multiple of ten seconds.
-	SampleNanos int64 `protobuf:"varint,4,opt,name=sample_nanos,json=sampleNanos" json:"sample_nanos"`
+	SampleNanos          int64    `protobuf:"varint,4,opt,name=sample_nanos,json=sampleNanos" json:"sample_nanos"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TimeSeriesQueryRequest) Reset()                    { *m = TimeSeriesQueryRequest{} }
 func (m *TimeSeriesQueryRequest) String() string            { return proto.CompactTextString(m) }
 func (*TimeSeriesQueryRequest) ProtoMessage()               {}
 func (*TimeSeriesQueryRequest) Descriptor() ([]byte, []int) { return fileDescriptorTimeseries, []int{3} }
+func (dst *TimeSeriesQueryRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TimeSeriesQueryRequest.Merge(dst, src)
+}
+func (m *TimeSeriesQueryRequest) XXX_Size() int {
+	return xxx_messageInfo_TimeSeriesQueryRequest.Size(m)
+}
+func (m *TimeSeriesQueryRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_TimeSeriesQueryRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TimeSeriesQueryRequest proto.InternalMessageInfo
 
 // TimeSeriesQueryResponse is the standard response for time series queries
 // returned to cockroach clients.
@@ -263,7 +315,9 @@ type TimeSeriesQueryResponse struct {
 	// A set of Results; there will be one result for each Query in the matching
 	// TimeSeriesQueryRequest, in the same order. A Result will be present for
 	// each Query even if there are zero datapoints to return.
-	Results []TimeSeriesQueryResponse_Result `protobuf:"bytes,1,rep,name=results" json:"results"`
+	Results              []TimeSeriesQueryResponse_Result `protobuf:"bytes,1,rep,name=results" json:"results"`
+	XXX_NoUnkeyedLiteral struct{}                         `json:"-"`
+	XXX_sizecache        int32                            `json:"-"`
 }
 
 func (m *TimeSeriesQueryResponse) Reset()         { *m = TimeSeriesQueryResponse{} }
@@ -272,11 +326,24 @@ func (*TimeSeriesQueryResponse) ProtoMessage()    {}
 func (*TimeSeriesQueryResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptorTimeseries, []int{4}
 }
+func (dst *TimeSeriesQueryResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TimeSeriesQueryResponse.Merge(dst, src)
+}
+func (m *TimeSeriesQueryResponse) XXX_Size() int {
+	return xxx_messageInfo_TimeSeriesQueryResponse.Size(m)
+}
+func (m *TimeSeriesQueryResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_TimeSeriesQueryResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TimeSeriesQueryResponse proto.InternalMessageInfo
 
 // Result is the data returned from a single metric query over a time span.
 type TimeSeriesQueryResponse_Result struct {
-	Query      `protobuf:"bytes,1,opt,name=query,embedded=query" json:"query"`
-	Datapoints []TimeSeriesDatapoint `protobuf:"bytes,2,rep,name=datapoints" json:"datapoints"`
+	Query                `protobuf:"bytes,1,opt,name=query,embedded=query" json:"query"`
+	Datapoints           []TimeSeriesDatapoint `protobuf:"bytes,2,rep,name=datapoints" json:"datapoints"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
 func (m *TimeSeriesQueryResponse_Result) Reset()         { *m = TimeSeriesQueryResponse_Result{} }
@@ -285,6 +352,17 @@ func (*TimeSeriesQueryResponse_Result) ProtoMessage()    {}
 func (*TimeSeriesQueryResponse_Result) Descriptor() ([]byte, []int) {
 	return fileDescriptorTimeseries, []int{4, 0}
 }
+func (dst *TimeSeriesQueryResponse_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TimeSeriesQueryResponse_Result.Merge(dst, src)
+}
+func (m *TimeSeriesQueryResponse_Result) XXX_Size() int {
+	return xxx_messageInfo_TimeSeriesQueryResponse_Result.Size(m)
+}
+func (m *TimeSeriesQueryResponse_Result) XXX_DiscardUnknown() {
+	xxx_messageInfo_TimeSeriesQueryResponse_Result.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TimeSeriesQueryResponse_Result proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*TimeSeriesDatapoint)(nil), "cockroach.ts.tspb.TimeSeriesDatapoint")

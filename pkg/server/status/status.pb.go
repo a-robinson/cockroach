@@ -39,14 +39,27 @@ const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 // StoreStatus records the most recent values of metrics for a store.
 type StoreStatus struct {
-	Desc    cockroach_roachpb.StoreDescriptor `protobuf:"bytes,1,opt,name=desc" json:"desc"`
-	Metrics map[string]float64                `protobuf:"bytes,2,rep,name=metrics" json:"metrics,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"fixed64,2,opt,name=value,proto3"`
+	Desc                 cockroach_roachpb.StoreDescriptor `protobuf:"bytes,1,opt,name=desc" json:"desc"`
+	Metrics              map[string]float64                `protobuf:"bytes,2,rep,name=metrics" json:"metrics,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"fixed64,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}                          `json:"-"`
+	XXX_sizecache        int32                             `json:"-"`
 }
 
 func (m *StoreStatus) Reset()                    { *m = StoreStatus{} }
 func (m *StoreStatus) String() string            { return proto.CompactTextString(m) }
 func (*StoreStatus) ProtoMessage()               {}
 func (*StoreStatus) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{0} }
+func (dst *StoreStatus) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StoreStatus.Merge(dst, src)
+}
+func (m *StoreStatus) XXX_Size() int {
+	return xxx_messageInfo_StoreStatus.Size(m)
+}
+func (m *StoreStatus) XXX_DiscardUnknown() {
+	xxx_messageInfo_StoreStatus.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StoreStatus proto.InternalMessageInfo
 
 // NodeStatus records the most recent values of metrics for a node.
 type NodeStatus struct {
@@ -66,18 +79,33 @@ type NodeStatus struct {
 	Latencies map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]int64 `protobuf:"bytes,9,rep,name=latencies,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"latencies" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`
 	// activity is a map of nodeIDs to network statistics from this node
 	// to other nodes.
-	Activity map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]NodeStatus_NetworkActivity `protobuf:"bytes,10,rep,name=activity,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"activity" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	Activity             map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]NodeStatus_NetworkActivity `protobuf:"bytes,10,rep,name=activity,castkey=github.com/cockroachdb/cockroach/pkg/roachpb.NodeID" json:"activity" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value"`
+	XXX_NoUnkeyedLiteral struct{}                                                                           `json:"-"`
+	XXX_sizecache        int32                                                                              `json:"-"`
 }
 
 func (m *NodeStatus) Reset()                    { *m = NodeStatus{} }
 func (m *NodeStatus) String() string            { return proto.CompactTextString(m) }
 func (*NodeStatus) ProtoMessage()               {}
 func (*NodeStatus) Descriptor() ([]byte, []int) { return fileDescriptorStatus, []int{1} }
+func (dst *NodeStatus) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodeStatus.Merge(dst, src)
+}
+func (m *NodeStatus) XXX_Size() int {
+	return xxx_messageInfo_NodeStatus.Size(m)
+}
+func (m *NodeStatus) XXX_DiscardUnknown() {
+	xxx_messageInfo_NodeStatus.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NodeStatus proto.InternalMessageInfo
 
 type NodeStatus_NetworkActivity struct {
-	Incoming int64 `protobuf:"varint,1,opt,name=incoming,proto3" json:"incoming,omitempty"`
-	Outgoing int64 `protobuf:"varint,2,opt,name=outgoing,proto3" json:"outgoing,omitempty"`
-	Latency  int64 `protobuf:"varint,3,opt,name=latency,proto3" json:"latency,omitempty"`
+	Incoming             int64    `protobuf:"varint,1,opt,name=incoming,proto3" json:"incoming,omitempty"`
+	Outgoing             int64    `protobuf:"varint,2,opt,name=outgoing,proto3" json:"outgoing,omitempty"`
+	Latency              int64    `protobuf:"varint,3,opt,name=latency,proto3" json:"latency,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *NodeStatus_NetworkActivity) Reset()         { *m = NodeStatus_NetworkActivity{} }
@@ -86,10 +114,25 @@ func (*NodeStatus_NetworkActivity) ProtoMessage()    {}
 func (*NodeStatus_NetworkActivity) Descriptor() ([]byte, []int) {
 	return fileDescriptorStatus, []int{1, 2}
 }
+func (dst *NodeStatus_NetworkActivity) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodeStatus_NetworkActivity.Merge(dst, src)
+}
+func (m *NodeStatus_NetworkActivity) XXX_Size() int {
+	return xxx_messageInfo_NodeStatus_NetworkActivity.Size(m)
+}
+func (m *NodeStatus_NetworkActivity) XXX_DiscardUnknown() {
+	xxx_messageInfo_NodeStatus_NetworkActivity.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NodeStatus_NetworkActivity proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*StoreStatus)(nil), "cockroach.server.status.StoreStatus")
+	proto.RegisterMapType((map[string]float64)(nil), "cockroach.server.status.StoreStatus.MetricsEntry")
 	proto.RegisterType((*NodeStatus)(nil), "cockroach.server.status.NodeStatus")
+	proto.RegisterMapType((map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]NodeStatus_NetworkActivity)(nil), "cockroach.server.status.NodeStatus.ActivityEntry")
+	proto.RegisterMapType((map[github_com_cockroachdb_cockroach_pkg_roachpb.NodeID]int64)(nil), "cockroach.server.status.NodeStatus.LatenciesEntry")
+	proto.RegisterMapType((map[string]float64)(nil), "cockroach.server.status.NodeStatus.MetricsEntry")
 	proto.RegisterType((*NodeStatus_NetworkActivity)(nil), "cockroach.server.status.NodeStatus.NetworkActivity")
 }
 func (m *StoreStatus) Marshal() (dAtA []byte, err error) {

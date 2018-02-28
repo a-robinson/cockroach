@@ -56,16 +56,29 @@ func (x License_Type) String() string {
 func (License_Type) EnumDescriptor() ([]byte, []int) { return fileDescriptorLicense, []int{0, 0} }
 
 type License struct {
-	ClusterID         []github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,1,rep,name=cluster_id,json=clusterId,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"cluster_id"`
-	ValidUntilUnixSec int64                                                 `protobuf:"varint,2,opt,name=valid_until_unix_sec,json=validUntilUnixSec,proto3" json:"valid_until_unix_sec,omitempty"`
-	Type              License_Type                                          `protobuf:"varint,3,opt,name=type,proto3,enum=cockroach.ccl.utilccl.licenseccl.License_Type" json:"type,omitempty"`
-	OrganizationName  string                                                `protobuf:"bytes,4,opt,name=organization_name,json=organizationName,proto3" json:"organization_name,omitempty"`
+	ClusterID            []github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,1,rep,name=cluster_id,json=clusterId,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"cluster_id"`
+	ValidUntilUnixSec    int64                                                 `protobuf:"varint,2,opt,name=valid_until_unix_sec,json=validUntilUnixSec,proto3" json:"valid_until_unix_sec,omitempty"`
+	Type                 License_Type                                          `protobuf:"varint,3,opt,name=type,proto3,enum=cockroach.ccl.utilccl.licenseccl.License_Type" json:"type,omitempty"`
+	OrganizationName     string                                                `protobuf:"bytes,4,opt,name=organization_name,json=organizationName,proto3" json:"organization_name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                              `json:"-"`
+	XXX_sizecache        int32                                                 `json:"-"`
 }
 
 func (m *License) Reset()                    { *m = License{} }
 func (m *License) String() string            { return proto.CompactTextString(m) }
 func (*License) ProtoMessage()               {}
 func (*License) Descriptor() ([]byte, []int) { return fileDescriptorLicense, []int{0} }
+func (dst *License) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_License.Merge(dst, src)
+}
+func (m *License) XXX_Size() int {
+	return xxx_messageInfo_License.Size(m)
+}
+func (m *License) XXX_DiscardUnknown() {
+	xxx_messageInfo_License.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_License proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*License)(nil), "cockroach.ccl.utilccl.licenseccl.License")

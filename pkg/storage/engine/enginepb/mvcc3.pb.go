@@ -76,38 +76,64 @@ type TxnMeta struct {
 	// A zero-indexed sequence number indicating the index of a command
 	// within a batch. This disambiguate Raft replays of a batch from
 	// multiple commands in a batch which modify the same key.
-	BatchIndex int32 `protobuf:"varint,8,opt,name=batch_index,json=batchIndex,proto3" json:"batch_index,omitempty"`
+	BatchIndex           int32    `protobuf:"varint,8,opt,name=batch_index,json=batchIndex,proto3" json:"batch_index,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TxnMeta) Reset()                    { *m = TxnMeta{} }
 func (m *TxnMeta) String() string            { return proto.CompactTextString(m) }
 func (*TxnMeta) ProtoMessage()               {}
 func (*TxnMeta) Descriptor() ([]byte, []int) { return fileDescriptorMvcc3, []int{0} }
+func (dst *TxnMeta) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TxnMeta.Merge(dst, src)
+}
+func (m *TxnMeta) XXX_Size() int {
+	return xxx_messageInfo_TxnMeta.Size(m)
+}
+func (m *TxnMeta) XXX_DiscardUnknown() {
+	xxx_messageInfo_TxnMeta.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TxnMeta proto.InternalMessageInfo
 
 // MVCCNetworkStats is convertible to MVCCStats, but uses variable width
 // encodings for most fields. This makes the encodings incompatible. Note that
 // with proto3, zero-valued primitive types will not be encoded at all.
 type MVCCNetworkStats struct {
-	ContainsEstimates bool  `protobuf:"varint,14,opt,name=contains_estimates,json=containsEstimates,proto3" json:"contains_estimates,omitempty"`
-	LastUpdateNanos   int64 `protobuf:"fixed64,1,opt,name=last_update_nanos,json=lastUpdateNanos,proto3" json:"last_update_nanos,omitempty"`
-	IntentAge         int64 `protobuf:"fixed64,2,opt,name=intent_age,json=intentAge,proto3" json:"intent_age,omitempty"`
-	GCBytesAge        int64 `protobuf:"fixed64,3,opt,name=gc_bytes_age,json=gcBytesAge,proto3" json:"gc_bytes_age,omitempty"`
-	LiveBytes         int64 `protobuf:"zigzag64,4,opt,name=live_bytes,json=liveBytes,proto3" json:"live_bytes,omitempty"`
-	LiveCount         int64 `protobuf:"zigzag64,5,opt,name=live_count,json=liveCount,proto3" json:"live_count,omitempty"`
-	KeyBytes          int64 `protobuf:"zigzag64,6,opt,name=key_bytes,json=keyBytes,proto3" json:"key_bytes,omitempty"`
-	KeyCount          int64 `protobuf:"zigzag64,7,opt,name=key_count,json=keyCount,proto3" json:"key_count,omitempty"`
-	ValBytes          int64 `protobuf:"zigzag64,8,opt,name=val_bytes,json=valBytes,proto3" json:"val_bytes,omitempty"`
-	ValCount          int64 `protobuf:"zigzag64,9,opt,name=val_count,json=valCount,proto3" json:"val_count,omitempty"`
-	IntentBytes       int64 `protobuf:"zigzag64,10,opt,name=intent_bytes,json=intentBytes,proto3" json:"intent_bytes,omitempty"`
-	IntentCount       int64 `protobuf:"zigzag64,11,opt,name=intent_count,json=intentCount,proto3" json:"intent_count,omitempty"`
-	SysBytes          int64 `protobuf:"zigzag64,12,opt,name=sys_bytes,json=sysBytes,proto3" json:"sys_bytes,omitempty"`
-	SysCount          int64 `protobuf:"zigzag64,13,opt,name=sys_count,json=sysCount,proto3" json:"sys_count,omitempty"`
+	ContainsEstimates    bool     `protobuf:"varint,14,opt,name=contains_estimates,json=containsEstimates,proto3" json:"contains_estimates,omitempty"`
+	LastUpdateNanos      int64    `protobuf:"fixed64,1,opt,name=last_update_nanos,json=lastUpdateNanos,proto3" json:"last_update_nanos,omitempty"`
+	IntentAge            int64    `protobuf:"fixed64,2,opt,name=intent_age,json=intentAge,proto3" json:"intent_age,omitempty"`
+	GCBytesAge           int64    `protobuf:"fixed64,3,opt,name=gc_bytes_age,json=gcBytesAge,proto3" json:"gc_bytes_age,omitempty"`
+	LiveBytes            int64    `protobuf:"zigzag64,4,opt,name=live_bytes,json=liveBytes,proto3" json:"live_bytes,omitempty"`
+	LiveCount            int64    `protobuf:"zigzag64,5,opt,name=live_count,json=liveCount,proto3" json:"live_count,omitempty"`
+	KeyBytes             int64    `protobuf:"zigzag64,6,opt,name=key_bytes,json=keyBytes,proto3" json:"key_bytes,omitempty"`
+	KeyCount             int64    `protobuf:"zigzag64,7,opt,name=key_count,json=keyCount,proto3" json:"key_count,omitempty"`
+	ValBytes             int64    `protobuf:"zigzag64,8,opt,name=val_bytes,json=valBytes,proto3" json:"val_bytes,omitempty"`
+	ValCount             int64    `protobuf:"zigzag64,9,opt,name=val_count,json=valCount,proto3" json:"val_count,omitempty"`
+	IntentBytes          int64    `protobuf:"zigzag64,10,opt,name=intent_bytes,json=intentBytes,proto3" json:"intent_bytes,omitempty"`
+	IntentCount          int64    `protobuf:"zigzag64,11,opt,name=intent_count,json=intentCount,proto3" json:"intent_count,omitempty"`
+	SysBytes             int64    `protobuf:"zigzag64,12,opt,name=sys_bytes,json=sysBytes,proto3" json:"sys_bytes,omitempty"`
+	SysCount             int64    `protobuf:"zigzag64,13,opt,name=sys_count,json=sysCount,proto3" json:"sys_count,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *MVCCNetworkStats) Reset()                    { *m = MVCCNetworkStats{} }
 func (m *MVCCNetworkStats) String() string            { return proto.CompactTextString(m) }
 func (*MVCCNetworkStats) ProtoMessage()               {}
 func (*MVCCNetworkStats) Descriptor() ([]byte, []int) { return fileDescriptorMvcc3, []int{1} }
+func (dst *MVCCNetworkStats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MVCCNetworkStats.Merge(dst, src)
+}
+func (m *MVCCNetworkStats) XXX_Size() int {
+	return xxx_messageInfo_MVCCNetworkStats.Size(m)
+}
+func (m *MVCCNetworkStats) XXX_DiscardUnknown() {
+	xxx_messageInfo_MVCCNetworkStats.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MVCCNetworkStats proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*TxnMeta)(nil), "cockroach.storage.engine.enginepb.TxnMeta")

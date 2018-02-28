@@ -80,24 +80,50 @@ func (InitMode) EnumDescriptor() ([]byte, []int) { return fileDescriptorTestconf
 
 // StoreConfig holds the configuration of a collection of similar stores.
 type StoreConfig struct {
-	MaxRanges int32 `protobuf:"varint,2,opt,name=max_ranges,json=maxRanges" json:"max_ranges"`
+	MaxRanges            int32    `protobuf:"varint,2,opt,name=max_ranges,json=maxRanges" json:"max_ranges"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *StoreConfig) Reset()                    { *m = StoreConfig{} }
 func (m *StoreConfig) String() string            { return proto.CompactTextString(m) }
 func (*StoreConfig) ProtoMessage()               {}
 func (*StoreConfig) Descriptor() ([]byte, []int) { return fileDescriptorTestconfig, []int{0} }
+func (dst *StoreConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StoreConfig.Merge(dst, src)
+}
+func (m *StoreConfig) XXX_Size() int {
+	return xxx_messageInfo_StoreConfig.Size(m)
+}
+func (m *StoreConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_StoreConfig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StoreConfig proto.InternalMessageInfo
 
 // NodeConfig holds the configuration of a collection of similar nodes.
 type NodeConfig struct {
-	Version string        `protobuf:"bytes,1,opt,name=version" json:"version"`
-	Stores  []StoreConfig `protobuf:"bytes,2,rep,name=stores" json:"stores"`
+	Version              string        `protobuf:"bytes,1,opt,name=version" json:"version"`
+	Stores               []StoreConfig `protobuf:"bytes,2,rep,name=stores" json:"stores"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
 }
 
 func (m *NodeConfig) Reset()                    { *m = NodeConfig{} }
 func (m *NodeConfig) String() string            { return proto.CompactTextString(m) }
 func (*NodeConfig) ProtoMessage()               {}
 func (*NodeConfig) Descriptor() ([]byte, []int) { return fileDescriptorTestconfig, []int{1} }
+func (dst *NodeConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodeConfig.Merge(dst, src)
+}
+func (m *NodeConfig) XXX_Size() int {
+	return xxx_messageInfo_NodeConfig.Size(m)
+}
+func (m *NodeConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_NodeConfig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NodeConfig proto.InternalMessageInfo
 
 type TestConfig struct {
 	Name  string       `protobuf:"bytes,1,opt,name=name" json:"name"`
@@ -108,13 +134,26 @@ type TestConfig struct {
 	InitMode InitMode      `protobuf:"varint,4,opt,name=init_mode,json=initMode,enum=cockroach.acceptance.cluster.InitMode" json:"init_mode"`
 	// When set, the cluster is started as quickly as possible, without waiting
 	// for ranges to replicate, or even ports to be opened.
-	NoWait bool `protobuf:"varint,5,opt,name=no_wait,json=noWait" json:"no_wait"`
+	NoWait               bool     `protobuf:"varint,5,opt,name=no_wait,json=noWait" json:"no_wait"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TestConfig) Reset()                    { *m = TestConfig{} }
 func (m *TestConfig) String() string            { return proto.CompactTextString(m) }
 func (*TestConfig) ProtoMessage()               {}
 func (*TestConfig) Descriptor() ([]byte, []int) { return fileDescriptorTestconfig, []int{2} }
+func (dst *TestConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TestConfig.Merge(dst, src)
+}
+func (m *TestConfig) XXX_Size() int {
+	return xxx_messageInfo_TestConfig.Size(m)
+}
+func (m *TestConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_TestConfig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TestConfig proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*StoreConfig)(nil), "cockroach.acceptance.cluster.StoreConfig")

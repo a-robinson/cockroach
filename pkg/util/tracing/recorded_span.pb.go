@@ -57,19 +57,34 @@ type RecordedSpan struct {
 	// Duration in nanoseconds; 0 if the span is not finished.
 	Duration time.Duration `protobuf:"bytes,8,opt,name=duration,stdduration" json:"duration"`
 	// Events logged in the span.
-	Logs []RecordedSpan_LogRecord `protobuf:"bytes,9,rep,name=logs" json:"logs"`
+	Logs                 []RecordedSpan_LogRecord `protobuf:"bytes,9,rep,name=logs" json:"logs"`
+	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
+	XXX_sizecache        int32                    `json:"-"`
 }
 
 func (m *RecordedSpan) Reset()                    { *m = RecordedSpan{} }
 func (m *RecordedSpan) String() string            { return proto.CompactTextString(m) }
 func (*RecordedSpan) ProtoMessage()               {}
 func (*RecordedSpan) Descriptor() ([]byte, []int) { return fileDescriptorRecordedSpan, []int{0} }
+func (dst *RecordedSpan) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RecordedSpan.Merge(dst, src)
+}
+func (m *RecordedSpan) XXX_Size() int {
+	return xxx_messageInfo_RecordedSpan.Size(m)
+}
+func (m *RecordedSpan) XXX_DiscardUnknown() {
+	xxx_messageInfo_RecordedSpan.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RecordedSpan proto.InternalMessageInfo
 
 type RecordedSpan_LogRecord struct {
 	// Time of the log record.
 	Time time.Time `protobuf:"bytes,1,opt,name=time,stdtime" json:"time"`
 	// Fields with values converted to strings.
-	Fields []RecordedSpan_LogRecord_Field `protobuf:"bytes,2,rep,name=fields" json:"fields"`
+	Fields               []RecordedSpan_LogRecord_Field `protobuf:"bytes,2,rep,name=fields" json:"fields"`
+	XXX_NoUnkeyedLiteral struct{}                       `json:"-"`
+	XXX_sizecache        int32                          `json:"-"`
 }
 
 func (m *RecordedSpan_LogRecord) Reset()         { *m = RecordedSpan_LogRecord{} }
@@ -78,10 +93,23 @@ func (*RecordedSpan_LogRecord) ProtoMessage()    {}
 func (*RecordedSpan_LogRecord) Descriptor() ([]byte, []int) {
 	return fileDescriptorRecordedSpan, []int{0, 2}
 }
+func (dst *RecordedSpan_LogRecord) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RecordedSpan_LogRecord.Merge(dst, src)
+}
+func (m *RecordedSpan_LogRecord) XXX_Size() int {
+	return xxx_messageInfo_RecordedSpan_LogRecord.Size(m)
+}
+func (m *RecordedSpan_LogRecord) XXX_DiscardUnknown() {
+	xxx_messageInfo_RecordedSpan_LogRecord.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RecordedSpan_LogRecord proto.InternalMessageInfo
 
 type RecordedSpan_LogRecord_Field struct {
-	Key   string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	Key                  string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Value                string   `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RecordedSpan_LogRecord_Field) Reset()         { *m = RecordedSpan_LogRecord_Field{} }
@@ -90,9 +118,22 @@ func (*RecordedSpan_LogRecord_Field) ProtoMessage()    {}
 func (*RecordedSpan_LogRecord_Field) Descriptor() ([]byte, []int) {
 	return fileDescriptorRecordedSpan, []int{0, 2, 0}
 }
+func (dst *RecordedSpan_LogRecord_Field) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RecordedSpan_LogRecord_Field.Merge(dst, src)
+}
+func (m *RecordedSpan_LogRecord_Field) XXX_Size() int {
+	return xxx_messageInfo_RecordedSpan_LogRecord_Field.Size(m)
+}
+func (m *RecordedSpan_LogRecord_Field) XXX_DiscardUnknown() {
+	xxx_messageInfo_RecordedSpan_LogRecord_Field.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RecordedSpan_LogRecord_Field proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*RecordedSpan)(nil), "cockroach.util.tracing.RecordedSpan")
+	proto.RegisterMapType((map[string]string)(nil), "cockroach.util.tracing.RecordedSpan.BaggageEntry")
+	proto.RegisterMapType((map[string]string)(nil), "cockroach.util.tracing.RecordedSpan.TagsEntry")
 	proto.RegisterType((*RecordedSpan_LogRecord)(nil), "cockroach.util.tracing.RecordedSpan.LogRecord")
 	proto.RegisterType((*RecordedSpan_LogRecord_Field)(nil), "cockroach.util.tracing.RecordedSpan.LogRecord.Field")
 }

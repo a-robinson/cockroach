@@ -150,12 +150,25 @@ type Span struct {
 	// it must order strictly after Key. In such a case, the header indicates
 	// that the operation takes place on the key range from Key to EndKey,
 	// including Key and excluding EndKey.
-	EndKey Key `protobuf:"bytes,4,opt,name=end_key,json=endKey,proto3,casttype=Key" json:"end_key,omitempty"`
+	EndKey               Key      `protobuf:"bytes,4,opt,name=end_key,json=endKey,proto3,casttype=Key" json:"end_key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Span) Reset()                    { *m = Span{} }
 func (*Span) ProtoMessage()               {}
 func (*Span) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{0} }
+func (dst *Span) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Span.Merge(dst, src)
+}
+func (m *Span) XXX_Size() int {
+	return xxx_messageInfo_Span.Size(m)
+}
+func (m *Span) XXX_DiscardUnknown() {
+	xxx_messageInfo_Span.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Span proto.InternalMessageInfo
 
 // Value specifies the value at a key. Multiple values at the same key are
 // supported based on timestamp. The data stored within a value is typed
@@ -175,39 +188,78 @@ type Value struct {
 	// raw_bytes contains the encoded value and checksum.
 	RawBytes []byte `protobuf:"bytes,1,opt,name=raw_bytes,json=rawBytes,proto3" json:"raw_bytes,omitempty"`
 	// Timestamp of value.
-	Timestamp cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=timestamp" json:"timestamp"`
+	Timestamp            cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=timestamp" json:"timestamp"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *Value) Reset()                    { *m = Value{} }
 func (m *Value) String() string            { return proto.CompactTextString(m) }
 func (*Value) ProtoMessage()               {}
 func (*Value) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{1} }
+func (dst *Value) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Value.Merge(dst, src)
+}
+func (m *Value) XXX_Size() int {
+	return xxx_messageInfo_Value.Size(m)
+}
+func (m *Value) XXX_DiscardUnknown() {
+	xxx_messageInfo_Value.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Value proto.InternalMessageInfo
 
 // KeyValue is a pair of Key and Value for returned Key/Value pairs
 // from ScanRequest/ScanResponse. It embeds a Key and a Value.
 type KeyValue struct {
-	Key   Key   `protobuf:"bytes,1,opt,name=key,proto3,casttype=Key" json:"key,omitempty"`
-	Value Value `protobuf:"bytes,2,opt,name=value" json:"value"`
+	Key                  Key      `protobuf:"bytes,1,opt,name=key,proto3,casttype=Key" json:"key,omitempty"`
+	Value                Value    `protobuf:"bytes,2,opt,name=value" json:"value"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *KeyValue) Reset()                    { *m = KeyValue{} }
 func (m *KeyValue) String() string            { return proto.CompactTextString(m) }
 func (*KeyValue) ProtoMessage()               {}
 func (*KeyValue) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{2} }
+func (dst *KeyValue) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_KeyValue.Merge(dst, src)
+}
+func (m *KeyValue) XXX_Size() int {
+	return xxx_messageInfo_KeyValue.Size(m)
+}
+func (m *KeyValue) XXX_DiscardUnknown() {
+	xxx_messageInfo_KeyValue.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_KeyValue proto.InternalMessageInfo
 
 // A StoreIdent uniquely identifies a store in the cluster. The
 // StoreIdent is written to the underlying storage engine at a
 // store-reserved system key (KeyLocalIdent).
 type StoreIdent struct {
-	ClusterID github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"cluster_id"`
-	NodeID    NodeID                                              `protobuf:"varint,2,opt,name=node_id,json=nodeId,proto3,casttype=NodeID" json:"node_id,omitempty"`
-	StoreID   StoreID                                             `protobuf:"varint,3,opt,name=store_id,json=storeId,proto3,casttype=StoreID" json:"store_id,omitempty"`
+	ClusterID            github_com_cockroachdb_cockroach_pkg_util_uuid.UUID `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3,customtype=github.com/cockroachdb/cockroach/pkg/util/uuid.UUID" json:"cluster_id"`
+	NodeID               NodeID                                              `protobuf:"varint,2,opt,name=node_id,json=nodeId,proto3,casttype=NodeID" json:"node_id,omitempty"`
+	StoreID              StoreID                                             `protobuf:"varint,3,opt,name=store_id,json=storeId,proto3,casttype=StoreID" json:"store_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                            `json:"-"`
+	XXX_sizecache        int32                                               `json:"-"`
 }
 
 func (m *StoreIdent) Reset()                    { *m = StoreIdent{} }
 func (m *StoreIdent) String() string            { return proto.CompactTextString(m) }
 func (*StoreIdent) ProtoMessage()               {}
 func (*StoreIdent) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{3} }
+func (dst *StoreIdent) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StoreIdent.Merge(dst, src)
+}
+func (m *StoreIdent) XXX_Size() int {
+	return xxx_messageInfo_StoreIdent.Size(m)
+}
+func (m *StoreIdent) XXX_DiscardUnknown() {
+	xxx_messageInfo_StoreIdent.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StoreIdent proto.InternalMessageInfo
 
 // A SplitTrigger is run after a successful commit of an AdminSplit
 // command. It provides the updated left hand side of the split's
@@ -216,14 +268,27 @@ func (*StoreIdent) Descriptor() ([]byte, []int) { return fileDescriptorData, []i
 // allows the final bookkeeping for the split to be completed and the
 // new range put into operation.
 type SplitTrigger struct {
-	LeftDesc  RangeDescriptor `protobuf:"bytes,1,opt,name=left_desc,json=leftDesc" json:"left_desc"`
-	RightDesc RangeDescriptor `protobuf:"bytes,2,opt,name=right_desc,json=rightDesc" json:"right_desc"`
+	LeftDesc             RangeDescriptor `protobuf:"bytes,1,opt,name=left_desc,json=leftDesc" json:"left_desc"`
+	RightDesc            RangeDescriptor `protobuf:"bytes,2,opt,name=right_desc,json=rightDesc" json:"right_desc"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
 }
 
 func (m *SplitTrigger) Reset()                    { *m = SplitTrigger{} }
 func (m *SplitTrigger) String() string            { return proto.CompactTextString(m) }
 func (*SplitTrigger) ProtoMessage()               {}
 func (*SplitTrigger) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{4} }
+func (dst *SplitTrigger) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SplitTrigger.Merge(dst, src)
+}
+func (m *SplitTrigger) XXX_Size() int {
+	return xxx_messageInfo_SplitTrigger.Size(m)
+}
+func (m *SplitTrigger) XXX_DiscardUnknown() {
+	xxx_messageInfo_SplitTrigger.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SplitTrigger proto.InternalMessageInfo
 
 // A MergeTrigger is run after a successful commit of an AdminMerge
 // command. It provides the updated left hand side of the split's
@@ -233,27 +298,53 @@ func (*SplitTrigger) Descriptor() ([]byte, []int) { return fileDescriptorData, [
 // (right_desc). This information allows the final bookkeeping for the
 // merge to be completed and put into operation.
 type MergeTrigger struct {
-	LeftDesc  RangeDescriptor `protobuf:"bytes,1,opt,name=left_desc,json=leftDesc" json:"left_desc"`
-	RightDesc RangeDescriptor `protobuf:"bytes,2,opt,name=right_desc,json=rightDesc" json:"right_desc"`
+	LeftDesc             RangeDescriptor `protobuf:"bytes,1,opt,name=left_desc,json=leftDesc" json:"left_desc"`
+	RightDesc            RangeDescriptor `protobuf:"bytes,2,opt,name=right_desc,json=rightDesc" json:"right_desc"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
 }
 
 func (m *MergeTrigger) Reset()                    { *m = MergeTrigger{} }
 func (m *MergeTrigger) String() string            { return proto.CompactTextString(m) }
 func (*MergeTrigger) ProtoMessage()               {}
 func (*MergeTrigger) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{5} }
+func (dst *MergeTrigger) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MergeTrigger.Merge(dst, src)
+}
+func (m *MergeTrigger) XXX_Size() int {
+	return xxx_messageInfo_MergeTrigger.Size(m)
+}
+func (m *MergeTrigger) XXX_DiscardUnknown() {
+	xxx_messageInfo_MergeTrigger.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MergeTrigger proto.InternalMessageInfo
 
 type ChangeReplicasTrigger struct {
 	ChangeType ReplicaChangeType `protobuf:"varint,1,opt,name=change_type,json=changeType,proto3,enum=cockroach.roachpb.ReplicaChangeType" json:"change_type,omitempty"`
 	// The replica being modified.
 	Replica ReplicaDescriptor `protobuf:"bytes,2,opt,name=replica" json:"replica"`
 	// The new replica list with this change applied.
-	UpdatedReplicas []ReplicaDescriptor `protobuf:"bytes,3,rep,name=updated_replicas,json=updatedReplicas" json:"updated_replicas"`
-	NextReplicaID   ReplicaID           `protobuf:"varint,4,opt,name=next_replica_id,json=nextReplicaId,proto3,casttype=ReplicaID" json:"next_replica_id,omitempty"`
+	UpdatedReplicas      []ReplicaDescriptor `protobuf:"bytes,3,rep,name=updated_replicas,json=updatedReplicas" json:"updated_replicas"`
+	NextReplicaID        ReplicaID           `protobuf:"varint,4,opt,name=next_replica_id,json=nextReplicaId,proto3,casttype=ReplicaID" json:"next_replica_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
+	XXX_sizecache        int32               `json:"-"`
 }
 
 func (m *ChangeReplicasTrigger) Reset()                    { *m = ChangeReplicasTrigger{} }
 func (*ChangeReplicasTrigger) ProtoMessage()               {}
 func (*ChangeReplicasTrigger) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{6} }
+func (dst *ChangeReplicasTrigger) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeReplicasTrigger.Merge(dst, src)
+}
+func (m *ChangeReplicasTrigger) XXX_Size() int {
+	return xxx_messageInfo_ChangeReplicasTrigger.Size(m)
+}
+func (m *ChangeReplicasTrigger) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeReplicasTrigger.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeReplicasTrigger proto.InternalMessageInfo
 
 // ModifiedSpanTrigger indicates that a specific span has been modified.
 // This can be used to trigger scan-and-gossip for the given span.
@@ -265,13 +356,26 @@ type ModifiedSpanTrigger struct {
 	// with heartbeats to extend the expiration timestamp. Changes to the
 	// range lease for the range containing node liveness triggers re-gossip
 	// of the entire node liveness key range.
-	NodeLivenessSpan *Span `protobuf:"bytes,2,opt,name=node_liveness_span,json=nodeLivenessSpan" json:"node_liveness_span,omitempty"`
+	NodeLivenessSpan     *Span    `protobuf:"bytes,2,opt,name=node_liveness_span,json=nodeLivenessSpan" json:"node_liveness_span,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ModifiedSpanTrigger) Reset()                    { *m = ModifiedSpanTrigger{} }
 func (m *ModifiedSpanTrigger) String() string            { return proto.CompactTextString(m) }
 func (*ModifiedSpanTrigger) ProtoMessage()               {}
 func (*ModifiedSpanTrigger) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{7} }
+func (dst *ModifiedSpanTrigger) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ModifiedSpanTrigger.Merge(dst, src)
+}
+func (m *ModifiedSpanTrigger) XXX_Size() int {
+	return xxx_messageInfo_ModifiedSpanTrigger.Size(m)
+}
+func (m *ModifiedSpanTrigger) XXX_DiscardUnknown() {
+	xxx_messageInfo_ModifiedSpanTrigger.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ModifiedSpanTrigger proto.InternalMessageInfo
 
 // InternalCommitTrigger encapsulates all of the internal-only commit triggers.
 // Only one may be set.
@@ -280,12 +384,25 @@ type InternalCommitTrigger struct {
 	MergeTrigger          *MergeTrigger          `protobuf:"bytes,2,opt,name=merge_trigger,json=mergeTrigger" json:"merge_trigger,omitempty"`
 	ChangeReplicasTrigger *ChangeReplicasTrigger `protobuf:"bytes,3,opt,name=change_replicas_trigger,json=changeReplicasTrigger" json:"change_replicas_trigger,omitempty"`
 	ModifiedSpanTrigger   *ModifiedSpanTrigger   `protobuf:"bytes,4,opt,name=modified_span_trigger,json=modifiedSpanTrigger" json:"modified_span_trigger,omitempty"`
+	XXX_NoUnkeyedLiteral  struct{}               `json:"-"`
+	XXX_sizecache         int32                  `json:"-"`
 }
 
 func (m *InternalCommitTrigger) Reset()                    { *m = InternalCommitTrigger{} }
 func (m *InternalCommitTrigger) String() string            { return proto.CompactTextString(m) }
 func (*InternalCommitTrigger) ProtoMessage()               {}
 func (*InternalCommitTrigger) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{8} }
+func (dst *InternalCommitTrigger) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InternalCommitTrigger.Merge(dst, src)
+}
+func (m *InternalCommitTrigger) XXX_Size() int {
+	return xxx_messageInfo_InternalCommitTrigger.Size(m)
+}
+func (m *InternalCommitTrigger) XXX_DiscardUnknown() {
+	xxx_messageInfo_InternalCommitTrigger.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InternalCommitTrigger proto.InternalMessageInfo
 
 func (m *InternalCommitTrigger) GetSplitTrigger() *SplitTrigger {
 	if m != nil {
@@ -316,14 +433,27 @@ func (m *InternalCommitTrigger) GetModifiedSpanTrigger() *ModifiedSpanTrigger {
 }
 
 type ObservedTimestamp struct {
-	NodeID    NodeID                       `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=NodeID" json:"node_id,omitempty"`
-	Timestamp cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=timestamp" json:"timestamp"`
+	NodeID               NodeID                       `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3,casttype=NodeID" json:"node_id,omitempty"`
+	Timestamp            cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=timestamp" json:"timestamp"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *ObservedTimestamp) Reset()                    { *m = ObservedTimestamp{} }
 func (m *ObservedTimestamp) String() string            { return proto.CompactTextString(m) }
 func (*ObservedTimestamp) ProtoMessage()               {}
 func (*ObservedTimestamp) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{9} }
+func (dst *ObservedTimestamp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ObservedTimestamp.Merge(dst, src)
+}
+func (m *ObservedTimestamp) XXX_Size() int {
+	return xxx_messageInfo_ObservedTimestamp.Size(m)
+}
+func (m *ObservedTimestamp) XXX_DiscardUnknown() {
+	xxx_messageInfo_ObservedTimestamp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ObservedTimestamp proto.InternalMessageInfo
 
 // A Transaction is a unit of work performed on the database.
 // Cockroach transactions support two isolation levels: snapshot
@@ -464,24 +594,50 @@ type Transaction struct {
 	// transaction_timestamp()). If true, this prevents optimizations
 	// which commit at a higher timestamp without resorting to a
 	// client-side retry.
-	OrigTimestampWasObserved bool `protobuf:"varint,16,opt,name=orig_timestamp_was_observed,json=origTimestampWasObserved,proto3" json:"orig_timestamp_was_observed,omitempty"`
+	OrigTimestampWasObserved bool     `protobuf:"varint,16,opt,name=orig_timestamp_was_observed,json=origTimestampWasObserved,proto3" json:"orig_timestamp_was_observed,omitempty"`
+	XXX_NoUnkeyedLiteral     struct{} `json:"-"`
+	XXX_sizecache            int32    `json:"-"`
 }
 
 func (m *Transaction) Reset()                    { *m = Transaction{} }
 func (*Transaction) ProtoMessage()               {}
 func (*Transaction) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{10} }
+func (dst *Transaction) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Transaction.Merge(dst, src)
+}
+func (m *Transaction) XXX_Size() int {
+	return xxx_messageInfo_Transaction.Size(m)
+}
+func (m *Transaction) XXX_DiscardUnknown() {
+	xxx_messageInfo_Transaction.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Transaction proto.InternalMessageInfo
 
 // A Intent is a Span together with a Transaction metadata and its status.
 type Intent struct {
-	Span   `protobuf:"bytes,1,opt,name=span,embedded=span" json:"span"`
-	Txn    cockroach_storage_engine_enginepb.TxnMeta `protobuf:"bytes,2,opt,name=txn" json:"txn"`
-	Status TransactionStatus                         `protobuf:"varint,3,opt,name=status,proto3,enum=cockroach.roachpb.TransactionStatus" json:"status,omitempty"`
+	Span                 `protobuf:"bytes,1,opt,name=span,embedded=span" json:"span"`
+	Txn                  cockroach_storage_engine_enginepb.TxnMeta `protobuf:"bytes,2,opt,name=txn" json:"txn"`
+	Status               TransactionStatus                         `protobuf:"varint,3,opt,name=status,proto3,enum=cockroach.roachpb.TransactionStatus" json:"status,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                  `json:"-"`
+	XXX_sizecache        int32                                     `json:"-"`
 }
 
 func (m *Intent) Reset()                    { *m = Intent{} }
 func (m *Intent) String() string            { return proto.CompactTextString(m) }
 func (*Intent) ProtoMessage()               {}
 func (*Intent) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{11} }
+func (dst *Intent) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Intent.Merge(dst, src)
+}
+func (m *Intent) XXX_Size() int {
+	return xxx_messageInfo_Intent.Size(m)
+}
+func (m *Intent) XXX_DiscardUnknown() {
+	xxx_messageInfo_Intent.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Intent proto.InternalMessageInfo
 
 // Lease contains information about range leases including the
 // expiration and lease holder.
@@ -516,12 +672,25 @@ type Lease struct {
 	// (see Lease.Equivalent). Two adjacent leases that are equivalent will have
 	// the same sequence number and two adjacent leases that are not equivalent
 	// will have different sequence numbers.
-	Sequence LeaseSequence `protobuf:"varint,7,opt,name=sequence,proto3,casttype=LeaseSequence" json:"sequence,omitempty"`
+	Sequence             LeaseSequence `protobuf:"varint,7,opt,name=sequence,proto3,casttype=LeaseSequence" json:"sequence,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
 }
 
 func (m *Lease) Reset()                    { *m = Lease{} }
 func (*Lease) ProtoMessage()               {}
 func (*Lease) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{12} }
+func (dst *Lease) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Lease.Merge(dst, src)
+}
+func (m *Lease) XXX_Size() int {
+	return xxx_messageInfo_Lease.Size(m)
+}
+func (m *Lease) XXX_DiscardUnknown() {
+	xxx_messageInfo_Lease.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Lease proto.InternalMessageInfo
 
 // AbortSpanEntry contains information about a transaction which has
 // been aborted. It's written to a range's AbortSpan if the range
@@ -536,13 +705,26 @@ type AbortSpanEntry struct {
 	// it was aborted.
 	Timestamp cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=timestamp" json:"timestamp"`
 	// The priority of the transaction.
-	Priority int32 `protobuf:"varint,3,opt,name=priority,proto3" json:"priority,omitempty"`
+	Priority             int32    `protobuf:"varint,3,opt,name=priority,proto3" json:"priority,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AbortSpanEntry) Reset()                    { *m = AbortSpanEntry{} }
 func (m *AbortSpanEntry) String() string            { return proto.CompactTextString(m) }
 func (*AbortSpanEntry) ProtoMessage()               {}
 func (*AbortSpanEntry) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{13} }
+func (dst *AbortSpanEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AbortSpanEntry.Merge(dst, src)
+}
+func (m *AbortSpanEntry) XXX_Size() int {
+	return xxx_messageInfo_AbortSpanEntry.Size(m)
+}
+func (m *AbortSpanEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_AbortSpanEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AbortSpanEntry proto.InternalMessageInfo
 
 // TxnCoordMeta is metadata held by a transaction coordinator. This
 // message is defined here because it is used in several layers of the
@@ -576,13 +758,26 @@ type TxnCoordMeta struct {
 	// refresh_reads and refresh_writes span slices. This is false if
 	// any spans were discarded or not collected (i.e. because of a dist
 	// SQL processor running a version before refreshing was introduced).
-	RefreshValid bool `protobuf:"varint,6,opt,name=refresh_valid,json=refreshValid,proto3" json:"refresh_valid,omitempty"`
+	RefreshValid         bool     `protobuf:"varint,6,opt,name=refresh_valid,json=refreshValid,proto3" json:"refresh_valid,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TxnCoordMeta) Reset()                    { *m = TxnCoordMeta{} }
 func (m *TxnCoordMeta) String() string            { return proto.CompactTextString(m) }
 func (*TxnCoordMeta) ProtoMessage()               {}
 func (*TxnCoordMeta) Descriptor() ([]byte, []int) { return fileDescriptorData, []int{14} }
+func (dst *TxnCoordMeta) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TxnCoordMeta.Merge(dst, src)
+}
+func (m *TxnCoordMeta) XXX_Size() int {
+	return xxx_messageInfo_TxnCoordMeta.Size(m)
+}
+func (m *TxnCoordMeta) XXX_DiscardUnknown() {
+	xxx_messageInfo_TxnCoordMeta.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TxnCoordMeta proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*Span)(nil), "cockroach.roachpb.Span")

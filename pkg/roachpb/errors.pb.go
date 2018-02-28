@@ -136,45 +136,97 @@ type NotLeaseHolderError struct {
 	// regular spiel. Useful because we reuse this error when rejecting a command
 	// because the lease under which its application was attempted is different
 	// than the lease under which it had been proposed.
-	CustomMsg string `protobuf:"bytes,5,opt,name=custom_msg,json=customMsg" json:"custom_msg"`
+	CustomMsg            string   `protobuf:"bytes,5,opt,name=custom_msg,json=customMsg" json:"custom_msg"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *NotLeaseHolderError) Reset()                    { *m = NotLeaseHolderError{} }
 func (m *NotLeaseHolderError) String() string            { return proto.CompactTextString(m) }
 func (*NotLeaseHolderError) ProtoMessage()               {}
 func (*NotLeaseHolderError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{0} }
+func (dst *NotLeaseHolderError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NotLeaseHolderError.Merge(dst, src)
+}
+func (m *NotLeaseHolderError) XXX_Size() int {
+	return xxx_messageInfo_NotLeaseHolderError.Size(m)
+}
+func (m *NotLeaseHolderError) XXX_DiscardUnknown() {
+	xxx_messageInfo_NotLeaseHolderError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NotLeaseHolderError proto.InternalMessageInfo
 
 // A NodeUnavailableError indicates that the sending gateway can
 // not process requests at the time, and that the client should
 // retry the request with another peer.
 type NodeUnavailableError struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *NodeUnavailableError) Reset()                    { *m = NodeUnavailableError{} }
 func (m *NodeUnavailableError) String() string            { return proto.CompactTextString(m) }
 func (*NodeUnavailableError) ProtoMessage()               {}
 func (*NodeUnavailableError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{1} }
+func (dst *NodeUnavailableError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodeUnavailableError.Merge(dst, src)
+}
+func (m *NodeUnavailableError) XXX_Size() int {
+	return xxx_messageInfo_NodeUnavailableError.Size(m)
+}
+func (m *NodeUnavailableError) XXX_DiscardUnknown() {
+	xxx_messageInfo_NodeUnavailableError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NodeUnavailableError proto.InternalMessageInfo
 
 // An UnsupportedRequestError indicates that the recipient node
 // does not know how to handle the type of request received.
 type UnsupportedRequestError struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *UnsupportedRequestError) Reset()                    { *m = UnsupportedRequestError{} }
 func (m *UnsupportedRequestError) String() string            { return proto.CompactTextString(m) }
 func (*UnsupportedRequestError) ProtoMessage()               {}
 func (*UnsupportedRequestError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{2} }
+func (dst *UnsupportedRequestError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UnsupportedRequestError.Merge(dst, src)
+}
+func (m *UnsupportedRequestError) XXX_Size() int {
+	return xxx_messageInfo_UnsupportedRequestError.Size(m)
+}
+func (m *UnsupportedRequestError) XXX_DiscardUnknown() {
+	xxx_messageInfo_UnsupportedRequestError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UnsupportedRequestError proto.InternalMessageInfo
 
 // A RangeNotFoundError indicates that a command was sent to a range
 // which is not hosted on this store.
 type RangeNotFoundError struct {
-	RangeID RangeID `protobuf:"varint,1,opt,name=range_id,json=rangeId,casttype=RangeID" json:"range_id"`
+	RangeID              RangeID  `protobuf:"varint,1,opt,name=range_id,json=rangeId,casttype=RangeID" json:"range_id"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RangeNotFoundError) Reset()                    { *m = RangeNotFoundError{} }
 func (m *RangeNotFoundError) String() string            { return proto.CompactTextString(m) }
 func (*RangeNotFoundError) ProtoMessage()               {}
 func (*RangeNotFoundError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{3} }
+func (dst *RangeNotFoundError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeNotFoundError.Merge(dst, src)
+}
+func (m *RangeNotFoundError) XXX_Size() int {
+	return xxx_messageInfo_RangeNotFoundError.Size(m)
+}
+func (m *RangeNotFoundError) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeNotFoundError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeNotFoundError proto.InternalMessageInfo
 
 // A RangeKeyMismatchError indicates that a command was sent to a
 // range which did not contain the key(s) specified by the command.
@@ -188,13 +240,26 @@ type RangeKeyMismatchError struct {
 	// suggested_range is a hint to the sender of a command about the range
 	// they may be looking for. It is only populated when the recipient has
 	// authoritative knowledge of the range requested by the sender.
-	SuggestedRange *RangeDescriptor `protobuf:"bytes,4,opt,name=suggested_range,json=suggestedRange" json:"suggested_range,omitempty"`
+	SuggestedRange       *RangeDescriptor `protobuf:"bytes,4,opt,name=suggested_range,json=suggestedRange" json:"suggested_range,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
 }
 
 func (m *RangeKeyMismatchError) Reset()                    { *m = RangeKeyMismatchError{} }
 func (m *RangeKeyMismatchError) String() string            { return proto.CompactTextString(m) }
 func (*RangeKeyMismatchError) ProtoMessage()               {}
 func (*RangeKeyMismatchError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{4} }
+func (dst *RangeKeyMismatchError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RangeKeyMismatchError.Merge(dst, src)
+}
+func (m *RangeKeyMismatchError) XXX_Size() int {
+	return xxx_messageInfo_RangeKeyMismatchError.Size(m)
+}
+func (m *RangeKeyMismatchError) XXX_DiscardUnknown() {
+	xxx_messageInfo_RangeKeyMismatchError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RangeKeyMismatchError proto.InternalMessageInfo
 
 // A ReadWithinUncertaintyIntervalError indicates that a read at timestamp
 // encountered a write within the uncertainty interval of the reader.
@@ -209,8 +274,10 @@ type ReadWithinUncertaintyIntervalError struct {
 	ExistingTimestamp cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=existing_timestamp,json=existingTimestamp" json:"existing_timestamp"`
 	// The remaining fields may be missing when running in clusters that have
 	// members at below CockroachDB v2.0.
-	MaxTimestamp       *cockroach_util_hlc.Timestamp `protobuf:"bytes,3,opt,name=max_timestamp,json=maxTimestamp" json:"max_timestamp,omitempty"`
-	ObservedTimestamps []ObservedTimestamp           `protobuf:"bytes,4,rep,name=observed_timestamps,json=observedTimestamps" json:"observed_timestamps"`
+	MaxTimestamp         *cockroach_util_hlc.Timestamp `protobuf:"bytes,3,opt,name=max_timestamp,json=maxTimestamp" json:"max_timestamp,omitempty"`
+	ObservedTimestamps   []ObservedTimestamp           `protobuf:"bytes,4,rep,name=observed_timestamps,json=observedTimestamps" json:"observed_timestamps"`
+	XXX_NoUnkeyedLiteral struct{}                      `json:"-"`
+	XXX_sizecache        int32                         `json:"-"`
 }
 
 func (m *ReadWithinUncertaintyIntervalError) Reset()         { *m = ReadWithinUncertaintyIntervalError{} }
@@ -219,6 +286,17 @@ func (*ReadWithinUncertaintyIntervalError) ProtoMessage()    {}
 func (*ReadWithinUncertaintyIntervalError) Descriptor() ([]byte, []int) {
 	return fileDescriptorErrors, []int{5}
 }
+func (dst *ReadWithinUncertaintyIntervalError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReadWithinUncertaintyIntervalError.Merge(dst, src)
+}
+func (m *ReadWithinUncertaintyIntervalError) XXX_Size() int {
+	return xxx_messageInfo_ReadWithinUncertaintyIntervalError.Size(m)
+}
+func (m *ReadWithinUncertaintyIntervalError) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReadWithinUncertaintyIntervalError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReadWithinUncertaintyIntervalError proto.InternalMessageInfo
 
 // A TransactionAbortedError indicates that the transaction was aborted by
 // another concurrent transaction. Upon seeing this error, the client is
@@ -228,47 +306,99 @@ func (*ReadWithinUncertaintyIntervalError) Descriptor() ([]byte, []int) {
 // pErr carrying this ErrorDetail is not supposed to be used by the client,
 // besides checking that the transaction's ID is right.
 type TransactionAbortedError struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TransactionAbortedError) Reset()                    { *m = TransactionAbortedError{} }
 func (m *TransactionAbortedError) String() string            { return proto.CompactTextString(m) }
 func (*TransactionAbortedError) ProtoMessage()               {}
 func (*TransactionAbortedError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{6} }
+func (dst *TransactionAbortedError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TransactionAbortedError.Merge(dst, src)
+}
+func (m *TransactionAbortedError) XXX_Size() int {
+	return xxx_messageInfo_TransactionAbortedError.Size(m)
+}
+func (m *TransactionAbortedError) XXX_DiscardUnknown() {
+	xxx_messageInfo_TransactionAbortedError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TransactionAbortedError proto.InternalMessageInfo
 
 // A TransactionPushError indicates that the transaction could not
 // continue because it encountered a write intent from another
 // transaction which it was unable to push.
 type TransactionPushError struct {
-	PusheeTxn Transaction `protobuf:"bytes,1,opt,name=pushee_txn,json=pusheeTxn" json:"pushee_txn"`
+	PusheeTxn            Transaction `protobuf:"bytes,1,opt,name=pushee_txn,json=pusheeTxn" json:"pushee_txn"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
 func (m *TransactionPushError) Reset()                    { *m = TransactionPushError{} }
 func (m *TransactionPushError) String() string            { return proto.CompactTextString(m) }
 func (*TransactionPushError) ProtoMessage()               {}
 func (*TransactionPushError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{7} }
+func (dst *TransactionPushError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TransactionPushError.Merge(dst, src)
+}
+func (m *TransactionPushError) XXX_Size() int {
+	return xxx_messageInfo_TransactionPushError.Size(m)
+}
+func (m *TransactionPushError) XXX_DiscardUnknown() {
+	xxx_messageInfo_TransactionPushError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TransactionPushError proto.InternalMessageInfo
 
 // A TransactionRetryError indicates that the transaction must be
 // retried, usually with an increased transaction timestamp.
 type TransactionRetryError struct {
-	Reason TransactionRetryReason `protobuf:"varint,1,opt,name=reason,enum=cockroach.roachpb.TransactionRetryReason" json:"reason"`
+	Reason               TransactionRetryReason `protobuf:"varint,1,opt,name=reason,enum=cockroach.roachpb.TransactionRetryReason" json:"reason"`
+	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
+	XXX_sizecache        int32                  `json:"-"`
 }
 
 func (m *TransactionRetryError) Reset()                    { *m = TransactionRetryError{} }
 func (m *TransactionRetryError) String() string            { return proto.CompactTextString(m) }
 func (*TransactionRetryError) ProtoMessage()               {}
 func (*TransactionRetryError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{8} }
+func (dst *TransactionRetryError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TransactionRetryError.Merge(dst, src)
+}
+func (m *TransactionRetryError) XXX_Size() int {
+	return xxx_messageInfo_TransactionRetryError.Size(m)
+}
+func (m *TransactionRetryError) XXX_DiscardUnknown() {
+	xxx_messageInfo_TransactionRetryError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TransactionRetryError proto.InternalMessageInfo
 
 // A TransactionReplayError indicates that a BeginTransaction request
 // is being replayed. This can happen on network replays in which a
 // BeginTransaction request is sent again either from the client or
 // is belatedly delivered after an earlier attempt succeeded.
 type TransactionReplayError struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TransactionReplayError) Reset()                    { *m = TransactionReplayError{} }
 func (m *TransactionReplayError) String() string            { return proto.CompactTextString(m) }
 func (*TransactionReplayError) ProtoMessage()               {}
 func (*TransactionReplayError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{9} }
+func (dst *TransactionReplayError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TransactionReplayError.Merge(dst, src)
+}
+func (m *TransactionReplayError) XXX_Size() int {
+	return xxx_messageInfo_TransactionReplayError.Size(m)
+}
+func (m *TransactionReplayError) XXX_DiscardUnknown() {
+	xxx_messageInfo_TransactionReplayError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TransactionReplayError proto.InternalMessageInfo
 
 // A TransactionStatusError indicates that the transaction status is
 // incompatible with the requested operation. This might mean the
@@ -277,13 +407,26 @@ func (*TransactionReplayError) Descriptor() ([]byte, []int) { return fileDescrip
 // regression in transaction epoch or timestamp, both of which may
 // only monotonically increase.
 type TransactionStatusError struct {
-	Msg string `protobuf:"bytes,1,opt,name=msg" json:"msg"`
+	Msg                  string   `protobuf:"bytes,1,opt,name=msg" json:"msg"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TransactionStatusError) Reset()                    { *m = TransactionStatusError{} }
 func (m *TransactionStatusError) String() string            { return proto.CompactTextString(m) }
 func (*TransactionStatusError) ProtoMessage()               {}
 func (*TransactionStatusError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{10} }
+func (dst *TransactionStatusError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TransactionStatusError.Merge(dst, src)
+}
+func (m *TransactionStatusError) XXX_Size() int {
+	return xxx_messageInfo_TransactionStatusError.Size(m)
+}
+func (m *TransactionStatusError) XXX_DiscardUnknown() {
+	xxx_messageInfo_TransactionStatusError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TransactionStatusError proto.InternalMessageInfo
 
 // A WriteIntentError indicates that one or more write intent
 // belonging to another transaction were encountered leading to a
@@ -291,76 +434,154 @@ func (*TransactionStatusError) Descriptor() ([]byte, []int) { return fileDescrip
 // was encountered are set, as are the txn records for the intents'
 // transactions.
 type WriteIntentError struct {
-	Intents []Intent `protobuf:"bytes,1,rep,name=intents" json:"intents"`
+	Intents              []Intent `protobuf:"bytes,1,rep,name=intents" json:"intents"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *WriteIntentError) Reset()                    { *m = WriteIntentError{} }
 func (m *WriteIntentError) String() string            { return proto.CompactTextString(m) }
 func (*WriteIntentError) ProtoMessage()               {}
 func (*WriteIntentError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{11} }
+func (dst *WriteIntentError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_WriteIntentError.Merge(dst, src)
+}
+func (m *WriteIntentError) XXX_Size() int {
+	return xxx_messageInfo_WriteIntentError.Size(m)
+}
+func (m *WriteIntentError) XXX_DiscardUnknown() {
+	xxx_messageInfo_WriteIntentError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_WriteIntentError proto.InternalMessageInfo
 
 // A WriteTooOldError indicates that a write encountered a versioned
 // value newer than its timestamp, making it impossible to rewrite
 // history. The write is instead done at actual timestamp, which is
 // the timestamp of the existing version+1.
 type WriteTooOldError struct {
-	Timestamp       cockroach_util_hlc.Timestamp `protobuf:"bytes,1,opt,name=timestamp" json:"timestamp"`
-	ActualTimestamp cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=actual_timestamp,json=actualTimestamp" json:"actual_timestamp"`
+	Timestamp            cockroach_util_hlc.Timestamp `protobuf:"bytes,1,opt,name=timestamp" json:"timestamp"`
+	ActualTimestamp      cockroach_util_hlc.Timestamp `protobuf:"bytes,2,opt,name=actual_timestamp,json=actualTimestamp" json:"actual_timestamp"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *WriteTooOldError) Reset()                    { *m = WriteTooOldError{} }
 func (m *WriteTooOldError) String() string            { return proto.CompactTextString(m) }
 func (*WriteTooOldError) ProtoMessage()               {}
 func (*WriteTooOldError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{12} }
+func (dst *WriteTooOldError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_WriteTooOldError.Merge(dst, src)
+}
+func (m *WriteTooOldError) XXX_Size() int {
+	return xxx_messageInfo_WriteTooOldError.Size(m)
+}
+func (m *WriteTooOldError) XXX_DiscardUnknown() {
+	xxx_messageInfo_WriteTooOldError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_WriteTooOldError proto.InternalMessageInfo
 
 // An OpRequiresTxnError indicates that a command required to be
 // carried out in a transactional context but was not.
 // For example, a Scan which spans ranges requires a transaction.
 // The operation should be retried inside of a transaction.
 type OpRequiresTxnError struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *OpRequiresTxnError) Reset()                    { *m = OpRequiresTxnError{} }
 func (m *OpRequiresTxnError) String() string            { return proto.CompactTextString(m) }
 func (*OpRequiresTxnError) ProtoMessage()               {}
 func (*OpRequiresTxnError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{13} }
+func (dst *OpRequiresTxnError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_OpRequiresTxnError.Merge(dst, src)
+}
+func (m *OpRequiresTxnError) XXX_Size() int {
+	return xxx_messageInfo_OpRequiresTxnError.Size(m)
+}
+func (m *OpRequiresTxnError) XXX_DiscardUnknown() {
+	xxx_messageInfo_OpRequiresTxnError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_OpRequiresTxnError proto.InternalMessageInfo
 
 // A ConditionFailedError indicates that the expected value
 // of a ConditionalPutRequest was not found, either
 // because it was missing or was not equal. The error will
 // contain the actual value found.
 type ConditionFailedError struct {
-	ActualValue *Value `protobuf:"bytes,1,opt,name=actual_value,json=actualValue" json:"actual_value,omitempty"`
+	ActualValue          *Value   `protobuf:"bytes,1,opt,name=actual_value,json=actualValue" json:"actual_value,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ConditionFailedError) Reset()                    { *m = ConditionFailedError{} }
 func (m *ConditionFailedError) String() string            { return proto.CompactTextString(m) }
 func (*ConditionFailedError) ProtoMessage()               {}
 func (*ConditionFailedError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{14} }
+func (dst *ConditionFailedError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConditionFailedError.Merge(dst, src)
+}
+func (m *ConditionFailedError) XXX_Size() int {
+	return xxx_messageInfo_ConditionFailedError.Size(m)
+}
+func (m *ConditionFailedError) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConditionFailedError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ConditionFailedError proto.InternalMessageInfo
 
 // A LeaseRejectedError indicates that the requested replica could
 // not acquire the desired lease because of an existing range lease.
 type LeaseRejectedError struct {
-	Message   string `protobuf:"bytes,1,opt,name=message" json:"message"`
-	Requested Lease  `protobuf:"bytes,2,opt,name=requested" json:"requested"`
-	Existing  Lease  `protobuf:"bytes,3,opt,name=existing" json:"existing"`
+	Message              string   `protobuf:"bytes,1,opt,name=message" json:"message"`
+	Requested            Lease    `protobuf:"bytes,2,opt,name=requested" json:"requested"`
+	Existing             Lease    `protobuf:"bytes,3,opt,name=existing" json:"existing"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *LeaseRejectedError) Reset()                    { *m = LeaseRejectedError{} }
 func (m *LeaseRejectedError) String() string            { return proto.CompactTextString(m) }
 func (*LeaseRejectedError) ProtoMessage()               {}
 func (*LeaseRejectedError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{15} }
+func (dst *LeaseRejectedError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LeaseRejectedError.Merge(dst, src)
+}
+func (m *LeaseRejectedError) XXX_Size() int {
+	return xxx_messageInfo_LeaseRejectedError.Size(m)
+}
+func (m *LeaseRejectedError) XXX_DiscardUnknown() {
+	xxx_messageInfo_LeaseRejectedError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LeaseRejectedError proto.InternalMessageInfo
 
 // A SendError indicates that a message could not be delivered to
 // the desired recipient(s).
 type SendError struct {
-	Message string `protobuf:"bytes,1,opt,name=message" json:"message"`
+	Message              string   `protobuf:"bytes,1,opt,name=message" json:"message"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *SendError) Reset()                    { *m = SendError{} }
 func (m *SendError) String() string            { return proto.CompactTextString(m) }
 func (*SendError) ProtoMessage()               {}
 func (*SendError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{16} }
+func (dst *SendError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SendError.Merge(dst, src)
+}
+func (m *SendError) XXX_Size() int {
+	return xxx_messageInfo_SendError.Size(m)
+}
+func (m *SendError) XXX_DiscardUnknown() {
+	xxx_messageInfo_SendError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SendError proto.InternalMessageInfo
 
 // An AmbiguousResultError indicates that a request may have succeeded or
 // failed, but the response was not received and the final result is ambiguous.
@@ -368,23 +589,49 @@ type AmbiguousResultError struct {
 	Message string `protobuf:"bytes,1,opt,name=message" json:"message"`
 	// This can be set to give extra information about which error was converted
 	// into an AmbiguousResultError. Useful for tests.
-	WrappedErr *Error `protobuf:"bytes,2,opt,name=wrapped_err,json=wrappedErr" json:"wrapped_err,omitempty"`
+	WrappedErr           *Error   `protobuf:"bytes,2,opt,name=wrapped_err,json=wrappedErr" json:"wrapped_err,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *AmbiguousResultError) Reset()                    { *m = AmbiguousResultError{} }
 func (m *AmbiguousResultError) String() string            { return proto.CompactTextString(m) }
 func (*AmbiguousResultError) ProtoMessage()               {}
 func (*AmbiguousResultError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{17} }
+func (dst *AmbiguousResultError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AmbiguousResultError.Merge(dst, src)
+}
+func (m *AmbiguousResultError) XXX_Size() int {
+	return xxx_messageInfo_AmbiguousResultError.Size(m)
+}
+func (m *AmbiguousResultError) XXX_DiscardUnknown() {
+	xxx_messageInfo_AmbiguousResultError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AmbiguousResultError proto.InternalMessageInfo
 
 // A RaftGroupDeletedError indicates a raft group has been deleted for
 // the replica.
 type RaftGroupDeletedError struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *RaftGroupDeletedError) Reset()                    { *m = RaftGroupDeletedError{} }
 func (m *RaftGroupDeletedError) String() string            { return proto.CompactTextString(m) }
 func (*RaftGroupDeletedError) ProtoMessage()               {}
 func (*RaftGroupDeletedError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{18} }
+func (dst *RaftGroupDeletedError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RaftGroupDeletedError.Merge(dst, src)
+}
+func (m *RaftGroupDeletedError) XXX_Size() int {
+	return xxx_messageInfo_RaftGroupDeletedError.Size(m)
+}
+func (m *RaftGroupDeletedError) XXX_DiscardUnknown() {
+	xxx_messageInfo_RaftGroupDeletedError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RaftGroupDeletedError proto.InternalMessageInfo
 
 // A ReplicaCorruptionError indicates that the replica has experienced
 // an error which puts its integrity at risk.
@@ -392,37 +639,76 @@ type ReplicaCorruptionError struct {
 	ErrorMsg string `protobuf:"bytes,1,opt,name=error_msg,json=errorMsg" json:"error_msg"`
 	// processed indicates that the error has been taken into account and
 	// necessary steps will be taken. For now, required for testing.
-	Processed bool `protobuf:"varint,2,opt,name=processed" json:"processed"`
+	Processed            bool     `protobuf:"varint,2,opt,name=processed" json:"processed"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ReplicaCorruptionError) Reset()                    { *m = ReplicaCorruptionError{} }
 func (m *ReplicaCorruptionError) String() string            { return proto.CompactTextString(m) }
 func (*ReplicaCorruptionError) ProtoMessage()               {}
 func (*ReplicaCorruptionError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{19} }
+func (dst *ReplicaCorruptionError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReplicaCorruptionError.Merge(dst, src)
+}
+func (m *ReplicaCorruptionError) XXX_Size() int {
+	return xxx_messageInfo_ReplicaCorruptionError.Size(m)
+}
+func (m *ReplicaCorruptionError) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReplicaCorruptionError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReplicaCorruptionError proto.InternalMessageInfo
 
 // ReplicaTooOldError is sent in response to a raft message when the
 // recipient of the raft message believes the sender of the raft
 // message to have been removed from the raft group
 type ReplicaTooOldError struct {
 	// replica_id is the ID of the replica that is too old.
-	ReplicaID ReplicaID `protobuf:"varint,1,opt,name=replica_id,json=replicaId,casttype=ReplicaID" json:"replica_id"`
+	ReplicaID            ReplicaID `protobuf:"varint,1,opt,name=replica_id,json=replicaId,casttype=ReplicaID" json:"replica_id"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
 }
 
 func (m *ReplicaTooOldError) Reset()                    { *m = ReplicaTooOldError{} }
 func (m *ReplicaTooOldError) String() string            { return proto.CompactTextString(m) }
 func (*ReplicaTooOldError) ProtoMessage()               {}
 func (*ReplicaTooOldError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{20} }
+func (dst *ReplicaTooOldError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReplicaTooOldError.Merge(dst, src)
+}
+func (m *ReplicaTooOldError) XXX_Size() int {
+	return xxx_messageInfo_ReplicaTooOldError.Size(m)
+}
+func (m *ReplicaTooOldError) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReplicaTooOldError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReplicaTooOldError proto.InternalMessageInfo
 
 // A StoreNotFoundError indicates that a command was sent to a store
 // which is not hosted on this node.
 type StoreNotFoundError struct {
-	StoreID StoreID `protobuf:"varint,1,opt,name=store_id,json=storeId,casttype=StoreID" json:"store_id"`
+	StoreID              StoreID  `protobuf:"varint,1,opt,name=store_id,json=storeId,casttype=StoreID" json:"store_id"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *StoreNotFoundError) Reset()                    { *m = StoreNotFoundError{} }
 func (m *StoreNotFoundError) String() string            { return proto.CompactTextString(m) }
 func (*StoreNotFoundError) ProtoMessage()               {}
 func (*StoreNotFoundError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{21} }
+func (dst *StoreNotFoundError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StoreNotFoundError.Merge(dst, src)
+}
+func (m *StoreNotFoundError) XXX_Size() int {
+	return xxx_messageInfo_StoreNotFoundError.Size(m)
+}
+func (m *StoreNotFoundError) XXX_DiscardUnknown() {
+	xxx_messageInfo_StoreNotFoundError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StoreNotFoundError proto.InternalMessageInfo
 
 // UnhandledRetryableError tells the recipient that a KV request must be
 // retried. In case the request was transactional, the whole transaction needs
@@ -438,13 +724,26 @@ type UnhandledRetryableError struct {
 	// The underlying storage error that is being marshaled.
 	// pErr.TransactionRestart is expected to be set, and the error
 	// detail is one of the retryable ones.
-	PErr Error `protobuf:"bytes,1,opt,name=pErr" json:"pErr"`
+	PErr                 Error    `protobuf:"bytes,1,opt,name=pErr" json:"pErr"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *UnhandledRetryableError) Reset()                    { *m = UnhandledRetryableError{} }
 func (m *UnhandledRetryableError) String() string            { return proto.CompactTextString(m) }
 func (*UnhandledRetryableError) ProtoMessage()               {}
 func (*UnhandledRetryableError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{22} }
+func (dst *UnhandledRetryableError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UnhandledRetryableError.Merge(dst, src)
+}
+func (m *UnhandledRetryableError) XXX_Size() int {
+	return xxx_messageInfo_UnhandledRetryableError.Size(m)
+}
+func (m *UnhandledRetryableError) XXX_DiscardUnknown() {
+	xxx_messageInfo_UnhandledRetryableError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UnhandledRetryableError proto.InternalMessageInfo
 
 // HandledRetryableTxnError is an error detail representing a retryable error
 // that has been "handled" by the TxnCoordSender. This error is produced by the
@@ -466,50 +765,102 @@ type HandledRetryableTxnError struct {
 	// original cause of this method, this can either be the same Transaction as
 	// before, but with an incremented epoch and timestamp, or a completely new
 	// Transaction.
-	Transaction Transaction `protobuf:"bytes,3,opt,name=transaction" json:"transaction"`
+	Transaction          Transaction `protobuf:"bytes,3,opt,name=transaction" json:"transaction"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
 func (m *HandledRetryableTxnError) Reset()                    { *m = HandledRetryableTxnError{} }
 func (m *HandledRetryableTxnError) String() string            { return proto.CompactTextString(m) }
 func (*HandledRetryableTxnError) ProtoMessage()               {}
 func (*HandledRetryableTxnError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{23} }
+func (dst *HandledRetryableTxnError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HandledRetryableTxnError.Merge(dst, src)
+}
+func (m *HandledRetryableTxnError) XXX_Size() int {
+	return xxx_messageInfo_HandledRetryableTxnError.Size(m)
+}
+func (m *HandledRetryableTxnError) XXX_DiscardUnknown() {
+	xxx_messageInfo_HandledRetryableTxnError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HandledRetryableTxnError proto.InternalMessageInfo
 
 // A TxnPrevAttemptError indicates a batch response for a request sent through
 // client Txn was found that was meant for a previous incarnation of the
 // transaction. This can happen in cases where concurrent requests are made
 // for a Transaction and one of the requests results in a Txn abort.
 type TxnPrevAttemptError struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *TxnPrevAttemptError) Reset()                    { *m = TxnPrevAttemptError{} }
 func (m *TxnPrevAttemptError) String() string            { return proto.CompactTextString(m) }
 func (*TxnPrevAttemptError) ProtoMessage()               {}
 func (*TxnPrevAttemptError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{24} }
+func (dst *TxnPrevAttemptError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TxnPrevAttemptError.Merge(dst, src)
+}
+func (m *TxnPrevAttemptError) XXX_Size() int {
+	return xxx_messageInfo_TxnPrevAttemptError.Size(m)
+}
+func (m *TxnPrevAttemptError) XXX_DiscardUnknown() {
+	xxx_messageInfo_TxnPrevAttemptError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TxnPrevAttemptError proto.InternalMessageInfo
 
 // An IntegerOverflowError indicates that an operation was aborted because
 // it would have caused an integeter overflow.
 type IntegerOverflowError struct {
-	Key            Key   `protobuf:"bytes,1,opt,name=key,casttype=Key" json:"key,omitempty"`
-	CurrentValue   int64 `protobuf:"varint,2,opt,name=current_value,json=currentValue" json:"current_value"`
-	IncrementValue int64 `protobuf:"varint,3,opt,name=increment_value,json=incrementValue" json:"increment_value"`
+	Key                  Key      `protobuf:"bytes,1,opt,name=key,casttype=Key" json:"key,omitempty"`
+	CurrentValue         int64    `protobuf:"varint,2,opt,name=current_value,json=currentValue" json:"current_value"`
+	IncrementValue       int64    `protobuf:"varint,3,opt,name=increment_value,json=incrementValue" json:"increment_value"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *IntegerOverflowError) Reset()                    { *m = IntegerOverflowError{} }
 func (m *IntegerOverflowError) String() string            { return proto.CompactTextString(m) }
 func (*IntegerOverflowError) ProtoMessage()               {}
 func (*IntegerOverflowError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{25} }
+func (dst *IntegerOverflowError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IntegerOverflowError.Merge(dst, src)
+}
+func (m *IntegerOverflowError) XXX_Size() int {
+	return xxx_messageInfo_IntegerOverflowError.Size(m)
+}
+func (m *IntegerOverflowError) XXX_DiscardUnknown() {
+	xxx_messageInfo_IntegerOverflowError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IntegerOverflowError proto.InternalMessageInfo
 
 // A MixedSuccessError indicates that some portion of the batch
 // request may have succeeded, but the batch as a whole failed with
 // the wrapped error.
 type MixedSuccessError struct {
-	Wrapped *Error `protobuf:"bytes,1,opt,name=wrapped" json:"wrapped,omitempty"`
+	Wrapped              *Error   `protobuf:"bytes,1,opt,name=wrapped" json:"wrapped,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *MixedSuccessError) Reset()                    { *m = MixedSuccessError{} }
 func (m *MixedSuccessError) String() string            { return proto.CompactTextString(m) }
 func (*MixedSuccessError) ProtoMessage()               {}
 func (*MixedSuccessError) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{26} }
+func (dst *MixedSuccessError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MixedSuccessError.Merge(dst, src)
+}
+func (m *MixedSuccessError) XXX_Size() int {
+	return xxx_messageInfo_MixedSuccessError.Size(m)
+}
+func (m *MixedSuccessError) XXX_DiscardUnknown() {
+	xxx_messageInfo_MixedSuccessError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MixedSuccessError proto.InternalMessageInfo
 
 // ErrorDetail is a union type containing all available errors.
 type ErrorDetail struct {
@@ -544,24 +895,50 @@ type ErrorDetail struct {
 	IntegerOverflow          *IntegerOverflowError     `protobuf:"bytes,31,opt,name=integer_overflow,json=integerOverflow" json:"integer_overflow,omitempty"`
 	UnsupportedRequest       *UnsupportedRequestError  `protobuf:"bytes,32,opt,name=unsupported_request,json=unsupportedRequest" json:"unsupported_request,omitempty"`
 	MixedSuccess             *MixedSuccessError        `protobuf:"bytes,33,opt,name=mixed_success,json=mixedSuccess" json:"mixed_success,omitempty"`
+	XXX_NoUnkeyedLiteral     struct{}                  `json:"-"`
+	XXX_sizecache            int32                     `json:"-"`
 }
 
 func (m *ErrorDetail) Reset()                    { *m = ErrorDetail{} }
 func (m *ErrorDetail) String() string            { return proto.CompactTextString(m) }
 func (*ErrorDetail) ProtoMessage()               {}
 func (*ErrorDetail) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{27} }
+func (dst *ErrorDetail) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ErrorDetail.Merge(dst, src)
+}
+func (m *ErrorDetail) XXX_Size() int {
+	return xxx_messageInfo_ErrorDetail.Size(m)
+}
+func (m *ErrorDetail) XXX_DiscardUnknown() {
+	xxx_messageInfo_ErrorDetail.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ErrorDetail proto.InternalMessageInfo
 
 // ErrPosition describes the position of an error in a Batch. A simple nullable
 // primitive field would break compatibility with proto3, where primitive fields
 // are no longer allowed to be nullable.
 type ErrPosition struct {
-	Index int32 `protobuf:"varint,1,opt,name=index" json:"index"`
+	Index                int32    `protobuf:"varint,1,opt,name=index" json:"index"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ErrPosition) Reset()                    { *m = ErrPosition{} }
 func (m *ErrPosition) String() string            { return proto.CompactTextString(m) }
 func (*ErrPosition) ProtoMessage()               {}
 func (*ErrPosition) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{28} }
+func (dst *ErrPosition) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ErrPosition.Merge(dst, src)
+}
+func (m *ErrPosition) XXX_Size() int {
+	return xxx_messageInfo_ErrPosition.Size(m)
+}
+func (m *ErrPosition) XXX_DiscardUnknown() {
+	xxx_messageInfo_ErrPosition.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ErrPosition proto.InternalMessageInfo
 
 // Error is a generic representation including a string message
 // and information about retryability.
@@ -586,12 +963,25 @@ type Error struct {
 	Index *ErrPosition `protobuf:"bytes,7,opt,name=index" json:"index,omitempty"`
 	// now is the current time at the node sending the response,
 	// which can be used by the receiver to update its local HLC.
-	Now cockroach_util_hlc.Timestamp `protobuf:"bytes,8,opt,name=now" json:"now"`
+	Now                  cockroach_util_hlc.Timestamp `protobuf:"bytes,8,opt,name=now" json:"now"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *Error) Reset()                    { *m = Error{} }
 func (*Error) ProtoMessage()               {}
 func (*Error) Descriptor() ([]byte, []int) { return fileDescriptorErrors, []int{29} }
+func (dst *Error) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Error.Merge(dst, src)
+}
+func (m *Error) XXX_Size() int {
+	return xxx_messageInfo_Error.Size(m)
+}
+func (m *Error) XXX_DiscardUnknown() {
+	xxx_messageInfo_Error.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Error proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*NotLeaseHolderError)(nil), "cockroach.roachpb.NotLeaseHolderError")

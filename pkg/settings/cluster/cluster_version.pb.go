@@ -40,13 +40,26 @@ type ClusterVersion struct {
 	// some functionality, once in use, can not be discontinued.
 	// Support for that functionality is guaranteed by the ratchet
 	// of minimum_version.
-	UseVersion cockroach_roachpb.Version `protobuf:"bytes,2,opt,name=use_version,json=useVersion" json:"use_version"`
+	UseVersion           cockroach_roachpb.Version `protobuf:"bytes,2,opt,name=use_version,json=useVersion" json:"use_version"`
+	XXX_NoUnkeyedLiteral struct{}                  `json:"-"`
+	XXX_sizecache        int32                     `json:"-"`
 }
 
 func (m *ClusterVersion) Reset()                    { *m = ClusterVersion{} }
 func (m *ClusterVersion) String() string            { return proto.CompactTextString(m) }
 func (*ClusterVersion) ProtoMessage()               {}
 func (*ClusterVersion) Descriptor() ([]byte, []int) { return fileDescriptorClusterVersion, []int{0} }
+func (dst *ClusterVersion) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ClusterVersion.Merge(dst, src)
+}
+func (m *ClusterVersion) XXX_Size() int {
+	return xxx_messageInfo_ClusterVersion.Size(m)
+}
+func (m *ClusterVersion) XXX_DiscardUnknown() {
+	xxx_messageInfo_ClusterVersion.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ClusterVersion proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*ClusterVersion)(nil), "cockroach.base.ClusterVersion")

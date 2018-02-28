@@ -40,13 +40,26 @@ type MVCCMetadata struct {
 	RawBytes []byte `protobuf:"bytes,6,opt,name=raw_bytes,json=rawBytes" json:"raw_bytes,omitempty"`
 	// This provides a measure of protection against replays caused by
 	// Raft duplicating merge commands.
-	MergeTimestamp *cockroach_util_hlc1.LegacyTimestamp `protobuf:"bytes,7,opt,name=merge_timestamp,json=mergeTimestamp" json:"merge_timestamp,omitempty"`
+	MergeTimestamp       *cockroach_util_hlc1.LegacyTimestamp `protobuf:"bytes,7,opt,name=merge_timestamp,json=mergeTimestamp" json:"merge_timestamp,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                             `json:"-"`
+	XXX_sizecache        int32                                `json:"-"`
 }
 
 func (m *MVCCMetadata) Reset()                    { *m = MVCCMetadata{} }
 func (m *MVCCMetadata) String() string            { return proto.CompactTextString(m) }
 func (*MVCCMetadata) ProtoMessage()               {}
 func (*MVCCMetadata) Descriptor() ([]byte, []int) { return fileDescriptorMvcc, []int{0} }
+func (dst *MVCCMetadata) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MVCCMetadata.Merge(dst, src)
+}
+func (m *MVCCMetadata) XXX_Size() int {
+	return xxx_messageInfo_MVCCMetadata.Size(m)
+}
+func (m *MVCCMetadata) XXX_DiscardUnknown() {
+	xxx_messageInfo_MVCCMetadata.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MVCCMetadata proto.InternalMessageInfo
 
 // MVCCStats tracks byte and instance counts for various groups of keys,
 // values, or key-value pairs; see the field comments for details.
@@ -130,13 +143,26 @@ type MVCCStats struct {
 	// and is prefixed by either LocalRangeIDPrefix or LocalRangePrefix.
 	SysBytes int64 `protobuf:"fixed64,12,opt,name=sys_bytes,json=sysBytes" json:"sys_bytes"`
 	// sys_count is the number of meta keys tracked under sys_bytes.
-	SysCount int64 `protobuf:"fixed64,13,opt,name=sys_count,json=sysCount" json:"sys_count"`
+	SysCount             int64    `protobuf:"fixed64,13,opt,name=sys_count,json=sysCount" json:"sys_count"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *MVCCStats) Reset()                    { *m = MVCCStats{} }
 func (m *MVCCStats) String() string            { return proto.CompactTextString(m) }
 func (*MVCCStats) ProtoMessage()               {}
 func (*MVCCStats) Descriptor() ([]byte, []int) { return fileDescriptorMvcc, []int{1} }
+func (dst *MVCCStats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MVCCStats.Merge(dst, src)
+}
+func (m *MVCCStats) XXX_Size() int {
+	return xxx_messageInfo_MVCCStats.Size(m)
+}
+func (m *MVCCStats) XXX_DiscardUnknown() {
+	xxx_messageInfo_MVCCStats.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MVCCStats proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*MVCCMetadata)(nil), "cockroach.storage.engine.enginepb.MVCCMetadata")

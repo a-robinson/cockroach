@@ -77,44 +77,83 @@ func (Severity) EnumDescriptor() ([]byte, []int) { return fileDescriptorLog, []i
 type Entry struct {
 	Severity Severity `protobuf:"varint,1,opt,name=severity,proto3,enum=cockroach.util.log.Severity" json:"severity,omitempty"`
 	// Nanoseconds since the epoch.
-	Time      int64  `protobuf:"varint,2,opt,name=time,proto3" json:"time,omitempty"`
-	Goroutine int64  `protobuf:"varint,6,opt,name=goroutine,proto3" json:"goroutine,omitempty"`
-	File      string `protobuf:"bytes,3,opt,name=file,proto3" json:"file,omitempty"`
-	Line      int64  `protobuf:"varint,4,opt,name=line,proto3" json:"line,omitempty"`
-	Message   string `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
+	Time                 int64    `protobuf:"varint,2,opt,name=time,proto3" json:"time,omitempty"`
+	Goroutine            int64    `protobuf:"varint,6,opt,name=goroutine,proto3" json:"goroutine,omitempty"`
+	File                 string   `protobuf:"bytes,3,opt,name=file,proto3" json:"file,omitempty"`
+	Line                 int64    `protobuf:"varint,4,opt,name=line,proto3" json:"line,omitempty"`
+	Message              string   `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Entry) Reset()                    { *m = Entry{} }
 func (m *Entry) String() string            { return proto.CompactTextString(m) }
 func (*Entry) ProtoMessage()               {}
 func (*Entry) Descriptor() ([]byte, []int) { return fileDescriptorLog, []int{0} }
+func (dst *Entry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Entry.Merge(dst, src)
+}
+func (m *Entry) XXX_Size() int {
+	return xxx_messageInfo_Entry.Size(m)
+}
+func (m *Entry) XXX_DiscardUnknown() {
+	xxx_messageInfo_Entry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Entry proto.InternalMessageInfo
 
 // A FileDetails holds all of the particulars that can be parsed by the name of
 // a log file.
 type FileDetails struct {
-	Program  string `protobuf:"bytes,1,opt,name=program,proto3" json:"program,omitempty"`
-	Host     string `protobuf:"bytes,2,opt,name=host,proto3" json:"host,omitempty"`
-	UserName string `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
-	Time     int64  `protobuf:"varint,5,opt,name=time,proto3" json:"time,omitempty"`
-	PID      int64  `protobuf:"varint,6,opt,name=pid,proto3" json:"pid,omitempty"`
+	Program              string   `protobuf:"bytes,1,opt,name=program,proto3" json:"program,omitempty"`
+	Host                 string   `protobuf:"bytes,2,opt,name=host,proto3" json:"host,omitempty"`
+	UserName             string   `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
+	Time                 int64    `protobuf:"varint,5,opt,name=time,proto3" json:"time,omitempty"`
+	PID                  int64    `protobuf:"varint,6,opt,name=pid,proto3" json:"pid,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *FileDetails) Reset()                    { *m = FileDetails{} }
 func (m *FileDetails) String() string            { return proto.CompactTextString(m) }
 func (*FileDetails) ProtoMessage()               {}
 func (*FileDetails) Descriptor() ([]byte, []int) { return fileDescriptorLog, []int{1} }
+func (dst *FileDetails) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FileDetails.Merge(dst, src)
+}
+func (m *FileDetails) XXX_Size() int {
+	return xxx_messageInfo_FileDetails.Size(m)
+}
+func (m *FileDetails) XXX_DiscardUnknown() {
+	xxx_messageInfo_FileDetails.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FileDetails proto.InternalMessageInfo
 
 type FileInfo struct {
-	Name         string      `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	SizeBytes    int64       `protobuf:"varint,2,opt,name=size_bytes,json=sizeBytes,proto3" json:"size_bytes,omitempty"`
-	ModTimeNanos int64       `protobuf:"varint,3,opt,name=mod_time_nanos,json=modTimeNanos,proto3" json:"mod_time_nanos,omitempty"`
-	Details      FileDetails `protobuf:"bytes,4,opt,name=details" json:"details"`
+	Name                 string      `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	SizeBytes            int64       `protobuf:"varint,2,opt,name=size_bytes,json=sizeBytes,proto3" json:"size_bytes,omitempty"`
+	ModTimeNanos         int64       `protobuf:"varint,3,opt,name=mod_time_nanos,json=modTimeNanos,proto3" json:"mod_time_nanos,omitempty"`
+	Details              FileDetails `protobuf:"bytes,4,opt,name=details" json:"details"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
 func (m *FileInfo) Reset()                    { *m = FileInfo{} }
 func (m *FileInfo) String() string            { return proto.CompactTextString(m) }
 func (*FileInfo) ProtoMessage()               {}
 func (*FileInfo) Descriptor() ([]byte, []int) { return fileDescriptorLog, []int{2} }
+func (dst *FileInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FileInfo.Merge(dst, src)
+}
+func (m *FileInfo) XXX_Size() int {
+	return xxx_messageInfo_FileInfo.Size(m)
+}
+func (m *FileInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_FileInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FileInfo proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*Entry)(nil), "cockroach.util.log.Entry")
