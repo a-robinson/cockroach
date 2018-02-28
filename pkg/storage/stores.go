@@ -27,8 +27,8 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/storage/engine"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
-	"github.com/cockroachdb/cockroach/pkg/util/protoutil"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
+	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 )
 
@@ -358,7 +358,7 @@ func (ls *Stores) updateBootstrapInfoLocked(bi *gossip.BootstrapInfo) error {
 	ctx := ls.AnnotateCtx(context.TODO())
 	// Update the latest timestamp and set cached version.
 	ls.mu.biLatestTS = bi.Timestamp
-	ls.mu.latestBI = protoutil.Clone(bi).(*gossip.BootstrapInfo)
+	ls.mu.latestBI = proto.Clone(bi).(*gossip.BootstrapInfo)
 	// Update all stores.
 	var err error
 	ls.storeMap.Range(func(k int64, v unsafe.Pointer) bool {

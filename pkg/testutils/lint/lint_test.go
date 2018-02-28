@@ -404,7 +404,7 @@ func TestLint(t *testing.T) {
 			filter,
 			stream.GrepNot(`protoutil\.Clone\(`),
 		), func(s string) {
-			t.Errorf(`%s <- forbidden; use "protoutil.Clone" instead`, s)
+			t.Errorf(`%s <- forbidden; use "proto.Clone" instead`, s)
 		}); err != nil {
 			t.Error(err)
 		}

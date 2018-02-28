@@ -901,7 +901,7 @@ func (g *Gossip) GetInfoStatus() InfoStatus {
 		Infos: make(map[string]Info),
 	}
 	for k, v := range g.mu.is.Infos {
-		is.Infos[k] = *protoutil.Clone(v).(*Info)
+		is.Infos[k] = *proto.Clone(v).(*Info)
 	}
 	return is
 }
@@ -912,7 +912,7 @@ func (g *Gossip) IterateInfos(prefix string, visit func(k string, info Info) err
 	defer g.mu.Unlock()
 	for k, v := range g.mu.is.Infos {
 		if strings.HasPrefix(k, prefix+separator) {
-			if err := visit(k, *(protoutil.Clone(v).(*Info))); err != nil {
+			if err := visit(k, *(proto.Clone(v).(*Info))); err != nil {
 				return err
 			}
 		}

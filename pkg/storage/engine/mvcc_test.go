@@ -1044,7 +1044,7 @@ func TestMVCCScanWriteIntentError(t *testing.T) {
 		} else if i == 5 {
 			txn = txn2
 		}
-		v := *protoutil.Clone(&kv.Value).(*roachpb.Value)
+		v := *proto.Clone(&kv.Value).(*roachpb.Value)
 		v.Timestamp = hlc.Timestamp{}
 		if err := MVCCPut(context.Background(), engine, nil, kv.Key, kv.Value.Timestamp, v, txn); err != nil {
 			t.Fatal(err)
@@ -3746,7 +3746,7 @@ func TestMVCCGarbageCollect(t *testing.T) {
 					}
 					continue
 				}
-				valCpy := *protoutil.Clone(&val).(*roachpb.Value)
+				valCpy := *proto.Clone(&val).(*roachpb.Value)
 				valCpy.Timestamp = hlc.Timestamp{}
 				if err := MVCCPut(context.Background(), engine, ms, test.key, val.Timestamp, valCpy, nil); err != nil {
 					t.Fatal(err)
@@ -3839,7 +3839,7 @@ func TestMVCCGarbageCollectNonDeleted(t *testing.T) {
 
 	for _, test := range testData {
 		for _, val := range test.vals {
-			valCpy := *protoutil.Clone(&val).(*roachpb.Value)
+			valCpy := *proto.Clone(&val).(*roachpb.Value)
 			valCpy.Timestamp = hlc.Timestamp{}
 			if err := MVCCPut(context.Background(), engine, nil, test.key, val.Timestamp, valCpy, nil); err != nil {
 				t.Fatal(err)

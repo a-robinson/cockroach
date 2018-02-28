@@ -28,6 +28,7 @@ import (
 
 	"github.com/coreos/etcd/raft"
 	"github.com/coreos/etcd/raft/raftpb"
+	"github.com/gogo/protobuf/proto"
 	"github.com/kr/pretty"
 	"github.com/pkg/errors"
 	"golang.org/x/time/rate"
@@ -649,7 +650,7 @@ func TestStoreRemoveReplicaOldDescriptor(t *testing.T) {
 
 	// First try and fail with a stale descriptor.
 	origDesc := rep.Desc()
-	newDesc := protoutil.Clone(origDesc).(*roachpb.RangeDescriptor)
+	newDesc := proto.Clone(origDesc).(*roachpb.RangeDescriptor)
 	for i := range newDesc.Replicas {
 		if newDesc.Replicas[i].StoreID == store.StoreID() {
 			newDesc.Replicas[i].ReplicaID++

@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/coreos/etcd/raft/raftpb"
+	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 
 	"github.com/cockroachdb/cockroach/pkg/base"
@@ -1574,7 +1575,7 @@ func TestStoreRangeSplitRaceUninitializedRHS(t *testing.T) {
 		if !ok || et.InternalCommitTrigger == nil {
 			return nil
 		}
-		trigger := protoutil.Clone(et.InternalCommitTrigger.GetSplitTrigger()).(*roachpb.SplitTrigger)
+		trigger := proto.Clone(et.InternalCommitTrigger.GetSplitTrigger()).(*roachpb.SplitTrigger)
 		// The first time the trigger arrives (on each of the two stores),
 		// return a transaction retry. This allows us to pass the trigger to
 		// the goroutine creating faux incoming messages for the yet

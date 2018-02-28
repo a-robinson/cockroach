@@ -20,6 +20,7 @@ import (
 	"math"
 
 	"github.com/coreos/etcd/raft/raftpb"
+	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 
 	"github.com/cockroachdb/cockroach/pkg/keys"
@@ -31,7 +32,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
-	"github.com/cockroachdb/cockroach/pkg/util/protoutil"
 )
 
 // StateLoader contains accessor methods to read or write the
@@ -70,7 +70,7 @@ func (rsl StateLoader) Load(
 	var s storagebase.ReplicaState
 	// TODO(tschottdorf): figure out whether this is always synchronous with
 	// on-disk state (likely iffy during Split/ChangeReplica triggers).
-	s.Desc = protoutil.Clone(desc).(*roachpb.RangeDescriptor)
+	s.Desc = proto.Clone(desc).(*roachpb.RangeDescriptor)
 	// Read the range lease.
 	lease, err := rsl.LoadLease(ctx, reader)
 	if err != nil {

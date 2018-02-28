@@ -42,6 +42,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
 	"github.com/cockroachdb/cockroach/pkg/util/tracing"
 	"github.com/coreos/etcd/raft/raftpb"
+	"github.com/gogo/protobuf/proto"
 	"github.com/kr/pretty"
 	"github.com/pkg/errors"
 	"golang.org/x/time/rate"
@@ -426,7 +427,7 @@ func TestRaftSSTableSideloadingInline(t *testing.T) {
 			test.setup(ec, ss)
 		}
 
-		thinCopy := *(protoutil.Clone(&test.thin).(*raftpb.Entry))
+		thinCopy := *(proto.Clone(&test.thin).(*raftpb.Entry))
 		newEnt, err := maybeInlineSideloadedRaftCommand(ctx, rangeID, thinCopy, ss, ec)
 		if err != nil {
 			if test.expErr == "" || !testutils.IsError(err, test.expErr) {

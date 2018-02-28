@@ -1749,7 +1749,7 @@ func TestOptimizePuts(t *testing.T) {
 		// individual requests, and not the slice.
 		goldenRequests := append([]roachpb.RequestUnion(nil), batch.Requests...)
 		for i := range goldenRequests {
-			clone := protoutil.Clone(goldenRequests[i].GetInner()).(roachpb.Request)
+			clone := proto.Clone(goldenRequests[i].GetInner()).(roachpb.Request)
 			goldenRequests[i].MustSetInner(clone)
 		}
 		// Save the original slice, allowing us to assert that it doesn't
@@ -6729,7 +6729,7 @@ func TestReplicaDestroy(t *testing.T) {
 
 	// First try and fail with a stale descriptor.
 	origDesc := repl.Desc()
-	newDesc := protoutil.Clone(origDesc).(*roachpb.RangeDescriptor)
+	newDesc := proto.Clone(origDesc).(*roachpb.RangeDescriptor)
 	for i := range newDesc.Replicas {
 		if newDesc.Replicas[i].StoreID == tc.store.StoreID() {
 			newDesc.Replicas[i].ReplicaID++

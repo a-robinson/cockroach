@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 
 	"github.com/cockroachdb/cockroach/pkg/gossip"
@@ -30,7 +31,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/testutils"
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/leaktest"
-	"github.com/cockroachdb/cockroach/pkg/util/protoutil"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 )
@@ -69,7 +69,7 @@ func (ts *testStorage) ReadBootstrapInfo(info *gossip.BootstrapInfo) error {
 	ts.Lock()
 	defer ts.Unlock()
 	ts.read = true
-	*info = *protoutil.Clone(&ts.info).(*gossip.BootstrapInfo)
+	*info = *proto.Clone(&ts.info).(*gossip.BootstrapInfo)
 	return nil
 }
 
@@ -77,7 +77,7 @@ func (ts *testStorage) WriteBootstrapInfo(info *gossip.BootstrapInfo) error {
 	ts.Lock()
 	defer ts.Unlock()
 	ts.write = true
-	ts.info = *protoutil.Clone(info).(*gossip.BootstrapInfo)
+	ts.info = *proto.Clone(info).(*gossip.BootstrapInfo)
 	return nil
 }
 
