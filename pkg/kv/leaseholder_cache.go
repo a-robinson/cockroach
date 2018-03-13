@@ -78,9 +78,9 @@ func (lc *LeaseHolderCache) Lookup(
 	return 0, false
 }
 
-// Update invalidates the cached leader for the given range ID. If an empty
-// replica descriptor is passed, the cached leader is evicted. Otherwise, the
-// passed-in replica descriptor is cached.
+// Update invalidates the cached leader for the given range ID. If a StoreID
+// of zero is passed, the cached leader is evicted. Otherwise, the passed-in
+// StoreID is cached.
 func (lc *LeaseHolderCache) Update(
 	ctx context.Context, rangeID roachpb.RangeID, storeID roachpb.StoreID,
 ) {

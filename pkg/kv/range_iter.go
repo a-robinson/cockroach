@@ -80,7 +80,7 @@ func (ri *RangeIterator) LeaseHolderStoreID(ctx context.Context) (roachpb.StoreI
 	if !ri.Valid() {
 		panic(ri.Error())
 	}
-	// TODO(andrei): The leaseHolderCache might have a replica that's not part of
+	// TODO(andrei): The leaseHolderCache might have a store that's not part of
 	// the RangeDescriptor that the iterator is currently positioned on. IOW, the
 	// leaseHolderCache can be inconsistent with the RangeDescriptorCache, and
 	// with reality. We should attempt to fix-up caches when this is encountered.
