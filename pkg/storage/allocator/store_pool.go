@@ -12,7 +12,7 @@
 // implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package storage
+package allocator
 
 import (
 	"bytes"
@@ -26,6 +26,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/settings"
 	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
+	"github.com/cockroachdb/cockroach/pkg/storage/nodeliveness"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/humanizeutil"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
@@ -66,18 +67,18 @@ var TimeUntilStoreDead = settings.RegisterNonNegativeDurationSetting(
 
 // A NodeLivenessFunc accepts a node ID, current time and threshold before
 // a node is considered dead and returns whether or not the node is live.
-type NodeLivenessFunc func(roachpb.NodeID, time.Time, time.Duration) NodeLivenessStatus
+type NodeLivenessFunc func(roachpb.NodeID, time.Time, time.Duration) nodeliveness.NodeLivenessStatus
 
 // MakeStorePoolNodeLivenessFunc returns a function which determines
 // the status of a node based on information provided by the specified
 // NodeLiveness.
-func MakeStorePoolNodeLivenessFunc(nodeLiveness *NodeLiveness) NodeLivenessFunc {
-	return func(nodeID roachpb.NodeID, now time.Time, threshold time.Duration) NodeLivenessStatus {
+func MakeStorePoolNodeLivenessFunc(nodeLiveness *nodeliveness.NodeLiveness) NodeLivenessFunc {
+	return func(nodeID roachpb.NodeID, now time.Time, threshold time.Duration) nodeliveness.NodeLivenessStatus {
 		liveness, err := nodeLiveness.GetLiveness(nodeID)
 		if err != nil {
-			return NodeLivenessStatus_UNAVAILABLE
+			return nodeliveness.NodeLivenessStatus_UNAVAILABLE
 		}
-		return liveness.LivenessStatus(now, threshold, nodeLiveness.clock.MaxOffset())
+		return liveness.LivenessStatus(now, threshold, nodeLiveness.Clock().MaxOffset())
 	}
 }
 
@@ -144,11 +145,11 @@ func (sd *storeDetail) status(
 	// Even if the store has been updated via gossip, we still rely on
 	// the node liveness to determine whether it is considered live.
 	switch nl(sd.desc.Node.NodeID, now, threshold) {
-	case NodeLivenessStatus_DEAD, NodeLivenessStatus_DECOMMISSIONED:
+	case nodeliveness.NodeLivenessStatus_DEAD, nodeliveness.NodeLivenessStatus_DECOMMISSIONED:
 		return storeStatusDead
-	case NodeLivenessStatus_DECOMMISSIONING:
+	case nodeliveness.NodeLivenessStatus_DECOMMISSIONING:
 		return storeStatusDecommissioning
-	case NodeLivenessStatus_UNKNOWN, NodeLivenessStatus_UNAVAILABLE:
+	case nodeliveness.NodeLivenessStatus_UNKNOWN, nodeliveness.NodeLivenessStatus_UNAVAILABLE:
 		return storeStatusUnknown
 	}
 
@@ -165,7 +166,7 @@ func (sd *storeDetail) status(
 // localityWithString maintains a string representation of each locality along
 // with its protocol buffer implementation. This is for the sake of optimizing
 // memory usage by allocating a single copy of each that can be returned to
-// callers of getNodeLocalityString rather than each caller (which is currently
+// callers of GetNodeLocalityString rather than each caller (which is currently
 // each replica in the local store) making its own copy.
 type localityWithString struct {
 	locality roachpb.Locality
@@ -618,7 +619,7 @@ const (
 // for up-replication or rebalancing until after the configured timeout period
 // has elapsed. Declined being true indicates that the remote store explicitly
 // declined a snapshot.
-func (sp *StorePool) throttle(reason throttleReason, storeID roachpb.StoreID) {
+func (sp *StorePool) Throttle(reason throttleReason, storeID roachpb.StoreID) {
 	sp.detailsMu.Lock()
 	defer sp.detailsMu.Unlock()
 	detail := sp.getStoreDetailLocked(storeID)
@@ -666,9 +667,9 @@ func (sp *StorePool) getLocalities(
 	return localities
 }
 
-// getNodeLocalityString returns the locality information for the given node
+// GetNodeLocalityString returns the locality information for the given node
 // in its string format.
-func (sp *StorePool) getNodeLocalityString(nodeID roachpb.NodeID) string {
+func (sp *StorePool) GetNodeLocalityString(nodeID roachpb.NodeID) string {
 	sp.localitiesMu.RLock()
 	defer sp.localitiesMu.RUnlock()
 	locality, ok := sp.localitiesMu.nodeLocalities[nodeID]

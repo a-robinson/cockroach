@@ -13,8 +13,8 @@
 // permissions and limitations under the License.
 
 syntax = "proto3";
-package cockroach.storage;
-option go_package = "storage";
+package cockroach.storage.nodeliveness;
+option go_package = "nodeliveness";
 
 import "util/hlc/legacy_timestamp.proto";
 import "gogoproto/gogo.proto";

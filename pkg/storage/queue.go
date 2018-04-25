@@ -26,6 +26,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/config"
 	"github.com/cockroachdb/cockroach/pkg/gossip"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
+	"github.com/cockroachdb/cockroach/pkg/storage/allocator"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/metric"
@@ -51,8 +52,10 @@ const (
 // failure condition changes.
 type purgatoryError interface {
 	error
-	purgatoryErrorMarker() // dummy method for unique interface
+	PurgatoryErrorMarker() // dummy method for unique interface
 }
+
+var _ purgatoryError = &allocator.AllocatorError{}
 
 // processCallback is a hook that is called when a replica finishes processing.
 // It is called with the result of the process attempt.

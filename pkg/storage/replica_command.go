@@ -1904,7 +1904,7 @@ func (r *Replica) sendSnapshot(
 		r.store.metrics.RangeSnapshotsGenerated.Inc(1)
 	}
 	if err := r.store.cfg.Transport.SendSnapshot(
-		ctx, r.store.allocator.storePool, req, snap, r.store.Engine().NewBatch, sent); err != nil {
+		ctx, r.store.cfg.StorePool, req, snap, r.store.Engine().NewBatch, sent); err != nil {
 		return &snapshotError{err}
 	}
 	return nil

@@ -27,6 +27,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/config"
 	"github.com/cockroachdb/cockroach/pkg/gossip"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
+	"github.com/cockroachdb/cockroach/pkg/storage/allocator"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/metric"
@@ -95,16 +96,16 @@ func makeReplicateQueueMetrics() ReplicateQueueMetrics {
 type replicateQueue struct {
 	*baseQueue
 	metrics           ReplicateQueueMetrics
-	allocator         Allocator
+	allocator         allocator.Allocator
 	updateChan        chan struct{}
 	lastLeaseTransfer atomic.Value // read and written by scanner & queue goroutines
 }
 
 // newReplicateQueue returns a new instance of replicateQueue.
-func newReplicateQueue(store *Store, g *gossip.Gossip, allocator Allocator) *replicateQueue {
+func newReplicateQueue(store *Store, g *gossip.Gossip, alloc allocator.Allocator) *replicateQueue {
 	rq := &replicateQueue{
 		metrics:    makeReplicateQueueMetrics(),
-		allocator:  allocator,
+		allocator:  alloc,
 		updateChan: make(chan struct{}, 1),
 	}
 	store.metrics.registry.AddMetricStruct(&rq.metrics)
@@ -171,10 +172,10 @@ func (rq *replicateQueue) shouldQueue(
 
 	rangeInfo := rangeInfoForRepl(repl, desc)
 	action, priority := rq.allocator.ComputeAction(ctx, zone, rangeInfo, false)
-	if action == AllocatorNoop {
+	if action == allocator.AllocatorNoop {
 		log.VEventf(ctx, 2, "no action to take")
 		return false, 0
-	} else if action != AllocatorConsiderRebalance {
+	} else if action != allocator.AllocatorConsiderRebalance {
 		log.VEventf(ctx, 2, "repair needed (%s), enqueuing", action)
 		return true, priority
 	}
@@ -250,7 +251,7 @@ func (rq *replicateQueue) processOneChange(
 	// quorum.
 	liveReplicas, deadReplicas := rq.allocator.storePool.liveAndDeadReplicas(desc.RangeID, desc.Replicas)
 	{
-		quorum := computeQuorum(len(desc.Replicas))
+		quorum := allocator.ComputeQuorum(len(desc.Replicas))
 		if lr := len(liveReplicas); lr < quorum {
 			return false, errors.Errorf(
 				"range requires a replication change, but lacks a quorum of live replicas (%d/%d)", lr, quorum)
@@ -264,9 +265,9 @@ func (rq *replicateQueue) processOneChange(
 
 	rangeInfo := rangeInfoForRepl(repl, desc)
 	switch action, _ := rq.allocator.ComputeAction(ctx, zone, rangeInfo, disableStatsBasedRebalancing); action {
-	case AllocatorNoop:
+	case allocator.AllocatorNoop:
 		break
-	case AllocatorAdd:
+	case allocator.AllocatorAdd:
 		log.VEventf(ctx, 1, "adding a new replica")
 		newStore, details, err := rq.allocator.AllocateTarget(
 			ctx,
@@ -331,7 +332,7 @@ func (rq *replicateQueue) processOneChange(
 		); err != nil {
 			return false, err
 		}
-	case AllocatorRemove:
+	case allocator.AllocatorRemove:
 		log.VEventf(ctx, 1, "removing a replica")
 		lastReplAdded, lastAddedTime := repl.LastReplicaAdded()
 		if timeutil.Since(lastAddedTime) > newReplicaGracePeriod {
@@ -389,7 +390,7 @@ func (rq *replicateQueue) processOneChange(
 				return false, err
 			}
 		}
-	case AllocatorRemoveDecommissioning:
+	case allocator.AllocatorRemoveDecommissioning:
 		log.VEventf(ctx, 1, "removing a decommissioning replica")
 		decommissioningReplicas := rq.allocator.storePool.decommissioningReplicas(desc.RangeID, desc.Replicas)
 		if len(decommissioningReplicas) == 0 {
@@ -433,7 +434,7 @@ func (rq *replicateQueue) processOneChange(
 				return false, err
 			}
 		}
-	case AllocatorRemoveDead:
+	case allocator.AllocatorRemoveDead:
 		log.VEventf(ctx, 1, "removing a dead replica")
 		if len(deadReplicas) == 0 {
 			log.VEventf(ctx, 1, "range of replica %s was identified as having dead replicas, but no dead replicas were found", repl)
@@ -451,7 +452,7 @@ func (rq *replicateQueue) processOneChange(
 		); err != nil {
 			return false, err
 		}
-	case AllocatorConsiderRebalance:
+	case allocator.AllocatorConsiderRebalance:
 		// The Noop case will result if this replica was queued in order to
 		// rebalance. Attempt to find a rebalancing target.
 		log.VEventf(ctx, 1, "allocator noop - considering a rebalance or lease transfer")
@@ -636,4 +637,15 @@ func rangeRaftProgress(raftStatus *raft.Status, replicas []roachpb.ReplicaDescri
 	}
 	buf.WriteString("]")
 	return buf.String()
+}
+
+func rangeInfoForRepl(repl *Replica, desc *roachpb.RangeDescriptor) RangeInfo {
+	info := RangeInfo{
+		Desc:         desc,
+		LogicalBytes: repl.GetMVCCStats().Total(),
+	}
+	if writesPerSecond, dur := repl.writeStats.avgQPS(); dur >= MinStatsDuration {
+		info.WritesPerSecond = writesPerSecond
+	}
+	return info
 }

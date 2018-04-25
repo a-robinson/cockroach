@@ -12,7 +12,7 @@
 // implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package storage
+package nodeliveness
 
 import (
 	"context"
@@ -207,6 +207,10 @@ func NewNodeLiveness(
 	nl.gossip.RegisterCallback(livenessRegex, nl.livenessGossipUpdate)
 
 	return nl
+}
+
+func (nl *NodeLiveness) Clock() *hlc.Clock {
+	return nl.clock
 }
 
 var errNodeDrainingSet = errors.New("node is already draining")

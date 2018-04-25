@@ -44,11 +44,13 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/settings"
 	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlutil"
+	"github.com/cockroachdb/cockroach/pkg/storage/allocator"
 	"github.com/cockroachdb/cockroach/pkg/storage/batcheval"
 	"github.com/cockroachdb/cockroach/pkg/storage/compactor"
 	"github.com/cockroachdb/cockroach/pkg/storage/engine"
 	"github.com/cockroachdb/cockroach/pkg/storage/engine/enginepb"
 	"github.com/cockroachdb/cockroach/pkg/storage/idalloc"
+	"github.com/cockroachdb/cockroach/pkg/storage/nodeliveness"
 	"github.com/cockroachdb/cockroach/pkg/storage/spanset"
 	"github.com/cockroachdb/cockroach/pkg/storage/stateloader"
 	"github.com/cockroachdb/cockroach/pkg/storage/storagebase"
@@ -366,7 +368,7 @@ type Store struct {
 	engine             engine.Engine               // The underlying key-value store
 	compactor          *compactor.Compactor        // Schedules compaction of the engine
 	tsCache            tscache.Cache               // Most recent timestamps for keys / key ranges
-	allocator          Allocator                   // Makes allocation decisions
+	allocator          allocator.Allocator         // Makes allocation decisions
 	rangeIDAlloc       *idalloc.Allocator          // Range ID allocator
 	gcQueue            *gcQueue                    // Garbage collection queue
 	splitQueue         *splitQueue                 // Range splitting queue
@@ -558,8 +560,8 @@ type StoreConfig struct {
 	Clock        *hlc.Clock
 	DB           *client.DB
 	Gossip       *gossip.Gossip
-	NodeLiveness *NodeLiveness
-	StorePool    *StorePool
+	NodeLiveness *nodeliveness.NodeLiveness
+	StorePool    *allocator.StorePool
 	Transport    *RaftTransport
 	RPCContext   *rpc.Context
 
@@ -857,9 +859,9 @@ func NewStore(cfg StoreConfig, eng engine.Engine, nodeDesc *roachpb.NodeDescript
 		metrics:  newStoreMetrics(cfg.HistogramWindowInterval),
 	}
 	if cfg.RPCContext != nil {
-		s.allocator = MakeAllocator(cfg.StorePool, cfg.RPCContext.RemoteClocks.Latency)
+		s.allocator = allocator.MakeAllocator(cfg.StorePool, cfg.RPCContext.RemoteClocks.Latency)
 	} else {
-		s.allocator = MakeAllocator(cfg.StorePool, func(string) (time.Duration, bool) {
+		s.allocator = allocator.MakeAllocator(cfg.StorePool, func(string) (time.Duration, bool) {
 			return 0, false
 		})
 	}
@@ -2232,7 +2234,7 @@ func (s *Store) MergeRange(
 		subsumingRng.leaseholderStats.resetRequestCounts()
 	}
 	if subsumingRng.writeStats != nil {
-		// Note: this could be drastically improved by adding a replicaStats method
+		// Note: this could be drastically improved by adding a ReplicaStats method
 		// that merges stats. Resetting stats is typically bad for the rebalancing
 		// logic that depends on them.
 		subsumingRng.writeStats.resetRequestCounts()

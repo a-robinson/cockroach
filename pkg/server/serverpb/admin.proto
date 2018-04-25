@@ -19,7 +19,7 @@ option go_package = "serverpb";
 import "config/zone.proto";
 import "sql/jobs/jobs.proto";
 import "storage/engine/enginepb/mvcc.proto";
-import "storage/liveness.proto";
+import "storage/nodeliveness/liveness.proto";
 import "storage/log.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
@@ -416,8 +416,8 @@ message LivenessRequest {
 
 // LivenessResponse contains the liveness status of each node on the cluster.
 message LivenessResponse {
-  repeated cockroach.storage.Liveness livenesses = 1 [(gogoproto.nullable) = false];
-  map<int32, cockroach.storage.NodeLivenessStatus> statuses = 2 [
+  repeated cockroach.storage.nodeliveness.Liveness livenesses = 1 [(gogoproto.nullable) = false];
+  map<int32, cockroach.storage.nodeliveness.NodeLivenessStatus> statuses = 2 [
     (gogoproto.nullable) = false,
     (gogoproto.castkey) = "github.com/cockroachdb/cockroach/pkg/roachpb.NodeID"
   ];

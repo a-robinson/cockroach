@@ -477,7 +477,7 @@ func sendSnapshotError(stream incomingSnapshotStream, err error) error {
 
 // SnapshotStorePool narrows StorePool to make sendSnapshot easier to test.
 type SnapshotStorePool interface {
-	throttle(reason throttleReason, toStoreID roachpb.StoreID)
+	Throttle(reason throttleReason, toStoreID roachpb.StoreID)
 }
 
 var rebalanceSnapshotRate = settings.RegisterByteSizeSetting(
@@ -534,30 +534,30 @@ func sendSnapshot(
 	// Wait until we get a response from the server.
 	resp, err := stream.Recv()
 	if err != nil {
-		storePool.throttle(throttleFailed, to.StoreID)
+		storePool.Throttle(throttleFailed, to.StoreID)
 		return err
 	}
 	switch resp.Status {
 	case SnapshotResponse_DECLINED:
 		if header.CanDecline {
-			storePool.throttle(throttleDeclined, to.StoreID)
+			storePool.Throttle(throttleDeclined, to.StoreID)
 			declinedMsg := "reservation rejected"
 			if len(resp.Message) > 0 {
 				declinedMsg = resp.Message
 			}
 			return errors.Errorf("%s: remote declined snapshot: %s", to, declinedMsg)
 		}
-		storePool.throttle(throttleFailed, to.StoreID)
+		storePool.Throttle(throttleFailed, to.StoreID)
 		return errors.Errorf("%s: programming error: remote declined required snapshot: %s",
 			to, resp.Message)
 	case SnapshotResponse_ERROR:
-		storePool.throttle(throttleFailed, to.StoreID)
+		storePool.Throttle(throttleFailed, to.StoreID)
 		return errors.Errorf("%s: remote couldn't accept snapshot with error: %s",
 			to, resp.Message)
 	case SnapshotResponse_ACCEPTED:
 	// This is the response we're expecting. Continue with snapshot sending.
 	default:
-		storePool.throttle(throttleFailed, to.StoreID)
+		storePool.Throttle(throttleFailed, to.StoreID)
 		return errors.Errorf("%s: server sent an invalid status during negotiation: %s",
 			to, resp.Status)
 	}

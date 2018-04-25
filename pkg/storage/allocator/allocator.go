@@ -12,7 +12,7 @@
 // implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package storage
+package allocator
 
 import (
 	"context"
@@ -125,16 +125,16 @@ const (
 	decideWithoutStats
 )
 
-// allocatorError indicates a retryable error condition which sends replicas
+// AllocatorError indicates a retryable error condition which sends replicas
 // being processed through the replicate_queue into purgatory so that they
 // can be retried quickly as soon as new stores come online, or additional
 // space frees up.
-type allocatorError struct {
+type AllocatorError struct {
 	constraints     []config.Constraints
 	aliveStoreCount int
 }
 
-func (ae *allocatorError) Error() string {
+func (ae *AllocatorError) Error() string {
 	var auxInfo string
 	// Whenever the likely problem is not having enough nodes up, make the
 	// message really clear.
@@ -146,9 +146,7 @@ func (ae *allocatorError) Error() string {
 		ae.constraints, auxInfo)
 }
 
-func (*allocatorError) purgatoryErrorMarker() {}
-
-var _ purgatoryError = &allocatorError{}
+func (*AllocatorError) PurgatoryErrorMarker() {}
 
 // allocatorRand pairs a rand.Rand with a mutex.
 // NOTE: Allocator is typically only accessed from a single thread (the
@@ -174,17 +172,6 @@ type RangeInfo struct {
 	Desc            *roachpb.RangeDescriptor
 	LogicalBytes    int64
 	WritesPerSecond float64
-}
-
-func rangeInfoForRepl(repl *Replica, desc *roachpb.RangeDescriptor) RangeInfo {
-	info := RangeInfo{
-		Desc:         desc,
-		LogicalBytes: repl.GetMVCCStats().Total(),
-	}
-	if writesPerSecond, dur := repl.writeStats.avgQPS(); dur >= MinStatsDuration {
-		info.WritesPerSecond = writesPerSecond
-	}
-	return info
 }
 
 // Allocator tries to spread replicas as evenly as possible across the stores
@@ -232,7 +219,7 @@ func (a *Allocator) ComputeAction(
 	// TODO(mrtracy): Handle non-homogeneous and mismatched attribute sets.
 	need := int(zone.NumReplicas)
 	have := len(rangeInfo.Desc.Replicas)
-	quorum := computeQuorum(need)
+	quorum := ComputeQuorum(need)
 	if have < need {
 		// Range is under-replicated, and should add an additional replica.
 		// Priority is adjusted by the difference between the current replica
@@ -363,7 +350,7 @@ func (a *Allocator) AllocateTarget(
 	if throttledStoreCount > 0 {
 		return nil, "", errors.Errorf("%d matching stores are currently throttled", throttledStoreCount)
 	}
-	return nil, "", &allocatorError{
+	return nil, "", &AllocatorError{
 		constraints:     zone.Constraints,
 		aliveStoreCount: aliveStoreCount,
 	}
@@ -492,7 +479,7 @@ func (a Allocator) RebalanceTarget(
 				}
 			}
 		}
-		newQuorum := computeQuorum(len(rangeInfo.Desc.Replicas) + 1)
+		newQuorum := ComputeQuorum(len(rangeInfo.Desc.Replicas) + 1)
 		if numLiveReplicas < newQuorum {
 			// Don't rebalance as we won't be able to make quorum after the rebalance
 			// until the new replica has been caught up.
@@ -509,7 +496,7 @@ func (a Allocator) RebalanceTarget(
 		analyzedConstraints,
 		rangeInfo,
 		a.storePool.getLocalities(rangeInfo.Desc.Replicas),
-		a.storePool.getNodeLocalityString,
+		a.storePool.GetNodeLocalityString,
 		options,
 	)
 
@@ -609,7 +596,7 @@ func (a *Allocator) TransferLeaseTarget(
 	existing []roachpb.ReplicaDescriptor,
 	leaseStoreID roachpb.StoreID,
 	rangeID roachpb.RangeID,
-	stats *replicaStats,
+	stats *ReplicaStats,
 	checkTransferLeaseSource bool,
 	checkCandidateFullness bool,
 	alwaysAllowDecisionWithoutStats bool,
@@ -756,7 +743,7 @@ func (a *Allocator) ShouldTransferLease(
 	existing []roachpb.ReplicaDescriptor,
 	leaseStoreID roachpb.StoreID,
 	rangeID roachpb.RangeID,
-	stats *replicaStats,
+	stats *ReplicaStats,
 ) bool {
 	source, ok := a.storePool.getStoreDescriptor(leaseStoreID)
 	if !ok {
@@ -812,7 +799,7 @@ func (a Allocator) shouldTransferLeaseUsingStats(
 	sl StoreList,
 	source roachpb.StoreDescriptor,
 	existing []roachpb.ReplicaDescriptor,
-	stats *replicaStats,
+	stats *ReplicaStats,
 ) (transferDecision, roachpb.ReplicaDescriptor) {
 	// Only use load-based rebalancing if it's enabled and we have both
 	// stats and locality information to base our decision on.
@@ -1038,8 +1025,8 @@ func (a Allocator) preferredLeaseholders(
 	return nil
 }
 
-// computeQuorum computes the quorum value for the given number of nodes.
-func computeQuorum(nodes int) int {
+// ComputeQuorum computes the quorum value for the given number of nodes.
+func ComputeQuorum(nodes int) int {
 	return (nodes / 2) + 1
 }
 
@@ -1099,7 +1086,7 @@ func filterUnremovableReplicas(
 	brandNewReplicaID roachpb.ReplicaID,
 ) []roachpb.ReplicaDescriptor {
 	upToDateReplicas := filterBehindReplicas(raftStatus, replicas, brandNewReplicaID)
-	quorum := computeQuorum(len(replicas) - 1)
+	quorum := ComputeQuorum(len(replicas) - 1)
 	if len(upToDateReplicas) < quorum {
 		// The number of up-to-date replicas is less than quorum. No replicas can
 		// be removed.

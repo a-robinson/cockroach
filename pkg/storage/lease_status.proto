@@ -17,7 +17,7 @@ package cockroach.storage;
 option go_package = "storage";
 
 import "roachpb/data.proto";
-import "storage/liveness.proto";
+import "storage/nodeliveness/liveness.proto";
 import "util/hlc/timestamp.proto";
 
 import "gogoproto/gogo.proto";
@@ -47,5 +47,5 @@ message LeaseStatus {
   // State of the lease at timestamp.
   LeaseState state = 3;
   // Liveness if this is an epoch-based lease.
-  Liveness liveness = 4;
+  nodeliveness.Liveness liveness = 4;
 }

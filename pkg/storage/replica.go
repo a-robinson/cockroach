@@ -27,6 +27,7 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/cockroachdb/cockroach/pkg/storage/nodeliveness"
 	"github.com/cockroachdb/cockroach/pkg/storage/rditer"
 	"github.com/coreos/etcd/raft"
 	"github.com/coreos/etcd/raft/raftpb"
@@ -44,6 +45,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/settings"
 	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
 	"github.com/cockroachdb/cockroach/pkg/storage/abortspan"
+	"github.com/cockroachdb/cockroach/pkg/storage/allocator"
 	"github.com/cockroachdb/cockroach/pkg/storage/batcheval"
 	"github.com/cockroachdb/cockroach/pkg/storage/batcheval/result"
 	"github.com/cockroachdb/cockroach/pkg/storage/engine"
@@ -279,10 +281,10 @@ type Replica struct {
 
 	// leaseholderStats tracks all incoming BatchRequests to the replica and which
 	// localities they come from in order to aid in lease rebalancing decisions.
-	leaseholderStats *replicaStats
+	leaseholderStats *allocator.ReplicaStats
 	// writeStats tracks the number of keys written by applied raft commands
 	// in order to aid in replica rebalancing decisions.
-	writeStats *replicaStats
+	writeStats *allocator.ReplicaStats
 
 	// creatingReplica is set when a replica is created as uninitialized
 	// via a raft message.
@@ -640,11 +642,12 @@ func newReplica(rangeID roachpb.RangeID, store *Store) *Replica {
 		r.leaseHistory = newLeaseHistory()
 	}
 	if store.cfg.StorePool != nil {
-		r.leaseholderStats = newReplicaStats(store.Clock(), store.cfg.StorePool.getNodeLocalityString)
+		r.leaseholderStats = allocator.NewReplicaStats(
+			store.Clock(), store.cfg.StorePool.GetNodeLocalityString)
 	}
 	// Pass nil for the localityOracle because we intentionally don't track the
 	// origin locality of write load.
-	r.writeStats = newReplicaStats(store.Clock(), nil)
+	r.writeStats = allocator.NewReplicaStats(store.Clock(), nil)
 
 	// Init rangeStr with the range ID.
 	r.rangeStr.store(0, &roachpb.RangeDescriptor{RangeID: rangeID})
@@ -1855,7 +1858,7 @@ func (r *Replica) Send(
 ) (*roachpb.BatchResponse, *roachpb.Error) {
 	var br *roachpb.BatchResponse
 	if r.leaseholderStats != nil && ba.Header.GatewayNodeID != 0 {
-		r.leaseholderStats.record(ba.Header.GatewayNodeID)
+		r.leaseholderStats.Record(ba.Header.GatewayNodeID)
 	}
 
 	// Add the range log tag.
@@ -5084,7 +5087,7 @@ func (r *Replica) applyRaftCommand(
 		if err != nil {
 			log.Errorf(ctx, "unable to read header of committed WriteBatch: %s", err)
 		} else {
-			r.writeStats.recordCount(float64(mutationCount), 0 /* nodeID */)
+			r.writeStats.RecordCount(float64(mutationCount), 0 /* nodeID */)
 		}
 	}
 
@@ -5908,7 +5911,7 @@ func (r *Replica) MaybeGossipNodeLiveness(ctx context.Context, span roachpb.Span
 	kvs := br.Responses[0].GetInner().(*roachpb.ScanResponse).Rows
 	log.VEventf(ctx, 2, "gossiping %d node liveness record(s) from span %s", len(kvs), span)
 	for _, kv := range kvs {
-		var kvLiveness, gossipLiveness Liveness
+		var kvLiveness, gossipLiveness nodeliveness.Liveness
 		if err := kv.Value.GetProto(&kvLiveness); err != nil {
 			return errors.Wrapf(err, "failed to unmarshal liveness value %s", kv.Key)
 		}
@@ -6154,7 +6157,7 @@ func calcReplicaMetrics(
 	// unavailable ranges for each range based on the liveness table.
 	if m.RangeCounter {
 		liveReplicas := calcLiveReplicas(desc, livenessMap)
-		if liveReplicas < computeQuorum(len(desc.Replicas)) {
+		if liveReplicas < allocator.ComputeQuorum(len(desc.Replicas)) {
 			m.Unavailable = true
 		}
 		if zoneConfig, err := cfg.GetZoneConfigForKey(desc.StartKey); err != nil {
@@ -6210,13 +6213,13 @@ func calcBehindCount(
 // leaseholder. If it isn't, this will return 0 because the replica does not
 // know about the reads that the leaseholder is serving.
 func (r *Replica) QueriesPerSecond() float64 {
-	qps, _ := r.leaseholderStats.avgQPS()
+	qps, _ := r.leaseholderStats.AvgQPS()
 	return qps
 }
 
 // WritesPerSecond returns the range's average keys written per second.
 func (r *Replica) WritesPerSecond() float64 {
-	wps, _ := r.writeStats.avgQPS()
+	wps, _ := r.writeStats.AvgQPS()
 	return wps
 }
 

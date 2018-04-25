@@ -7,7 +7,6 @@
 	It is generated from these files:
 		storage/api.proto
 		storage/lease_status.proto
-		storage/liveness.proto
 		storage/log.proto
 		storage/raft.proto
 
@@ -16,7 +15,6 @@
 		CollectChecksumRequest
 		CollectChecksumResponse
 		LeaseStatus
-		Liveness
 		RangeLogEvent
 		RaftHeartbeat
 		RaftMessageRequest

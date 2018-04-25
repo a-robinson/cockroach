@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cockroachdb/cockroach/pkg/storage/allocator"
 	"github.com/cockroachdb/cockroach/pkg/storage/rditer"
 	"github.com/pkg/errors"
 
@@ -357,7 +358,7 @@ func (r *Replica) IsRaftGroupInitialized() bool {
 func (r *Replica) HasQuorum() bool {
 	desc := r.Desc()
 	liveReplicas, _ := r.store.allocator.storePool.liveAndDeadReplicas(desc.RangeID, desc.Replicas)
-	quorum := computeQuorum(len(desc.Replicas))
+	quorum := allocator.ComputeQuorum(len(desc.Replicas))
 	return len(liveReplicas) >= quorum
 }
 

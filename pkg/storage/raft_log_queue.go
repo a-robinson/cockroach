@@ -26,6 +26,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/gossip"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
+	"github.com/cockroachdb/cockroach/pkg/storage/allocator"
 	"github.com/cockroachdb/cockroach/pkg/util/envutil"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
@@ -221,7 +222,7 @@ func getQuorumIndex(raftStatus *raft.Status, pendingSnapshotIndex uint64) uint64
 		match = append(match, pendingSnapshotIndex)
 	}
 	sort.Sort(uint64Slice(match))
-	quorum := computeQuorum(len(match))
+	quorum := allocator.ComputeQuorum(len(match))
 	return match[len(match)-quorum]
 }
 

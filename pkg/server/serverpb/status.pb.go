@@ -12,7 +12,7 @@ import cockroach_roachpb2 "github.com/cockroachdb/cockroach/pkg/roachpb"
 import cockroach_server_diagnosticspb "github.com/cockroachdb/cockroach/pkg/server/diagnosticspb"
 import cockroach_server_status "github.com/cockroachdb/cockroach/pkg/server/status"
 import cockroach_storage_engine_enginepb1 "github.com/cockroachdb/cockroach/pkg/storage/engine/enginepb"
-import cockroach_storage2 "github.com/cockroachdb/cockroach/pkg/storage"
+import cockroach_storage1 "github.com/cockroachdb/cockroach/pkg/storage"
 import cockroach_storage_storagebase "github.com/cockroachdb/cockroach/pkg/storage/storagebase"
 import cockroach_util_log "github.com/cockroachdb/cockroach/pkg/util/log"
 import cockroach_util "github.com/cockroachdb/cockroach/pkg/util"
@@ -310,7 +310,7 @@ type RangeInfo struct {
 	Stats         RangeStatistics                                      `protobuf:"bytes,10,opt,name=stats" json:"stats"`
 	CmdQLocal     CommandQueueMetrics                                  `protobuf:"bytes,11,opt,name=cmd_q_local,json=cmdQLocal" json:"cmd_q_local"`
 	CmdQGlobal    CommandQueueMetrics                                  `protobuf:"bytes,12,opt,name=cmd_q_global,json=cmdQGlobal" json:"cmd_q_global"`
-	LeaseStatus   cockroach_storage2.LeaseStatus                       `protobuf:"bytes,13,opt,name=lease_status,json=leaseStatus" json:"lease_status"`
+	LeaseStatus   cockroach_storage1.LeaseStatus                       `protobuf:"bytes,13,opt,name=lease_status,json=leaseStatus" json:"lease_status"`
 	Quiescent     bool                                                 `protobuf:"varint,14,opt,name=quiescent,proto3" json:"quiescent,omitempty"`
 }
 

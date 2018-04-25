@@ -12,7 +12,7 @@
 // implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package storage
+package allocator
 
 import (
 	"math"
@@ -40,10 +40,10 @@ type localityOracle func(roachpb.NodeID) string
 // perLocalityCounts maps from the string representation of a locality to count.
 type perLocalityCounts map[string]float64
 
-// replicaStats maintains statistics about the work done by a replica. Its
+// ReplicaStats maintains statistics about the work done by a replica. Its
 // initial use is tracking the number of requests received from each
 // cluster locality in order to inform lease transfer decisions.
-type replicaStats struct {
+type ReplicaStats struct {
 	clock           *hlc.Clock
 	getNodeLocality localityOracle
 
@@ -64,8 +64,8 @@ type replicaStats struct {
 	}
 }
 
-func newReplicaStats(clock *hlc.Clock, getNodeLocality localityOracle) *replicaStats {
-	rs := &replicaStats{
+func NewReplicaStats(clock *hlc.Clock, getNodeLocality localityOracle) *ReplicaStats {
+	rs := &ReplicaStats{
 		clock:           clock,
 		getNodeLocality: getNodeLocality,
 	}
@@ -75,14 +75,14 @@ func newReplicaStats(clock *hlc.Clock, getNodeLocality localityOracle) *replicaS
 	return rs
 }
 
-// splitRequestCounts divides the current replicaStats object in two for the
+// splitRequestCounts divides the current ReplicaStats object in two for the
 // purposes of splitting a range. It modifies itself to have half its requests
 // and the provided other to have the other half.
 //
 // Note that assuming a 50/50 split is optimistic, but it's much better than
 // resetting both sides upon a split.
 // TODO(a-robinson): Write test for this.
-func (rs *replicaStats) splitRequestCounts(other *replicaStats) {
+func (rs *ReplicaStats) splitRequestCounts(other *ReplicaStats) {
 	other.mu.Lock()
 	defer other.mu.Unlock()
 	rs.mu.Lock()
@@ -106,11 +106,11 @@ func (rs *replicaStats) splitRequestCounts(other *replicaStats) {
 	}
 }
 
-func (rs *replicaStats) record(nodeID roachpb.NodeID) {
-	rs.recordCount(1, nodeID)
+func (rs *ReplicaStats) Record(nodeID roachpb.NodeID) {
+	rs.RecordCount(1, nodeID)
 }
 
-func (rs *replicaStats) recordCount(count float64, nodeID roachpb.NodeID) {
+func (rs *ReplicaStats) RecordCount(count float64, nodeID roachpb.NodeID) {
 	var locality string
 	if rs.getNodeLocality != nil {
 		locality = rs.getNodeLocality(nodeID)
@@ -124,14 +124,14 @@ func (rs *replicaStats) recordCount(count float64, nodeID roachpb.NodeID) {
 	rs.mu.requests[rs.mu.idx][locality] += count
 }
 
-func (rs *replicaStats) maybeRotateLocked(now time.Time) {
+func (rs *ReplicaStats) maybeRotateLocked(now time.Time) {
 	if now.Sub(rs.mu.lastRotate) >= replStatsRotateInterval {
 		rs.rotateLocked()
 		rs.mu.lastRotate = now
 	}
 }
 
-func (rs *replicaStats) rotateLocked() {
+func (rs *ReplicaStats) rotateLocked() {
 	rs.mu.idx = (rs.mu.idx + 1) % len(rs.mu.requests)
 	rs.mu.requests[rs.mu.idx] = make(perLocalityCounts)
 }
@@ -140,7 +140,7 @@ func (rs *replicaStats) rotateLocked() {
 // over which the stats were accumulated.
 // Note that the QPS stats are exponentially decayed such that newer requests
 // are weighted more heavily than older requests.
-func (rs *replicaStats) perLocalityDecayingQPS() (perLocalityCounts, time.Duration) {
+func (rs *ReplicaStats) perLocalityDecayingQPS() (perLocalityCounts, time.Duration) {
 	now := timeutil.Unix(0, rs.clock.PhysicalNow())
 
 	rs.mu.Lock()
@@ -180,12 +180,12 @@ func (rs *replicaStats) perLocalityDecayingQPS() (perLocalityCounts, time.Durati
 	return counts, now.Sub(rs.mu.lastReset)
 }
 
-// avgQPS returns the average requests-per-second and the amount of time
+// AvgQPS returns the average requests-per-second and the amount of time
 // over which the stat was accumulated. Note that these averages are exact,
 // not exponentially decayed (there isn't a ton of justification for going
 // one way or the the other, but not decaying makes the average more stable,
 // which is probably better for avoiding rebalance thrashing).
-func (rs *replicaStats) avgQPS() (float64, time.Duration) {
+func (rs *ReplicaStats) AvgQPS() (float64, time.Duration) {
 	now := timeutil.Unix(0, rs.clock.PhysicalNow())
 
 	rs.mu.Lock()
@@ -217,7 +217,7 @@ func (rs *replicaStats) avgQPS() (float64, time.Duration) {
 	return sum / duration.Seconds(), duration
 }
 
-func (rs *replicaStats) resetRequestCounts() {
+func (rs *ReplicaStats) ResetRequestCounts() {
 	rs.mu.Lock()
 	defer rs.mu.Unlock()
 
