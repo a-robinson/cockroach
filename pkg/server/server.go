@@ -1684,6 +1684,9 @@ If problems persist, please see ` + base.DocsURL("cluster-setup-troubleshooting.
 		}
 	}
 
+	// TODO: REMOVE
+	//s.stopper.RunWorker(ctx, s.RunStoreLevelAllocator)
+
 	log.Event(ctx, "server ready")
 
 	return nil
