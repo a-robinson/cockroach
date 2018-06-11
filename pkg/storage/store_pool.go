@@ -692,3 +692,15 @@ func (sp *StorePool) getNodeLocalityString(nodeID roachpb.NodeID) string {
 	}
 	return locality.str
 }
+
+type PublicStoreList struct {
+	Stores             []roachpb.StoreDescriptor
+	AvgRanges          float64
+	AvgLeases          float64
+	AvgLogicalBytes    float64
+	AvgWritesPerSecond float64
+}
+
+func (sp *StorePool) GetPublicStoreList() (StoreList, int, int) {
+	return sp.getStoreList(0, storeFilterNone)
+}
