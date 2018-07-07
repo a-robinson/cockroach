@@ -60,7 +60,7 @@ const (
 var EnableStatsBasedRebalancing = settings.RegisterBoolSetting(
 	"kv.allocator.stat_based_rebalancing.enabled",
 	"set to enable rebalancing of range replicas based on write load and disk usage",
-	false,
+	true,
 )
 
 // rangeRebalanceThreshold is the minimum ratio of a store's range count to

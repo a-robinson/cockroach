@@ -356,10 +356,11 @@ type Store struct {
 	Ident              *roachpb.StoreIdent // pointer to catch access before Start() is called
 	cfg                StoreConfig
 	db                 *client.DB
-	engine             engine.Engine               // The underlying key-value store
-	compactor          *compactor.Compactor        // Schedules compaction of the engine
-	tsCache            tscache.Cache               // Most recent timestamps for keys / key ranges
-	allocator          Allocator                   // Makes allocation decisions
+	engine             engine.Engine        // The underlying key-value store
+	compactor          *compactor.Compactor // Schedules compaction of the engine
+	tsCache            tscache.Cache        // Most recent timestamps for keys / key ranges
+	allocator          Allocator            // Makes allocation decisions
+	storeRebalancer    *StoreRebalancer
 	rangeIDAlloc       *idalloc.Allocator          // Range ID allocator
 	gcQueue            *gcQueue                    // Garbage collection queue
 	mergeQueue         *mergeQueue                 // Range merging queue
@@ -897,6 +898,7 @@ func NewStore(cfg StoreConfig, eng engine.Engine, nodeDesc *roachpb.NodeDescript
 			return 0, false
 		})
 	}
+	s.storeRebalancer = NewStoreRebalancer(s.cfg.AmbientCtx, cfg.Settings, s.allocator)
 	s.intentResolver = newIntentResolver(s, cfg.IntentResolverTaskLimit)
 	s.raftEntryCache = newRaftEntryCache(cfg.RaftEntryCacheSize)
 	s.draining.Store(false)
@@ -1501,6 +1503,8 @@ func (s *Store) Start(ctx context.Context, stopper *stop.Stopper) error {
 	if !s.cfg.TestingKnobs.DisableAutomaticLeaseRenewal {
 		s.startLeaseRenewer(ctx)
 	}
+
+	s.storeRebalancer.Start(ctx, s.stopper)
 
 	// Start the storage engine compactor.
 	if envutil.EnvOrDefaultBool("COCKROACH_ENABLE_COMPACTOR", true) {
