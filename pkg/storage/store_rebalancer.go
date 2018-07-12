@@ -16,6 +16,7 @@ package storage
 
 import (
 	"context"
+	"math"
 	"time"
 
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
@@ -28,20 +29,30 @@ const (
 	// storeRebalancerTimerDuration is how frequently to check the store-level
 	// balance of the cluster.
 	storeRebalancerTimerDuration = time.Minute
+
+	// minQPSThresholdDifference is the minimum QPS difference from the cluster
+	// mean that this system should care about. In other words, we won't worry
+	// about rebalancing for QPS reasons if a store's QPS differs from the mean
+	// by less than this amount even if the amount is greater than the percentage
+	// threshold. This avoids too many lease transfers in lightly loaded clusters.
+	minQPSThresholdDifference = 100
 )
 
 type StoreRebalancer struct {
 	log.AmbientContext
+	store     *Store // TODO: Switch this to an interface?
 	st        *cluster.Settings
+	rq        *replicateQueue // TODO: factor the important bits out?
 	allocator Allocator
 }
 
 func NewStoreRebalancer(
-	ambientCtx log.AmbientContext, st *cluster.Settings, allocator Allocator,
+	ambientCtx log.AmbientContext, store *Store, st *cluster.Settings, allocator Allocator,
 ) *StoreRebalancer {
 	ambientCtx.AddLogTag("store-rebalancer", nil)
 	return &StoreRebalancer{
 		AmbientContext: ambientCtx,
+		store:          store,
 		st:             st,
 		allocator:      allocator,
 	}
@@ -81,14 +92,42 @@ func (s *StoreRebalancer) Start(ctx context.Context, stopper *stop.Stopper) {
 				continue
 			}
 
+			localDesc, found := s.allocator.storePool.getStoreDescriptor(s.store.StoreID())
+			if !found {
+				continue
+			}
 			storelist, _, _ := s.allocator.storePool.getStoreList(roachpb.RangeID(0), storeFilterNone)
-			s.rebalanceStore(ctx, storelist)
+			s.rebalanceStore(ctx, localDesc, storelist)
 		}
 	})
 }
 
-func (s *StoreRebalancer) rebalanceStore(ctx context.Context, storelist StoreList) {
-	// TODO
+func (s *StoreRebalancer) rebalanceStore(
+	ctx context.Context, localDesc roachpb.StoreDescriptor, storelist StoreList,
+) {
+	statThreshold := statRebalanceThreshold.Get(&s.st.SV)
 
-	// s.allocator.storePool.updateLocalStoreAfterRebalance(storeID, rangeInfo, roachpb.ADD_REPLICA/REMOVE_REPLICA)
+	// First check if we should transfer leases away to better balance QPS.
+	qpsMinThreshold := math.Min(storelist.candidateQueriesPerSecond.mean*(1-statThreshold),
+		storelist.candidateQueriesPerSecond.mean-minQPSThresholdDifference)
+	qpsMaxThreshold := math.Max(storelist.candidateQueriesPerSecond.mean*(1+statThreshold),
+		storelist.candidateQueriesPerSecond.mean+minQPSThresholdDifference)
+	// TODO: Do this in a loop?
+	if localDesc.Capacity.QueriesPerSecond > qpsMaxThreshold {
+		repl, target := s.chooseLeaseToTransfer(localDesc, storelist, qpsMinThreshold, qpsMaxThreshold)
+		if repl != nil {
+			if err := s.rq.transferLease(ctx, repl, target); err != nil {
+				log.Errorf(ctx, "%s: unable to transfer lease to s%d: %v", repl, target.StoreID, err)
+				return // TODO: Break out of lease transfer loop instead?
+			}
+		}
+	}
+}
+
+// TODO: Pick replica to move and store to move it to - need something tracking the hot/cold replicas?
+// TODO: How to account for follow-the-sun in this process?
+func (s *StoreRebalancer) chooseLeaseToTransfer(
+	localDesc roachpb.StoreDescriptor, storelist StoreList, minQPS float64, maxQPS float64,
+) (*Replica, roachpb.ReplicaDescriptor) {
+	return nil, roachpb.ReplicaDescriptor{}
 }

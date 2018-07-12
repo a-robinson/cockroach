@@ -898,7 +898,7 @@ func NewStore(cfg StoreConfig, eng engine.Engine, nodeDesc *roachpb.NodeDescript
 			return 0, false
 		})
 	}
-	s.storeRebalancer = NewStoreRebalancer(s.cfg.AmbientCtx, cfg.Settings, s.allocator)
+	s.storeRebalancer = NewStoreRebalancer(s.cfg.AmbientCtx, s, cfg.Settings, s.allocator)
 	s.intentResolver = newIntentResolver(s, cfg.IntentResolverTaskLimit)
 	s.raftEntryCache = newRaftEntryCache(cfg.RaftEntryCacheSize)
 	s.draining.Store(false)
@@ -1114,7 +1114,7 @@ func (s *Store) SetDraining(drain bool) {
 								log.Errorf(ctx, "could not get zone config for key %s when draining: %s", desc.StartKey, err)
 							}
 						}
-						leaseTransferred, err := s.replicateQueue.transferLease(
+						leaseTransferred, err := s.replicateQueue.findTargetAndTransferLease(
 							ctx,
 							r,
 							desc,
