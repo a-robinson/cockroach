@@ -361,6 +361,7 @@ type Store struct {
 	tsCache            tscache.Cache        // Most recent timestamps for keys / key ranges
 	allocator          Allocator            // Makes allocation decisions
 	storeRebalancer    *StoreRebalancer
+	replRankings       *replicaRankings
 	rangeIDAlloc       *idalloc.Allocator          // Range ID allocator
 	gcQueue            *gcQueue                    // Garbage collection queue
 	mergeQueue         *mergeQueue                 // Range merging queue
@@ -899,6 +900,7 @@ func NewStore(cfg StoreConfig, eng engine.Engine, nodeDesc *roachpb.NodeDescript
 		})
 	}
 	s.storeRebalancer = NewStoreRebalancer(s.cfg.AmbientCtx, s, cfg.Settings, s.allocator)
+	s.replRankings = newReplicaRankings()
 	s.intentResolver = newIntentResolver(s, cfg.IntentResolverTaskLimit)
 	s.raftEntryCache = newRaftEntryCache(cfg.RaftEntryCacheSize)
 	s.draining.Store(false)
@@ -2718,6 +2720,7 @@ func (s *Store) Capacity(useCached bool) (roachpb.StoreCapacity, error) {
 	replicaCount := s.metrics.ReplicaCount.Value()
 	bytesPerReplica := make([]float64, 0, replicaCount)
 	writesPerReplica := make([]float64, 0, replicaCount)
+	rankingsAccumulator := s.replRankings.newAccumulator()
 	newStoreReplicaVisitor(s).Visit(func(r *Replica) bool {
 		rangeCount++
 		if r.OwnsValidLease(now) {
@@ -2730,14 +2733,20 @@ func (s *Store) Capacity(useCached bool) (roachpb.StoreCapacity, error) {
 		// incorrectly low the first time or two it gets gossiped when a store
 		// starts? We can't easily have a countdown as its value changes like for
 		// leases/replicas.
-		if qps, dur := r.leaseholderStats.avgQPS(); dur >= MinStatsDuration {
-			totalQueriesPerSecond += qps
+		var qps float64
+		if avgQPS, dur := r.leaseholderStats.avgQPS(); dur >= MinStatsDuration {
+			qps = avgQPS
+			totalQueriesPerSecond += avgQPS
 			// TODO(a-robinson): Calculate percentiles for qps? Get rid of other percentiles?
 		}
 		if wps, dur := r.writeStats.avgQPS(); dur >= MinStatsDuration {
 			totalWritesPerSecond += wps
 			writesPerReplica = append(writesPerReplica, wps)
 		}
+		rankingsAccumulator.addReplica(replicaWithStats{
+			repl: r,
+			qps:  qps,
+		})
 		return true
 	})
 	capacity.RangeCount = rangeCount
@@ -2748,6 +2757,7 @@ func (s *Store) Capacity(useCached bool) (roachpb.StoreCapacity, error) {
 	capacity.BytesPerReplica = roachpb.PercentilesFromData(bytesPerReplica)
 	capacity.WritesPerReplica = roachpb.PercentilesFromData(writesPerReplica)
 	s.recordNewPerSecondStats(totalQueriesPerSecond, totalWritesPerSecond)
+	s.replRankings.update(rankingsAccumulator)
 
 	s.cachedCapacity.Lock()
 	s.cachedCapacity.StoreCapacity = capacity
