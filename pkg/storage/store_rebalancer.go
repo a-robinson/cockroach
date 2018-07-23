@@ -105,6 +105,7 @@ func (s *StoreRebalancer) Start(ctx context.Context, stopper *stop.Stopper) {
 func (s *StoreRebalancer) rebalanceStore(
 	ctx context.Context, localDesc roachpb.StoreDescriptor, storelist StoreList,
 ) {
+
 	statThreshold := statRebalanceThreshold.Get(&s.st.SV)
 
 	// First check if we should transfer leases away to better balance QPS.
@@ -114,7 +115,10 @@ func (s *StoreRebalancer) rebalanceStore(
 		storelist.candidateQueriesPerSecond.mean+minQPSThresholdDifference)
 	// TODO: Do this in a loop?
 	if localDesc.Capacity.QueriesPerSecond > qpsMaxThreshold {
-		repl, target := s.chooseLeaseToTransfer(localDesc, storelist, qpsMinThreshold, qpsMaxThreshold)
+		log.Infof(ctx, "considering load-based lease transfers for s%d with %.2f qps (mean=%.2f, upperThreshold=%2.f)",
+			localDesc.StoreID, localDesc.Capacity.QueriesPerSecond, storelist.candidateQueriesPerSecond.mean, qpsMaxThreshold)
+		storeMap := storeListToMap(storelist)
+		repl, target := s.chooseLeaseToTransfer(ctx, localDesc, storelist, storeMap, qpsMinThreshold, qpsMaxThreshold)
 		if repl != nil {
 			if err := s.rq.transferLease(ctx, repl, target); err != nil {
 				log.Errorf(ctx, "%s: unable to transfer lease to s%d: %v", repl, target.StoreID, err)
@@ -127,7 +131,41 @@ func (s *StoreRebalancer) rebalanceStore(
 // TODO: Pick replica to move and store to move it to - need something tracking the hot/cold replicas?
 // TODO: How to account for follow-the-sun in this process?
 func (s *StoreRebalancer) chooseLeaseToTransfer(
-	localDesc roachpb.StoreDescriptor, storelist StoreList, minQPS float64, maxQPS float64,
+	ctx context.Context,
+	localDesc roachpb.StoreDescriptor,
+	storelist StoreList,
+	storeMap map[roachpb.StoreID]*roachpb.StoreDescriptor,
+	minQPS float64,
+	maxQPS float64,
 ) (*Replica, roachpb.ReplicaDescriptor) {
+	for {
+		// TODO: Also need to take number of leases on each store into account...
+		replWithStats := s.store.replRankings.topQPS()
+		if replWithStats.repl == nil {
+			return nil, roachpb.ReplicaDescriptor{}
+		}
+		desc := replWithStats.repl.Desc()
+		log.VEventf(ctx, 3, "considering lease transfer for r%d with %.2f qps", desc.RangeID, replWithStats.qps)
+		for _, repl := range desc.Replicas {
+			storeDesc, ok := storeMap[repl.StoreID]
+			if !ok {
+				continue
+			}
+			if storeDesc.Capacity.QueriesPerSecond+replWithStats.qps >= storelist.candidateQueriesPerSecond.mean {
+				continue
+			}
+			// TODO: Check if follow-the-workload or lease preferences are relevant
+			return replWithStats.repl, repl
+		}
+	}
+
 	return nil, roachpb.ReplicaDescriptor{}
+}
+
+func storeListToMap(sl StoreList) map[roachpb.StoreID]*roachpb.StoreDescriptor {
+	storeMap := make(map[roachpb.StoreID]*roachpb.StoreDescriptor)
+	for i := range sl.stores {
+		storeMap[sl.stores[i].StoreID] = &sl.stores[i]
+	}
+	return storeMap
 }
