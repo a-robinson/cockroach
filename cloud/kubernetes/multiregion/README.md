@@ -8,12 +8,12 @@ into each separate cluster, and links them together using DNS.
 
 To use the configuration provided here, check out this repository (or otherwise
 download a copy of this directory), fill in the constants at the top of
-[setup.sh](setup.sh) with the relevant information about your Kubernetes
+[setup.py](setup.py) with the relevant information about your Kubernetes
 clusters, optionally make any desired modifications to
 [cockroachdb-statefulset-secure.yaml](cockroachdb-statefulset-secure.yaml) as
 explained in [our Kubernetes performance tuning
 guide](https://www.cockroachlabs.com/docs/stable/kubernetes-performance.html),
-then finally run [setup.sh](setup.sh).
+then finally run [setup.py](setup.py).
 
 You should see a lot of output as it does its thing, hopefully ending after
 printing out `job "cluster-init-secure" created`. This implies that everything
@@ -73,6 +73,12 @@ please let us know and we can demonstrate other options. [Your voice could also
 help convince Google to allow clients from one region to use an Internal Load
 Balancer in another](https://issuetracker.google.com/issues/111021512),
 eliminating the problem.
+
+## Cleaning up
+
+To remove all the resources created in your clusters by [setup.py](setup.py),
+copy the parameters you provided at the top of [setup.py](setup.py) to the top
+of [teardown.py](teardown.py) and run [teardown.py](teardown.py).
 
 ## More information
 
