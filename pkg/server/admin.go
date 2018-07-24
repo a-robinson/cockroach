@@ -1536,11 +1536,11 @@ func (s *adminServer) DataDistribution(
 	return resp, nil
 }
 
-// Queue runs the specified range through the specified queue, returning the
-// detailed trace and error information from doing so.
-func (s *adminServer) Queue(
-	ctx context.Context, req *serverpb.QueueRequest,
-) (*serverpb.QueueResponse, error) {
+// EnqueueRange runs the specified range through the specified queue, returning
+// the detailed trace and error information from doing so.
+func (s *adminServer) EnqueueRange(
+	ctx context.Context, req *serverpb.EnqueueRangeRequest,
+) (*serverpb.EnqueueRangeResponse, error) {
 	if !debug.GatewayRemoteAllowed(ctx, s.server.ClusterSettings()) {
 		return nil, remoteDebuggingErr
 	}
@@ -1561,11 +1561,8 @@ func (s *adminServer) Queue(
 	// If the request is targeted at this node, serve it directly. Otherwise,
 	// forward it to the appropriate node(s).
 	if req.NodeID == s.server.NodeID() {
-		return s.queueLocal(ctx, req)
+		return s.enqueueRangeLocal(ctx, req)
 	}
-
-	nodeCtx, cancel := context.WithTimeout(ctx, time.Minute)
-	defer cancel()
 
 	isLiveMap := s.server.nodeLiveness.GetIsLiveMap()
 
@@ -1576,92 +1573,57 @@ func (s *adminServer) Queue(
 		isLiveMap = map[roachpb.NodeID]bool{req.NodeID: isLiveMap[req.NodeID]}
 	}
 
-	type nodeResponse struct {
-		nodeID roachpb.NodeID
-		resp   *serverpb.QueueResponse
-		err    error
-	}
+	response := &serverpb.EnqueueRangeResponse{}
 
-	responses := make(chan nodeResponse)
-	for nodeID := range isLiveMap {
-		nodeID := nodeID
-		if err := s.server.stopper.RunAsyncTask(
-			nodeCtx,
-			"server.adminServer: forwarding queue request",
-			func(ctx context.Context) {
-				admin, err := s.dialNode(ctx, nodeID)
-				queueRequest := *req
-				queueRequest.NodeID = nodeID
-				var queueResponse *serverpb.QueueResponse
-				if err == nil {
-					queueResponse, err = admin.Queue(ctx, &queueRequest)
-				}
-				response := nodeResponse{
-					nodeID: nodeID,
-					resp:   queueResponse,
-					err:    err,
-				}
-				select {
-				case responses <- response:
-					// Response processed.
-				case <-ctx.Done():
-					// Context completed, response no longer needed.
-				}
-			}); err != nil {
-			return nil, status.Errorf(codes.Internal, err.Error())
+	dialFn := func(ctx context.Context, nodeID roachpb.NodeID) (interface{}, error) {
+		client, err := s.dialNode(ctx, nodeID)
+		return client, err
+	}
+	nodeFn := func(ctx context.Context, client interface{}, nodeID roachpb.NodeID) (interface{}, error) {
+		admin := client.(serverpb.AdminClient)
+		req := *req
+		req.NodeID = nodeID
+		return admin.EnqueueRange(ctx, &req)
+	}
+	responseFn := func(_ roachpb.NodeID, nodeResp interface{}) {
+		nodeDetails := nodeResp.(*serverpb.EnqueueRangeResponse)
+		response.Details = append(response.Details, nodeDetails.Details...)
+	}
+	errorFn := func(nodeID roachpb.NodeID, err error) {
+		errDetail := &serverpb.EnqueueRangeResponse_Details{
+			NodeID: nodeID,
+			Error:  err.Error(),
 		}
+		response.Details = append(response.Details, errDetail)
 	}
 
-	finalResponse := &serverpb.QueueResponse{}
-	for remainingResponses := len(isLiveMap); remainingResponses > 0; remainingResponses-- {
-		select {
-		case resp := <-responses:
-			if resp.err != nil {
-				finalResponse.Details = append(finalResponse.Details, &serverpb.QueueResponse_Details{
-					NodeID: resp.nodeID,
-					Error:  resp.err.Error(),
-				})
-				continue
-			}
-			finalResponse.Details = append(finalResponse.Details, resp.resp.Details...)
-		case <-ctx.Done():
-			// If we got no responses, just return an error.
-			if len(finalResponse.Details) == 0 {
-				return nil, status.Errorf(codes.DeadlineExceeded, "request timed out")
-			}
-			// Otherwise, add timeout errors for any node that didn't return a
-			// response.
-			for nodeID := range isLiveMap {
-				var responseForNode bool
-				for _, details := range finalResponse.Details {
-					if details.NodeID == nodeID {
-						responseForNode = true
-						break
-					}
-				}
-				if !responseForNode {
-					finalResponse.Details = append(finalResponse.Details, &serverpb.QueueResponse_Details{
-						NodeID: nodeID,
-						Error:  "request timed out",
-					})
-				}
-			}
-			return finalResponse, nil
+	nodeCtx, cancel := context.WithTimeout(ctx, time.Minute)
+	defer cancel()
+
+	if err := s.server.status.iterateNodes(
+		nodeCtx, fmt.Sprintf("enqueue r%d in queue %s", req.RangeID, req.Queue),
+		dialFn, nodeFn, responseFn, errorFn,
+	); err != nil {
+		if len(response.Details) == 0 {
+			return nil, err
 		}
+		response.Details = append(response.Details, &serverpb.EnqueueRangeResponse_Details{
+			Error: err.Error(),
+		})
 	}
 
-	return finalResponse, nil
+	return response, nil
 }
 
-// queueLocal checks whether the local node has a replica for the requested
-// range that can be run through the queue, running it through the queue and
-// returning trace/error information if so. If not, returns an empty
+// enqueueRangeLocal checks whether the local node has a replica for the
+// requested range that can be run through the queue, running it through the
+// queue and returning trace/error information if so. If not, returns an empty
 // response.
-func (s *adminServer) queueLocal(
-	ctx context.Context, req *serverpb.QueueRequest,
-) (*serverpb.QueueResponse, error) {
-	response := &serverpb.QueueResponse{
-		Details: []*serverpb.QueueResponse_Details{
+func (s *adminServer) enqueueRangeLocal(
+	ctx context.Context, req *serverpb.EnqueueRangeRequest,
+) (*serverpb.EnqueueRangeResponse, error) {
+	response := &serverpb.EnqueueRangeResponse{
+		Details: []*serverpb.EnqueueRangeResponse_Details{
 			{
 				NodeID: s.server.NodeID(),
 			},
@@ -1688,7 +1650,7 @@ func (s *adminServer) queueLocal(
 		return response, nil
 	}
 
-	traceSpans, processErr, err := store.ManualQueue(ctx, req.Queue, repl, req.SkipShouldQueue)
+	traceSpans, processErr, err := store.ManuallyEnqueue(ctx, req.Queue, repl, req.SkipShouldQueue)
 	if err != nil {
 		response.Details[0].Error = err.Error()
 		return response, nil

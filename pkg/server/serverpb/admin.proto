@@ -562,7 +562,7 @@ message MetricMetadataResponse {
   map<string, cockroach.util.metric.Metadata> metadata = 1 [(gogoproto.nullable) = false];
 }
 
-message QueueRequest {
+message EnqueueRangeRequest {
   // The node on which the queue should process the range. If node_id is 0,
   // the request will be forwarded to all other nodes.
   int32 node_id = 1 [(gogoproto.customname) = "NodeID",
@@ -578,7 +578,7 @@ message QueueRequest {
   bool skip_should_queue = 4;
 }
 
-message QueueResponse {
+message EnqueueRangeResponse {
   message Details {
     int32 node_id = 1 [(gogoproto.customname) = "NodeID",
                        (gogoproto.casttype) = "github.com/cockroachdb/cockroach/pkg/roachpb.NodeID"];
@@ -778,18 +778,19 @@ service Admin {
   }
 
 
-  // Queue runs the specified range through the specified queue on the range's
-  // leaseholder store, returning the detailed trace and error information from
-  // doing so. Parameters must be provided in the body of the POST request.
+  // EnqueueRange runs the specified range through the specified queue on the
+  // range's leaseholder store, returning the detailed trace and error
+  // information from doing so. Parameters must be provided in the body of the
+  // POST request.
   // For example:
   //
   // {
   //   "queue": "raftlog",
   //   "rangeId": 10
   // }
-  rpc Queue(QueueRequest) returns (QueueResponse) {
+  rpc EnqueueRange(EnqueueRangeRequest) returns (EnqueueRangeResponse) {
     option (google.api.http) = {
-      post: "/_admin/v1/queue"
+      post: "/_admin/v1/enqueue_range"
       body : "*"
     };
   }

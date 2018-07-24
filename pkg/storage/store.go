@@ -4328,11 +4328,11 @@ func (s *Store) AllocatorDryRun(
 	return collect(), nil
 }
 
-// ManualQueue runs the given replica through the requested queue, returning
-// all trace events collected along the way as well as the error message
-// returned from the queue's process method, if any.
-// Intended to help power an admin debug endpoint.
-func (s *Store) ManualQueue(
+// ManuallyEnqueue runs the given replica through the requested queue,
+// returning all trace events collected along the way as well as the error
+// message returned from the queue's process method, if any.  Intended to help
+// power an admin debug endpoint.
+func (s *Store) ManuallyEnqueue(
 	ctx context.Context, queueName string, repl *Replica, skipShouldQueue bool,
 ) ([]tracing.RecordedSpan, string, error) {
 	var queue queueImpl

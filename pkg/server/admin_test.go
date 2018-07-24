@@ -1456,7 +1456,7 @@ func BenchmarkAdminAPIDataDistribution(b *testing.B) {
 	b.StopTimer()
 }
 
-func TestQueue(t *testing.T) {
+func TestEnqueueRange(t *testing.T) {
 	defer leaktest.AfterTest(t)()
 	testCluster := serverutils.StartTestCluster(t, 3, base.TestClusterArgs{})
 	defer testCluster.Stopper().Stop(context.Background())
@@ -1485,13 +1485,13 @@ func TestQueue(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.queue, func(t *testing.T) {
-			req := &serverpb.QueueRequest{
+			req := &serverpb.EnqueueRangeRequest{
 				NodeID:  tc.nodeID,
 				Queue:   tc.queue,
 				RangeID: tc.rangeID,
 			}
-			var resp serverpb.QueueResponse
-			if err := postAdminJSONProto(testCluster.Server(0), "queue", req, &resp); err != nil {
+			var resp serverpb.EnqueueRangeResponse
+			if err := postAdminJSONProto(testCluster.Server(0), "enqueue_range", req, &resp); err != nil {
 				t.Fatal(err)
 			}
 			if e, a := tc.expectedDetails, len(resp.Details); e != a {
@@ -1510,15 +1510,15 @@ func TestQueue(t *testing.T) {
 	}
 
 	// Finally, test a few more basic error cases.
-	reqs := []*serverpb.QueueRequest{
+	reqs := []*serverpb.EnqueueRangeRequest{
 		{NodeID: -1, Queue: "gc"},
 		{Queue: ""},
 		{RangeID: -1, Queue: "gc"},
 	}
 	for _, req := range reqs {
 		t.Run(fmt.Sprint(req), func(t *testing.T) {
-			var resp serverpb.QueueResponse
-			err := postAdminJSONProto(testCluster.Server(0), "queue", req, &resp)
+			var resp serverpb.EnqueueRangeResponse
+			err := postAdminJSONProto(testCluster.Server(0), "enqueue_range", req, &resp)
 			if err == nil {
 				t.Fatalf("unexpected success: %+v", resp)
 			}
