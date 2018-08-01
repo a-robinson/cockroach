@@ -1,4 +1,4 @@
-// Copyright 2015 The Cockroach Authors.
+// Copyright 2018 The Cockroach Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,26 +40,23 @@ const (
 
 type StoreRebalancer struct {
 	log.AmbientContext
-	store     *Store // TODO: Switch this to an interface?
-	st        *cluster.Settings
-	rq        *replicateQueue // TODO: factor the important bits out?
-	allocator Allocator
+	st           *cluster.Settings
+	rq           *replicateQueue
+	replRankings *replicaRankings
 }
 
 func NewStoreRebalancer(
 	ambientCtx log.AmbientContext,
-	store *Store,
 	st *cluster.Settings,
 	rq *replicateQueue,
-	allocator Allocator,
+	replRankings *replicaRankings,
 ) *StoreRebalancer {
 	ambientCtx.AddLogTag("store-rebalancer", nil)
 	return &StoreRebalancer{
 		AmbientContext: ambientCtx,
-		store:          store,
 		st:             st,
 		rq:             rq,
-		allocator:      allocator,
+		replRankings:   replRankings,
 	}
 }
 
@@ -73,9 +70,12 @@ func NewStoreRebalancer(
 // individual ranges. This means that there are two different workers that
 // could potentially be making decisions about a given range, so they have to
 // be careful to avoid stepping on each others' toes.
-// TODO(a-robinson): Figure out how to expose metrics from this.
-// TODO(a-robinson): Make sure this is easily debuggable.
-func (s *StoreRebalancer) Start(ctx context.Context, stopper *stop.Stopper) {
+//
+// TODO(a-robinson): Expose metrics to make this understandable without having
+// to dive into logspy.
+func (s *StoreRebalancer) Start(
+	ctx context.Context, stopper *stop.Stopper, storeID roachpb.StoreID,
+) {
 	ctx = s.AnnotateCtx(ctx)
 
 	// Start a goroutine that watches and proactively renews certain
@@ -97,12 +97,12 @@ func (s *StoreRebalancer) Start(ctx context.Context, stopper *stop.Stopper) {
 				continue
 			}
 
-			localDesc, found := s.allocator.storePool.getStoreDescriptor(s.store.StoreID())
+			localDesc, found := s.rq.allocator.storePool.getStoreDescriptor(storeID)
 			if !found {
 				log.Warningf(ctx, "StorePool missing descriptor for local store")
 				continue
 			}
-			storelist, _, _ := s.allocator.storePool.getStoreList(roachpb.RangeID(0), storeFilterNone)
+			storelist, _, _ := s.rq.allocator.storePool.getStoreList(roachpb.RangeID(0), storeFilterNone)
 			s.rebalanceStore(ctx, localDesc, storelist)
 		}
 	})
@@ -146,10 +146,8 @@ func (s *StoreRebalancer) chooseLeaseToTransfer(
 	minQPS float64,
 	maxQPS float64,
 ) (replicaWithStats, roachpb.ReplicaDescriptor) {
-	sysCfg, cfgOk := s.store.cfg.Gossip.GetSystemConfig()
+	sysCfg, cfgOk := s.rq.allocator.storePool.gossip.GetSystemConfig()
 	if !cfgOk {
-		// TODO(a-robinson): Should we just ignore lease preferences when the system
-		// config is unavailable rather than disabling rebalance lease transfers?
 		log.VEventf(ctx, 1, "no system config available, unable to choose a lease transfer target")
 		return replicaWithStats{}, roachpb.ReplicaDescriptor{}
 	}
@@ -157,7 +155,7 @@ func (s *StoreRebalancer) chooseLeaseToTransfer(
 	for {
 		// TODO(a-robinson): Should we take the number of leases on each store into
 		// account here?
-		replWithStats := s.store.replRankings.topQPS()
+		replWithStats := s.replRankings.topQPS()
 		if replWithStats.repl == nil {
 			return replicaWithStats{}, roachpb.ReplicaDescriptor{}
 		}
@@ -179,13 +177,13 @@ func (s *StoreRebalancer) chooseLeaseToTransfer(
 				log.Error(ctx, err)
 				return replicaWithStats{}, roachpb.ReplicaDescriptor{}
 			}
-			preferred := s.allocator.preferredLeaseholders(zone, desc.Replicas)
+			preferred := s.rq.allocator.preferredLeaseholders(zone, desc.Replicas)
 			if len(preferred) > 0 && !storeHasReplica(candidate.StoreID, preferred) {
 				log.VEventf(ctx, 3, "s%d not a preferred leaseholder; preferred: %v", candidate.StoreID, preferred)
 				continue
 			}
 			filteredStorelist := storelist.filter(zone.Constraints)
-			if s.allocator.followTheWorkloadPrefersLocal(
+			if s.rq.allocator.followTheWorkloadPrefersLocal(
 				ctx,
 				filteredStorelist,
 				localDesc,

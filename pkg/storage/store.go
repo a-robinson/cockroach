@@ -986,7 +986,8 @@ func NewStore(cfg StoreConfig, eng engine.Engine, nodeDesc *roachpb.NodeDescript
 		}
 	}
 
-	s.storeRebalancer = NewStoreRebalancer(s.cfg.AmbientCtx, s, cfg.Settings, s.replicateQueue, s.allocator)
+	s.storeRebalancer = NewStoreRebalancer(
+		s.cfg.AmbientCtx, cfg.Settings, s.replicateQueue, s.replRankings)
 
 	if cfg.TestingKnobs.DisableGCQueue {
 		s.setGCQueueActive(false)
@@ -1507,7 +1508,7 @@ func (s *Store) Start(ctx context.Context, stopper *stop.Stopper) error {
 		s.startLeaseRenewer(ctx)
 	}
 
-	s.storeRebalancer.Start(ctx, s.stopper)
+	s.storeRebalancer.Start(ctx, s.stopper, s.StoreID())
 
 	// Start the storage engine compactor.
 	if envutil.EnvOrDefaultBool("COCKROACH_ENABLE_COMPACTOR", true) {
