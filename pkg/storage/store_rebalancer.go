@@ -94,6 +94,7 @@ func (s *StoreRebalancer) Start(ctx context.Context, stopper *stop.Stopper) {
 
 			localDesc, found := s.allocator.storePool.getStoreDescriptor(s.store.StoreID())
 			if !found {
+				log.Warningf(ctx, "StorePool missing descriptor for local store")
 				continue
 			}
 			storelist, _, _ := s.allocator.storePool.getStoreList(roachpb.RangeID(0), storeFilterNone)
@@ -113,23 +114,25 @@ func (s *StoreRebalancer) rebalanceStore(
 		storelist.candidateQueriesPerSecond.mean-minQPSThresholdDifference)
 	qpsMaxThreshold := math.Max(storelist.candidateQueriesPerSecond.mean*(1+statThreshold),
 		storelist.candidateQueriesPerSecond.mean+minQPSThresholdDifference)
-	// TODO: Do this in a loop?
-	if localDesc.Capacity.QueriesPerSecond > qpsMaxThreshold {
+
+	for localDesc.Capacity.QueriesPerSecond > qpsMaxThreshold {
 		log.Infof(ctx, "considering load-based lease transfers for s%d with %.2f qps (mean=%.2f, upperThreshold=%2.f)",
 			localDesc.StoreID, localDesc.Capacity.QueriesPerSecond, storelist.candidateQueriesPerSecond.mean, qpsMaxThreshold)
 		storeMap := storeListToMap(storelist)
-		repl, target := s.chooseLeaseToTransfer(ctx, localDesc, storelist, storeMap, qpsMinThreshold, qpsMaxThreshold)
-		if repl != nil {
-			if err := s.rq.transferLease(ctx, repl, target); err != nil {
-				log.Errorf(ctx, "%s: unable to transfer lease to s%d: %v", repl, target.StoreID, err)
-				return // TODO: Break out of lease transfer loop instead?
-			}
+		replWithStats, target := s.chooseLeaseToTransfer(
+			ctx, localDesc, storelist, storeMap, qpsMinThreshold, qpsMaxThreshold)
+		if replWithStats.repl == nil {
+			break
 		}
+		if err := s.rq.transferLease(ctx, replWithStats.repl, target); err != nil {
+			log.Errorf(ctx, "%s: unable to transfer lease to s%d: %v",
+				replWithStats.repl, target.StoreID, err)
+			return
+		}
+		localDesc.Capacity.QueriesPerSecond -= replWithStats.qps
 	}
 }
 
-// TODO: Pick replica to move and store to move it to - need something tracking the hot/cold replicas?
-// TODO: How to account for follow-the-sun in this process?
 func (s *StoreRebalancer) chooseLeaseToTransfer(
 	ctx context.Context,
 	localDesc roachpb.StoreDescriptor,
@@ -137,29 +140,63 @@ func (s *StoreRebalancer) chooseLeaseToTransfer(
 	storeMap map[roachpb.StoreID]*roachpb.StoreDescriptor,
 	minQPS float64,
 	maxQPS float64,
-) (*Replica, roachpb.ReplicaDescriptor) {
+) (replicaWithStats, roachpb.ReplicaDescriptor) {
+	sysCfg, cfgOk := s.store.cfg.Gossip.GetSystemConfig()
+	if !cfgOk {
+		// TODO(a-robinson): Should we just ignore lease preferences when the system
+		// config is unavailable rather than disabling rebalance lease transfers?
+		log.VEventf(ctx, 1, "no system config available, unable to choose a lease transfer target")
+		return replicaWithStats{}, roachpb.ReplicaDescriptor{}
+	}
+
 	for {
-		// TODO: Also need to take number of leases on each store into account...
+		// TODO(a-robinson): Should we take the number of leases on each store into
+		// account here?
 		replWithStats := s.store.replRankings.topQPS()
 		if replWithStats.repl == nil {
-			return nil, roachpb.ReplicaDescriptor{}
+			return replicaWithStats{}, roachpb.ReplicaDescriptor{}
 		}
 		desc := replWithStats.repl.Desc()
 		log.VEventf(ctx, 3, "considering lease transfer for r%d with %.2f qps", desc.RangeID, replWithStats.qps)
-		for _, repl := range desc.Replicas {
-			storeDesc, ok := storeMap[repl.StoreID]
+		for _, candidate := range desc.Replicas {
+			storeDesc, ok := storeMap[candidate.StoreID]
 			if !ok {
+				log.VEventf(ctx, 3, "missing store descriptor for s%d", candidate.StoreID)
 				continue
 			}
 			if storeDesc.Capacity.QueriesPerSecond+replWithStats.qps >= storelist.candidateQueriesPerSecond.mean {
+				log.VEventf(ctx, 3, "QPS for r%d would push s%d over the mean (%.2f)",
+					desc.RangeID, candidate.StoreID, storeDesc.Capacity.QueriesPerSecond+replWithStats.qps)
 				continue
 			}
-			// TODO: Check if follow-the-workload or lease preferences are relevant
-			return replWithStats.repl, repl
+			zone, err := sysCfg.GetZoneConfigForKey(desc.StartKey)
+			if err != nil {
+				log.Error(ctx, err)
+				return replicaWithStats{}, roachpb.ReplicaDescriptor{}
+			}
+			preferred := s.allocator.preferredLeaseholders(zone, desc.Replicas)
+			if len(preferred) > 0 && !storeHasReplica(candidate.StoreID, preferred) {
+				log.VEventf(ctx, 3, "s%d not a preferred leaseholder; preferred: %v", candidate.StoreID, preferred)
+				continue
+			}
+			filteredStorelist := storelist.filter(zone.Constraints)
+			if s.allocator.followTheWorkloadPrefersLocal(
+				ctx,
+				filteredStorelist,
+				localDesc,
+				candidate.StoreID,
+				desc.Replicas,
+				replWithStats.repl.leaseholderStats,
+			) {
+				log.VEventf(ctx, 3, "r%d is on s%d due to follow-the-workload; skipping",
+					desc.RangeID, localDesc.StoreID)
+				continue
+			}
+			return replWithStats, candidate
 		}
 	}
 
-	return nil, roachpb.ReplicaDescriptor{}
+	return replicaWithStats{}, roachpb.ReplicaDescriptor{}
 }
 
 func storeListToMap(sl StoreList) map[roachpb.StoreID]*roachpb.StoreDescriptor {
