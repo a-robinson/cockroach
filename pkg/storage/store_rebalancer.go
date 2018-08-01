@@ -47,13 +47,18 @@ type StoreRebalancer struct {
 }
 
 func NewStoreRebalancer(
-	ambientCtx log.AmbientContext, store *Store, st *cluster.Settings, allocator Allocator,
+	ambientCtx log.AmbientContext,
+	store *Store,
+	st *cluster.Settings,
+	rq *replicateQueue,
+	allocator Allocator,
 ) *StoreRebalancer {
 	ambientCtx.AddLogTag("store-rebalancer", nil)
 	return &StoreRebalancer{
 		AmbientContext: ambientCtx,
 		store:          store,
 		st:             st,
+		rq:             rq,
 		allocator:      allocator,
 	}
 }

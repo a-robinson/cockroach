@@ -899,7 +899,6 @@ func NewStore(cfg StoreConfig, eng engine.Engine, nodeDesc *roachpb.NodeDescript
 			return 0, false
 		})
 	}
-	s.storeRebalancer = NewStoreRebalancer(s.cfg.AmbientCtx, s, cfg.Settings, s.allocator)
 	s.replRankings = newReplicaRankings()
 	s.intentResolver = newIntentResolver(s, cfg.IntentResolverTaskLimit)
 	s.raftEntryCache = newRaftEntryCache(cfg.RaftEntryCacheSize)
@@ -986,6 +985,8 @@ func NewStore(cfg StoreConfig, eng engine.Engine, nodeDesc *roachpb.NodeDescript
 			s.scanner.AddQueues(s.tsMaintenanceQueue)
 		}
 	}
+
+	s.storeRebalancer = NewStoreRebalancer(s.cfg.AmbientCtx, s, cfg.Settings, s.replicateQueue, s.allocator)
 
 	if cfg.TestingKnobs.DisableGCQueue {
 		s.setGCQueueActive(false)
