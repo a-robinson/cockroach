@@ -162,6 +162,9 @@ func (s *StoreRebalancer) chooseLeaseToTransfer(
 		desc := replWithStats.repl.Desc()
 		log.VEventf(ctx, 3, "considering lease transfer for r%d with %.2f qps", desc.RangeID, replWithStats.qps)
 		for _, candidate := range desc.Replicas {
+			if candidate.StoreID == localDesc.StoreID {
+				continue
+			}
 			storeDesc, ok := storeMap[candidate.StoreID]
 			if !ok {
 				log.VEventf(ctx, 3, "missing store descriptor for s%d", candidate.StoreID)
