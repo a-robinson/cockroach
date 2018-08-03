@@ -129,15 +129,17 @@ func (s *StoreRebalancer) rebalanceStore(
 		if replWithStats.repl == nil {
 			break
 		}
+		ctx := replWithStats.repl.AnnotateCtx(ctx)
 		if err := s.rq.transferLease(ctx, replWithStats.repl, target); err != nil {
-			log.Errorf(ctx, "%s: unable to transfer lease to s%d: %v",
-				replWithStats.repl, target.StoreID, err)
+			log.Errorf(ctx, "unable to transfer lease to s%d: %v", target.StoreID, err)
 			return
 		}
 		localDesc.Capacity.QueriesPerSecond -= replWithStats.qps
 	}
 }
 
+// TODO(a-robinson): Should we take the number of leases on each store into
+// account here?
 func (s *StoreRebalancer) chooseLeaseToTransfer(
 	ctx context.Context,
 	localDesc roachpb.StoreDescriptor,
@@ -152,13 +154,19 @@ func (s *StoreRebalancer) chooseLeaseToTransfer(
 		return replicaWithStats{}, roachpb.ReplicaDescriptor{}
 	}
 
+	now := s.rq.store.Clock().Now()
 	for {
-		// TODO(a-robinson): Should we take the number of leases on each store into
-		// account here?
 		replWithStats := s.replRankings.topQPS()
+
+		// We're all out of replicas.
 		if replWithStats.repl == nil {
 			return replicaWithStats{}, roachpb.ReplicaDescriptor{}
 		}
+
+		if !replWithStats.repl.OwnsValidLease(now) {
+			continue
+		}
+
 		desc := replWithStats.repl.Desc()
 		log.VEventf(ctx, 3, "considering lease transfer for r%d with %.2f qps", desc.RangeID, replWithStats.qps)
 		for _, candidate := range desc.Replicas {
@@ -170,11 +178,13 @@ func (s *StoreRebalancer) chooseLeaseToTransfer(
 				log.VEventf(ctx, 3, "missing store descriptor for s%d", candidate.StoreID)
 				continue
 			}
+
 			if storeDesc.Capacity.QueriesPerSecond+replWithStats.qps >= storelist.candidateQueriesPerSecond.mean {
 				log.VEventf(ctx, 3, "QPS for r%d would push s%d over the mean (%.2f)",
 					desc.RangeID, candidate.StoreID, storeDesc.Capacity.QueriesPerSecond+replWithStats.qps)
 				continue
 			}
+
 			zone, err := sysCfg.GetZoneConfigForKey(desc.StartKey)
 			if err != nil {
 				log.Error(ctx, err)
@@ -185,6 +195,7 @@ func (s *StoreRebalancer) chooseLeaseToTransfer(
 				log.VEventf(ctx, 3, "s%d not a preferred leaseholder; preferred: %v", candidate.StoreID, preferred)
 				continue
 			}
+
 			filteredStorelist := storelist.filter(zone.Constraints)
 			if s.rq.allocator.followTheWorkloadPrefersLocal(
 				ctx,
@@ -198,6 +209,7 @@ func (s *StoreRebalancer) chooseLeaseToTransfer(
 					desc.RangeID, localDesc.StoreID)
 				continue
 			}
+
 			return replWithStats, candidate
 		}
 	}
