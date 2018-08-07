@@ -38,6 +38,9 @@ const (
 	minQPSThresholdDifference = 100
 )
 
+// StoreRebalancer is responsible for examining how the associated store's load
+// compares to the load on other stores in the cluster and transferring leases
+// or replicas away if the local store is overloaded.
 type StoreRebalancer struct {
 	log.AmbientContext
 	st           *cluster.Settings
@@ -45,6 +48,8 @@ type StoreRebalancer struct {
 	replRankings *replicaRankings
 }
 
+// NewStoreRebalancer creates a StoreRebalancer to work in tandem with the
+// provided replicateQueue.
 func NewStoreRebalancer(
 	ambientCtx log.AmbientContext,
 	st *cluster.Settings,
@@ -134,9 +139,9 @@ func (sr *StoreRebalancer) rebalanceStore(
 		}
 		log.VEventf(ctx, 1, "transferring r%d (%.2f qps) to s%d to better balance load",
 			replWithStats.repl.RangeID, replWithStats.qps, target.StoreID)
-		ctx := replWithStats.repl.AnnotateCtx(ctx)
-		if err := sr.rq.transferLease(ctx, replWithStats.repl, target); err != nil {
-			log.Errorf(ctx, "unable to transfer lease to s%d: %v", target.StoreID, err)
+		replCtx := replWithStats.repl.AnnotateCtx(ctx)
+		if err := sr.rq.transferLease(replCtx, replWithStats.repl, target); err != nil {
+			log.Errorf(replCtx, "unable to transfer lease to s%d: %v", target.StoreID, err)
 			return
 		}
 		localDesc.Capacity.QueriesPerSecond -= replWithStats.qps
@@ -197,14 +202,14 @@ func (sr *StoreRebalancer) chooseLeaseToTransfer(
 			}
 
 			newCandidateQPS := storeDesc.Capacity.QueriesPerSecond + replWithStats.qps
-			if storeDesc.Capacity.QueriesPerSecond < replWithStats.qps {
-				if newCandidateQPS >= maxQPS {
+			if storeDesc.Capacity.QueriesPerSecond < minQPS {
+				if newCandidateQPS > maxQPS {
 					log.VEventf(ctx, 3,
 						"r%d's %.2f qps would push s%d over the max threshold (%.2f) with %.2f qps afterwards",
 						desc.RangeID, replWithStats.qps, candidate.StoreID, maxQPS, newCandidateQPS)
 					continue
 				}
-			} else if newCandidateQPS >= storelist.candidateQueriesPerSecond.mean {
+			} else if newCandidateQPS > storelist.candidateQueriesPerSecond.mean {
 				log.VEventf(ctx, 3,
 					"r%d's %.2f qps would push s%d over the mean (%.2f) with %.2f qps afterwards",
 					desc.RangeID, replWithStats.qps, candidate.StoreID,
@@ -240,8 +245,6 @@ func (sr *StoreRebalancer) chooseLeaseToTransfer(
 			return replWithStats, candidate
 		}
 	}
-
-	return replicaWithStats{}, roachpb.ReplicaDescriptor{}
 }
 
 func storeListToMap(sl StoreList) map[roachpb.StoreID]*roachpb.StoreDescriptor {

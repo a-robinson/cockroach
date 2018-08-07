@@ -18,6 +18,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/cockroachdb/cockroach/pkg/config"
+	"github.com/cockroachdb/cockroach/pkg/gossip"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/testutils/gossiputil"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
@@ -34,14 +36,14 @@ var (
 			StoreID: 1,
 			Node:    roachpb.NodeDescriptor{NodeID: 1},
 			Capacity: roachpb.StoreCapacity{
-				QueriesPerSecond: 500,
+				QueriesPerSecond: 1500,
 			},
 		},
 		{
 			StoreID: 2,
 			Node:    roachpb.NodeDescriptor{NodeID: 2},
 			Capacity: roachpb.StoreCapacity{
-				QueriesPerSecond: 900,
+				QueriesPerSecond: 1100,
 			},
 		},
 		{
@@ -55,31 +57,30 @@ var (
 			StoreID: 4,
 			Node:    roachpb.NodeDescriptor{NodeID: 4},
 			Capacity: roachpb.StoreCapacity{
-				QueriesPerSecond: 1100,
+				QueriesPerSecond: 900,
 			},
 		},
 		{
 			StoreID: 5,
 			Node:    roachpb.NodeDescriptor{NodeID: 5},
 			Capacity: roachpb.StoreCapacity{
-				QueriesPerSecond: 1500,
+				QueriesPerSecond: 500,
 			},
 		},
 	}
 )
 
-type testRanges struct {
-	rangeID roachpb.RangeID
+type testRange struct {
 	// The first storeID in the list will be the leaseholder.
 	storeIDs []roachpb.StoreID
 	qps      float64
 }
 
-func loadRanges(rr *replicaRankings, ranges []testRanges) {
+func loadRanges(rr *replicaRankings, s *Store, ranges []testRange) {
 	acc := rr.newAccumulator()
 	for _, r := range ranges {
-		repl := &Replica{RangeID: r.rangeID}
-		repl.mu.state.Desc.RangeID = r.rangeID
+		repl := &Replica{store: s}
+		repl.mu.state.Desc = &roachpb.RangeDescriptor{}
 		for _, storeID := range r.storeIDs {
 			repl.mu.state.Desc.Replicas = append(repl.mu.state.Desc.Replicas, roachpb.ReplicaDescriptor{
 				NodeID:    roachpb.NodeID(storeID),
@@ -109,20 +110,59 @@ func TestChooseLeaseToTransfer(t *testing.T) {
 	stopper, g, _, a, _ := createTestAllocator( /* deterministic */ false)
 	defer stopper.Stop(context.Background())
 	gossiputil.NewStoreGossiper(g).GossipStores(noLocalityStores, t)
+	storelist, _, _ := a.storePool.getStoreList(firstRange, storeFilterThrottled)
+	storeMap := storeListToMap(storelist)
 
+	const minQPS = 800
+	const maxQPS = 1200
+
+	if err := a.storePool.gossip.AddInfoProto(
+		gossip.KeySystemConfig, &config.SystemConfig{}, 0,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	localDesc := *noLocalityStores[0]
 	cfg := TestStoreConfig(nil)
 	s := createTestStoreWithoutStart(t, stopper, &cfg)
+	s.Ident = &roachpb.StoreIdent{StoreID: localDesc.StoreID}
 	rq := newReplicateQueue(s, g, a)
-	localDesc := noLocalityStores[0]
 	rr := newReplicaRankings()
 
 	sr := NewStoreRebalancer(cfg.AmbientCtx, cfg.Settings, rq, rr)
 
-	loadRanges(rr, []testRanges{
-		{roachpb.RangeID(1), []roachpb.StoreID{1, 2, 3}, 100},
-		{roachpb.RangeID(2), []roachpb.StoreID{1, 2, 3}, 1000},
-	})
+	testCases := []struct {
+		storeIDs     []roachpb.StoreID
+		qps          float64
+		expectTarget roachpb.StoreID
+	}{
+		{[]roachpb.StoreID{1}, 100, 0},
+		{[]roachpb.StoreID{1, 2}, 100, 0},
+		{[]roachpb.StoreID{1, 3}, 100, 0},
+		{[]roachpb.StoreID{1, 4}, 100, 4},
+		{[]roachpb.StoreID{1, 5}, 100, 5},
+		{[]roachpb.StoreID{5, 1}, 100, 0},
+		{[]roachpb.StoreID{1, 2}, 200, 0},
+		{[]roachpb.StoreID{1, 3}, 200, 0},
+		{[]roachpb.StoreID{1, 4}, 200, 0},
+		{[]roachpb.StoreID{1, 5}, 200, 5},
+		{[]roachpb.StoreID{1, 2}, 500, 0},
+		{[]roachpb.StoreID{1, 3}, 500, 0},
+		{[]roachpb.StoreID{1, 4}, 500, 0},
+		{[]roachpb.StoreID{1, 5}, 500, 5},
+		{[]roachpb.StoreID{1, 5}, 600, 5},
+		{[]roachpb.StoreID{1, 5}, 700, 5},
+		{[]roachpb.StoreID{1, 5}, 800, 0},
+	}
 
-	replWithStats, target := sr.chooseLeaseToTransfer(
-		ctx, localDesc, storelist, storeMap, minQPS, maxQPS)
+	for _, tc := range testCases {
+		loadRanges(rr, s, []testRange{{storeIDs: tc.storeIDs, qps: tc.qps}})
+
+		_, target := sr.chooseLeaseToTransfer(
+			ctx, localDesc, storelist, storeMap, minQPS, maxQPS)
+		if target.StoreID != tc.expectTarget {
+			t.Errorf("got target store %d for range with replicas %v and %f qps; want %d",
+				target.StoreID, tc.storeIDs, tc.qps, tc.expectTarget)
+		}
+	}
 }
