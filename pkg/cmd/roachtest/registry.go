@@ -43,6 +43,7 @@ func registerTests(r *registry) {
 	registerKVQuiescenceDead(r)
 	registerLargeRange(r)
 	registerQueue(r)
+	registerRebalanceLoad(r)
 	registerRestore(r)
 	registerRoachmart(r)
 	registerScaleData(r)
