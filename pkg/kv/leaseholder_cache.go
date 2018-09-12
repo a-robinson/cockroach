@@ -52,6 +52,8 @@ func NewLeaseHolderCache(size func() int64) *LeaseHolderCache {
 		val.cache = cache.NewUnorderedCache(cache.Config{
 			Policy: cache.CacheLRU,
 			ShouldEvict: func(s int, key, value interface{}) bool {
+				log.Infof(context.TODO(), "evicting %v because length=%d > size limit=%d / defaultShards=%d",
+					key, s, size(), defaultShards)
 				return int64(s) > size()/int64(defaultShards)
 			},
 		})
@@ -78,9 +80,9 @@ func (lc *LeaseHolderCache) Lookup(
 	return 0, false
 }
 
-// Update invalidates the cached leader for the given range ID. If an empty
-// replica descriptor is passed, the cached leader is evicted. Otherwise, the
-// passed-in replica descriptor is cached.
+// Update invalidates the cached leader for the given range ID. If a StoreID
+// of 0 is provided, the cached leader is evicted. Otherwise, the
+// passed-in StoreID is cached.
 func (lc *LeaseHolderCache) Update(
 	ctx context.Context, rangeID roachpb.RangeID, storeID roachpb.StoreID,
 ) {

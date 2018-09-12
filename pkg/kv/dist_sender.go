@@ -1349,6 +1349,7 @@ func (ds *DistSender) sendToReplicas(
 				// them, so no action is required before the next retry.
 			case *roachpb.NotLeaseHolderError:
 				ds.metrics.NotLeaseHolderErrCount.Inc(1)
+				log.Infof(ctx, "NotLeaseHolderError: %v", tErr)
 				if lh := tErr.LeaseHolder; lh != nil {
 					// If the replica we contacted knows the new lease holder, update the cache.
 					ds.leaseHolderCache.Update(ctx, rangeID, lh.StoreID)
