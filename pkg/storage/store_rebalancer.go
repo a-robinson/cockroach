@@ -442,7 +442,7 @@ func (sr *StoreRebalancer) chooseLeaseToTransfer(
 				*localDesc,
 				candidate.StoreID,
 				desc.Replicas,
-				replWithStats.repl.leaseholderStats,
+				&replWithStats.repl.leaseholderStats,
 			) {
 				log.VEventf(ctx, 3, "r%d is on s%d due to follow-the-workload; skipping",
 					desc.RangeID, localDesc.StoreID)

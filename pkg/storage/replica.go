@@ -271,10 +271,10 @@ type Replica struct {
 
 	// leaseholderStats tracks all incoming BatchRequests to the replica and which
 	// localities they come from in order to aid in lease rebalancing decisions.
-	leaseholderStats *replicaStats
+	leaseholderStats replicaStats
 	// writeStats tracks the number of keys written by applied raft commands
 	// in order to aid in replica rebalancing decisions.
-	writeStats *replicaStats
+	writeStats replicaStats
 
 	// creatingReplica is set when a replica is created as uninitialized
 	// via a raft message.
@@ -657,11 +657,11 @@ func newReplica(rangeID roachpb.RangeID, store *Store) *Replica {
 		r.leaseHistory = newLeaseHistory()
 	}
 	if store.cfg.StorePool != nil {
-		r.leaseholderStats = newReplicaStats(store.Clock(), store.cfg.StorePool.getNodeLocalityString)
+		r.leaseholderStats = makeReplicaStats(store.Clock(), store.cfg.StorePool.getNodeLocalityString)
 	}
 	// Pass nil for the localityOracle because we intentionally don't track the
 	// origin locality of write load.
-	r.writeStats = newReplicaStats(store.Clock(), nil)
+	r.writeStats = makeReplicaStats(store.Clock(), nil)
 
 	// Init rangeStr with the range ID.
 	r.rangeStr.store(0, &roachpb.RangeDescriptor{RangeID: rangeID})
@@ -1986,7 +1986,7 @@ func (r *Replica) sendWithRangeID(
 	ctx context.Context, rangeID roachpb.RangeID, ba roachpb.BatchRequest,
 ) (*roachpb.BatchResponse, *roachpb.Error) {
 	var br *roachpb.BatchResponse
-	if r.leaseholderStats != nil && ba.Header.GatewayNodeID != 0 {
+	if ba.Header.GatewayNodeID != 0 {
 		r.leaseholderStats.record(ba.Header.GatewayNodeID)
 	}
 

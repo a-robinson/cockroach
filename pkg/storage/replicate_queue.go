@@ -221,7 +221,7 @@ func (rq *replicateQueue) shouldQueue(
 	if lease, _ := repl.GetLease(); repl.IsLeaseValid(lease, now) {
 		if rq.canTransferLease() &&
 			rq.allocator.ShouldTransferLease(
-				ctx, zone, desc.Replicas, lease.Replica.StoreID, desc.RangeID, repl.leaseholderStats) {
+				ctx, zone, desc.Replicas, lease.Replica.StoreID, desc.RangeID, &repl.leaseholderStats) {
 			log.VEventf(ctx, 2, "lease transfer needed, enqueuing")
 			return true, 0
 		}
@@ -566,7 +566,7 @@ func (rq *replicateQueue) findTargetAndTransferLease(
 		candidates,
 		repl.store.StoreID(),
 		desc.RangeID,
-		repl.leaseholderStats,
+		&repl.leaseholderStats,
 		opts.checkTransferLeaseSource,
 		opts.checkCandidateFullness,
 		false, /* alwaysAllowDecisionWithoutStats */

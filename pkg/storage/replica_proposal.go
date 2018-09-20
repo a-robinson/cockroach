@@ -242,9 +242,7 @@ func (r *Replica) leasePostApply(ctx context.Context, newLease roachpb.Lease) {
 
 		// Reset the request counts used to make lease placement decisions whenever
 		// starting a new lease.
-		if r.leaseholderStats != nil {
-			r.leaseholderStats.resetRequestCounts()
-		}
+		r.leaseholderStats.resetRequestCounts()
 	}
 
 	// Sanity check to make sure that the lease sequence is moving in the right
@@ -330,9 +328,7 @@ func (r *Replica) leasePostApply(ctx context.Context, newLease roachpb.Lease) {
 		} else if prevOwner {
 			r.store.maybeGossipOnCapacityChange(ctx, leaseRemoveEvent)
 		}
-		if r.leaseholderStats != nil {
-			r.leaseholderStats.resetRequestCounts()
-		}
+		r.leaseholderStats.resetRequestCounts()
 	}
 
 	// Potentially re-gossip if the range contains system data (e.g. system

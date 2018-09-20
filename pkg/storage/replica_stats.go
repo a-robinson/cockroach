@@ -64,11 +64,9 @@ type replicaStats struct {
 	}
 }
 
-func newReplicaStats(clock *hlc.Clock, getNodeLocality localityOracle) *replicaStats {
-	rs := &replicaStats{
-		clock:           clock,
-		getNodeLocality: getNodeLocality,
-	}
+func makeReplicaStats(clock *hlc.Clock, getNodeLocality localityOracle) (rs replicaStats) {
+	rs.clock = clock
+	rs.getNodeLocality = getNodeLocality
 	rs.mu.requests[rs.mu.idx] = make(perLocalityCounts)
 	rs.mu.lastRotate = timeutil.Unix(0, rs.clock.PhysicalNow())
 	rs.mu.lastReset = rs.mu.lastRotate
@@ -83,6 +81,10 @@ func newReplicaStats(clock *hlc.Clock, getNodeLocality localityOracle) *replicaS
 // resetting both sides upon a split.
 // TODO(a-robinson): Write test for this.
 func (rs *replicaStats) splitRequestCounts(other *replicaStats) {
+	if rs.clock == nil {
+		return
+	}
+
 	other.mu.Lock()
 	defer other.mu.Unlock()
 	rs.mu.Lock()
@@ -111,6 +113,10 @@ func (rs *replicaStats) record(nodeID roachpb.NodeID) {
 }
 
 func (rs *replicaStats) recordCount(count float64, nodeID roachpb.NodeID) {
+	if rs.clock == nil {
+		return
+	}
+
 	var locality string
 	if rs.getNodeLocality != nil {
 		locality = rs.getNodeLocality(nodeID)
@@ -218,6 +224,9 @@ func (rs *replicaStats) avgQPS() (float64, time.Duration) {
 }
 
 func (rs *replicaStats) resetRequestCounts() {
+	if rs.clock == nil {
+		return
+	}
 	rs.mu.Lock()
 	defer rs.mu.Unlock()
 

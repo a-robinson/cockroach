@@ -139,9 +139,9 @@ func TestStoreConfig(clock *hlc.Clock) StoreConfig {
 	}
 	st := cluster.MakeTestingClusterSettings()
 	sc := StoreConfig{
-		Settings:   st,
-		AmbientCtx: log.AmbientContext{Tracer: st.Tracer},
-		Clock:      clock,
+		Settings:                    st,
+		AmbientCtx:                  log.AmbientContext{Tracer: st.Tracer},
+		Clock:                       clock,
 		CoalescedHeartbeatsInterval: 50 * time.Millisecond,
 		RaftHeartbeatIntervalTicks:  1,
 		ScanInterval:                10 * time.Minute,
@@ -2476,7 +2476,7 @@ func (s *Store) SplitRange(
 	// Clear the original range's request stats, since they include requests for
 	// spans that are now owned by the new range.
 	leftRepl.leaseholderStats.resetRequestCounts()
-	leftRepl.writeStats.splitRequestCounts(rightRepl.writeStats)
+	leftRepl.writeStats.splitRequestCounts(&rightRepl.writeStats)
 
 	if err := s.addReplicaInternalLocked(rightRepl); err != nil {
 		return errors.Errorf("couldn't insert range %v in replicasByKey btree: %s", rightRepl, err)
@@ -2552,15 +2552,11 @@ func (s *Store) MergeRange(
 		return errors.Errorf("cannot remove range: %s", err)
 	}
 
-	if leftRepl.leaseholderStats != nil {
-		leftRepl.leaseholderStats.resetRequestCounts()
-	}
-	if leftRepl.writeStats != nil {
-		// Note: this could be drastically improved by adding a replicaStats method
-		// that merges stats. Resetting stats is typically bad for the rebalancing
-		// logic that depends on them.
-		leftRepl.writeStats.resetRequestCounts()
-	}
+	leftRepl.leaseholderStats.resetRequestCounts()
+	// Note: this could be drastically improved by adding a replicaStats method
+	// that merges stats. Resetting stats is typically bad for the rebalancing
+	// logic that depends on them.
+	leftRepl.writeStats.resetRequestCounts()
 
 	// Clear the wait queue to redirect the queued transactions to the
 	// left-hand replica, if necessary.

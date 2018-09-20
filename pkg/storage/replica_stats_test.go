@@ -107,7 +107,7 @@ func TestReplicaStats(t *testing.T) {
 				"region=us-east1,zone=us-east1-a": 1,
 				"region=us-east1,zone=us-east1-b": 1,
 				"region=us-west1,zone=us-west1-a": 1,
-				"": 3,
+				"":                                3,
 			},
 		},
 		{
@@ -172,7 +172,7 @@ func TestReplicaStats(t *testing.T) {
 		},
 	}
 	for i, tc := range testCases {
-		rs := newReplicaStats(clock, func(nodeID roachpb.NodeID) string {
+		rs := makeReplicaStats(clock, func(nodeID roachpb.NodeID) string {
 			return tc.localities[nodeID]
 		})
 		for _, req := range tc.reqs {
@@ -220,7 +220,7 @@ func TestReplicaStatsDecay(t *testing.T) {
 		3: "region=us-west-1,zone=us-west-1a",
 	}
 
-	rs := newReplicaStats(clock, func(nodeID roachpb.NodeID) string {
+	rs := makeReplicaStats(clock, func(nodeID roachpb.NodeID) string {
 		return awsLocalities[nodeID]
 	})
 
@@ -319,7 +319,7 @@ func TestReplicaStatsDecaySmoothing(t *testing.T) {
 		2: "region=us-east-1,zone=us-east-1b",
 		3: "region=us-west-1,zone=us-west-1a",
 	}
-	rs := newReplicaStats(clock, func(nodeID roachpb.NodeID) string {
+	rs := makeReplicaStats(clock, func(nodeID roachpb.NodeID) string {
 		return awsLocalities[nodeID]
 	})
 	rs.record(1)

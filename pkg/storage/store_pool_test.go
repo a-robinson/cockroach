@@ -472,7 +472,7 @@ func TestStorePoolUpdateLocalStore(t *testing.T) {
 		ValBytes: 4,
 	}
 	replica.mu.Unlock()
-	rs := newReplicaStats(clock, nil)
+	rs := makeReplicaStats(clock, nil)
 	for _, store := range stores {
 		rs.record(store.Node.NodeID)
 	}
@@ -582,7 +582,7 @@ func TestStorePoolUpdateLocalStoreBeforeGossip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("make replica error : %s", err)
 	}
-	replica.leaseholderStats = newReplicaStats(store.Clock(), nil)
+	replica.leaseholderStats = makeReplicaStats(store.Clock(), nil)
 
 	rangeInfo := rangeInfoForRepl(replica, &rg)
 

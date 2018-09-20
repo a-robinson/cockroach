@@ -844,8 +844,8 @@ func TestAllocatorRebalanceTarget(t *testing.T) {
 	repl.mu.state.Stats = &enginepb.MVCCStats{}
 	repl.mu.Unlock()
 
-	repl.leaseholderStats = newReplicaStats(clock, nil)
-	repl.writeStats = newReplicaStats(clock, nil)
+	repl.leaseholderStats = makeReplicaStats(clock, nil)
+	repl.writeStats = makeReplicaStats(clock, nil)
 
 	desc := &roachpb.RangeDescriptor{
 		Replicas: replicas,
@@ -3686,13 +3686,13 @@ func TestAllocatorTransferLeaseTargetLoadBased(t *testing.T) {
 	// Set up four different load distributions. Record a bunch of requests to
 	// the unknown node 99 in evenlyBalanced to verify that requests from
 	// unknown localities don't affect the algorithm.
-	evenlyBalanced := newReplicaStats(clock, localityFn)
+	evenlyBalanced := makeReplicaStats(clock, localityFn)
 	evenlyBalanced.record(1)
 	evenlyBalanced.record(2)
 	evenlyBalanced.record(3)
-	imbalanced1 := newReplicaStats(clock, localityFn)
-	imbalanced2 := newReplicaStats(clock, localityFn)
-	imbalanced3 := newReplicaStats(clock, localityFn)
+	imbalanced1 := makeReplicaStats(clock, localityFn)
+	imbalanced2 := makeReplicaStats(clock, localityFn)
+	imbalanced3 := makeReplicaStats(clock, localityFn)
 	for i := 0; i < 100*int(MinLeaseTransferStatsDuration.Seconds()); i++ {
 		evenlyBalanced.record(99)
 		imbalanced1.record(1)
@@ -3723,62 +3723,62 @@ func TestAllocatorTransferLeaseTargetLoadBased(t *testing.T) {
 		expected    roachpb.StoreID
 	}{
 		// No existing lease holder, nothing to do.
-		{leaseholder: 0, latency: noLatency, stats: evenlyBalanced, check: true, expected: 0},
-		{leaseholder: 1, latency: noLatency, stats: evenlyBalanced, check: true, expected: 0},
-		{leaseholder: 1, latency: noLatency, stats: evenlyBalanced, check: false, expected: 2},
-		{leaseholder: 2, latency: noLatency, stats: evenlyBalanced, check: true, expected: 1},
-		{leaseholder: 2, latency: noLatency, stats: evenlyBalanced, check: false, expected: 1},
-		{leaseholder: 3, latency: noLatency, stats: evenlyBalanced, check: true, expected: 1},
-		{leaseholder: 3, latency: noLatency, stats: evenlyBalanced, check: false, expected: 1},
-		{leaseholder: 0, latency: noLatency, stats: imbalanced1, check: true, expected: 0},
-		{leaseholder: 1, latency: noLatency, stats: imbalanced1, check: true, expected: 0},
-		{leaseholder: 1, latency: noLatency, stats: imbalanced1, check: false, expected: 2},
-		{leaseholder: 2, latency: noLatency, stats: imbalanced1, check: true, expected: 1},
-		{leaseholder: 2, latency: noLatency, stats: imbalanced1, check: false, expected: 1},
-		{leaseholder: 3, latency: noLatency, stats: imbalanced1, check: true, expected: 1},
-		{leaseholder: 3, latency: noLatency, stats: imbalanced1, check: false, expected: 1},
-		{leaseholder: 0, latency: noLatency, stats: imbalanced2, check: true, expected: 0},
-		{leaseholder: 1, latency: noLatency, stats: imbalanced2, check: true, expected: 0},
-		{leaseholder: 1, latency: noLatency, stats: imbalanced2, check: false, expected: 2},
-		{leaseholder: 2, latency: noLatency, stats: imbalanced2, check: true, expected: 1},
-		{leaseholder: 2, latency: noLatency, stats: imbalanced2, check: false, expected: 1},
-		{leaseholder: 3, latency: noLatency, stats: imbalanced2, check: true, expected: 1},
-		{leaseholder: 3, latency: noLatency, stats: imbalanced2, check: false, expected: 1},
-		{leaseholder: 0, latency: noLatency, stats: imbalanced3, check: true, expected: 0},
-		{leaseholder: 1, latency: noLatency, stats: imbalanced3, check: true, expected: 0},
-		{leaseholder: 1, latency: noLatency, stats: imbalanced3, check: false, expected: 2},
-		{leaseholder: 2, latency: noLatency, stats: imbalanced3, check: true, expected: 1},
-		{leaseholder: 2, latency: noLatency, stats: imbalanced3, check: false, expected: 1},
-		{leaseholder: 3, latency: noLatency, stats: imbalanced3, check: true, expected: 1},
-		{leaseholder: 3, latency: noLatency, stats: imbalanced3, check: false, expected: 1},
-		{leaseholder: 0, latency: highLatency, stats: evenlyBalanced, check: true, expected: 0},
-		{leaseholder: 1, latency: highLatency, stats: evenlyBalanced, check: true, expected: 0},
-		{leaseholder: 1, latency: highLatency, stats: evenlyBalanced, check: false, expected: 2},
-		{leaseholder: 2, latency: highLatency, stats: evenlyBalanced, check: true, expected: 1},
-		{leaseholder: 2, latency: highLatency, stats: evenlyBalanced, check: false, expected: 1},
-		{leaseholder: 3, latency: highLatency, stats: evenlyBalanced, check: true, expected: 1},
-		{leaseholder: 3, latency: highLatency, stats: evenlyBalanced, check: false, expected: 1},
-		{leaseholder: 0, latency: highLatency, stats: imbalanced1, check: true, expected: 0},
-		{leaseholder: 1, latency: highLatency, stats: imbalanced1, check: true, expected: 0},
-		{leaseholder: 1, latency: highLatency, stats: imbalanced1, check: false, expected: 2},
-		{leaseholder: 2, latency: highLatency, stats: imbalanced1, check: true, expected: 1},
-		{leaseholder: 2, latency: highLatency, stats: imbalanced1, check: false, expected: 1},
-		{leaseholder: 3, latency: highLatency, stats: imbalanced1, check: true, expected: 1},
-		{leaseholder: 3, latency: highLatency, stats: imbalanced1, check: false, expected: 1},
-		{leaseholder: 0, latency: highLatency, stats: imbalanced2, check: true, expected: 0},
-		{leaseholder: 1, latency: highLatency, stats: imbalanced2, check: true, expected: 2},
-		{leaseholder: 1, latency: highLatency, stats: imbalanced2, check: false, expected: 2},
-		{leaseholder: 2, latency: highLatency, stats: imbalanced2, check: true, expected: 0},
-		{leaseholder: 2, latency: highLatency, stats: imbalanced2, check: false, expected: 1},
-		{leaseholder: 3, latency: highLatency, stats: imbalanced2, check: true, expected: 2},
-		{leaseholder: 3, latency: highLatency, stats: imbalanced2, check: false, expected: 2},
-		{leaseholder: 0, latency: highLatency, stats: imbalanced3, check: true, expected: 0},
-		{leaseholder: 1, latency: highLatency, stats: imbalanced3, check: true, expected: 3},
-		{leaseholder: 1, latency: highLatency, stats: imbalanced3, check: false, expected: 3},
-		{leaseholder: 2, latency: highLatency, stats: imbalanced3, check: true, expected: 3},
-		{leaseholder: 2, latency: highLatency, stats: imbalanced3, check: false, expected: 3},
-		{leaseholder: 3, latency: highLatency, stats: imbalanced3, check: true, expected: 0},
-		{leaseholder: 3, latency: highLatency, stats: imbalanced3, check: false, expected: 1},
+		{leaseholder: 0, latency: noLatency, stats: &evenlyBalanced, check: true, expected: 0},
+		{leaseholder: 1, latency: noLatency, stats: &evenlyBalanced, check: true, expected: 0},
+		{leaseholder: 1, latency: noLatency, stats: &evenlyBalanced, check: false, expected: 2},
+		{leaseholder: 2, latency: noLatency, stats: &evenlyBalanced, check: true, expected: 1},
+		{leaseholder: 2, latency: noLatency, stats: &evenlyBalanced, check: false, expected: 1},
+		{leaseholder: 3, latency: noLatency, stats: &evenlyBalanced, check: true, expected: 1},
+		{leaseholder: 3, latency: noLatency, stats: &evenlyBalanced, check: false, expected: 1},
+		{leaseholder: 0, latency: noLatency, stats: &imbalanced1, check: true, expected: 0},
+		{leaseholder: 1, latency: noLatency, stats: &imbalanced1, check: true, expected: 0},
+		{leaseholder: 1, latency: noLatency, stats: &imbalanced1, check: false, expected: 2},
+		{leaseholder: 2, latency: noLatency, stats: &imbalanced1, check: true, expected: 1},
+		{leaseholder: 2, latency: noLatency, stats: &imbalanced1, check: false, expected: 1},
+		{leaseholder: 3, latency: noLatency, stats: &imbalanced1, check: true, expected: 1},
+		{leaseholder: 3, latency: noLatency, stats: &imbalanced1, check: false, expected: 1},
+		{leaseholder: 0, latency: noLatency, stats: &imbalanced2, check: true, expected: 0},
+		{leaseholder: 1, latency: noLatency, stats: &imbalanced2, check: true, expected: 0},
+		{leaseholder: 1, latency: noLatency, stats: &imbalanced2, check: false, expected: 2},
+		{leaseholder: 2, latency: noLatency, stats: &imbalanced2, check: true, expected: 1},
+		{leaseholder: 2, latency: noLatency, stats: &imbalanced2, check: false, expected: 1},
+		{leaseholder: 3, latency: noLatency, stats: &imbalanced2, check: true, expected: 1},
+		{leaseholder: 3, latency: noLatency, stats: &imbalanced2, check: false, expected: 1},
+		{leaseholder: 0, latency: noLatency, stats: &imbalanced3, check: true, expected: 0},
+		{leaseholder: 1, latency: noLatency, stats: &imbalanced3, check: true, expected: 0},
+		{leaseholder: 1, latency: noLatency, stats: &imbalanced3, check: false, expected: 2},
+		{leaseholder: 2, latency: noLatency, stats: &imbalanced3, check: true, expected: 1},
+		{leaseholder: 2, latency: noLatency, stats: &imbalanced3, check: false, expected: 1},
+		{leaseholder: 3, latency: noLatency, stats: &imbalanced3, check: true, expected: 1},
+		{leaseholder: 3, latency: noLatency, stats: &imbalanced3, check: false, expected: 1},
+		{leaseholder: 0, latency: highLatency, stats: &evenlyBalanced, check: true, expected: 0},
+		{leaseholder: 1, latency: highLatency, stats: &evenlyBalanced, check: true, expected: 0},
+		{leaseholder: 1, latency: highLatency, stats: &evenlyBalanced, check: false, expected: 2},
+		{leaseholder: 2, latency: highLatency, stats: &evenlyBalanced, check: true, expected: 1},
+		{leaseholder: 2, latency: highLatency, stats: &evenlyBalanced, check: false, expected: 1},
+		{leaseholder: 3, latency: highLatency, stats: &evenlyBalanced, check: true, expected: 1},
+		{leaseholder: 3, latency: highLatency, stats: &evenlyBalanced, check: false, expected: 1},
+		{leaseholder: 0, latency: highLatency, stats: &imbalanced1, check: true, expected: 0},
+		{leaseholder: 1, latency: highLatency, stats: &imbalanced1, check: true, expected: 0},
+		{leaseholder: 1, latency: highLatency, stats: &imbalanced1, check: false, expected: 2},
+		{leaseholder: 2, latency: highLatency, stats: &imbalanced1, check: true, expected: 1},
+		{leaseholder: 2, latency: highLatency, stats: &imbalanced1, check: false, expected: 1},
+		{leaseholder: 3, latency: highLatency, stats: &imbalanced1, check: true, expected: 1},
+		{leaseholder: 3, latency: highLatency, stats: &imbalanced1, check: false, expected: 1},
+		{leaseholder: 0, latency: highLatency, stats: &imbalanced2, check: true, expected: 0},
+		{leaseholder: 1, latency: highLatency, stats: &imbalanced2, check: true, expected: 2},
+		{leaseholder: 1, latency: highLatency, stats: &imbalanced2, check: false, expected: 2},
+		{leaseholder: 2, latency: highLatency, stats: &imbalanced2, check: true, expected: 0},
+		{leaseholder: 2, latency: highLatency, stats: &imbalanced2, check: false, expected: 1},
+		{leaseholder: 3, latency: highLatency, stats: &imbalanced2, check: true, expected: 2},
+		{leaseholder: 3, latency: highLatency, stats: &imbalanced2, check: false, expected: 2},
+		{leaseholder: 0, latency: highLatency, stats: &imbalanced3, check: true, expected: 0},
+		{leaseholder: 1, latency: highLatency, stats: &imbalanced3, check: true, expected: 3},
+		{leaseholder: 1, latency: highLatency, stats: &imbalanced3, check: false, expected: 3},
+		{leaseholder: 2, latency: highLatency, stats: &imbalanced3, check: true, expected: 3},
+		{leaseholder: 2, latency: highLatency, stats: &imbalanced3, check: false, expected: 3},
+		{leaseholder: 3, latency: highLatency, stats: &imbalanced3, check: true, expected: 0},
+		{leaseholder: 3, latency: highLatency, stats: &imbalanced3, check: false, expected: 1},
 	}
 
 	for _, c := range testCases {
