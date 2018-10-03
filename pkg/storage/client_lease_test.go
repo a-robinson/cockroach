@@ -274,3 +274,51 @@ func TestGossipSystemConfigOnLeaseChange(t *testing.T) {
 		return nil
 	})
 }
+
+func TestLeaseTransferToBehindReplica(t *testing.T) {
+	defer leaktest.AfterTest(t)()
+	sc := storage.TestStoreConfig(nil)
+	sc.TestingKnobs.DisableReplicateQueue = true
+	mtc := &multiTestContext{storeConfig: &sc}
+	defer mtc.Stop()
+	const numStores = 3
+	mtc.Start(t, numStores)
+
+	mtc.replicateRange(roachpb.RangeID(1), 1, 2)
+
+	splitKeys := []roachpb.Key{
+		keys.NodeLivenessKeyMax, roachpb.Key("a"), roachpb.Key("b"), roachpb.Key("c"),
+	}
+	for _, splitKey := range splitKeys {
+		splitArgs := adminSplitArgs(splitKey)
+		if _, pErr := client.SendWrapped(context.Background(), mtc.distSenders[0], splitArgs); pErr != nil {
+			t.Fatal(pErr)
+		}
+	}
+
+	s0Repl := mtc.stores[0].LookupReplica(roachpb.RKey("c"))
+	s2Repl := mtc.stores[2].LookupReplica(roachpb.RKey("c"))
+	t.Errorf("s0 desc: %v", s0Repl.Desc())
+	lease, nextLease := s0Repl.GetLease()
+	t.Errorf("s0 lease: %v, %v", lease, nextLease)
+	t.Errorf("s0 desc: %v", s2Repl.Desc())
+	lease, nextLease = s2Repl.GetLease()
+	t.Errorf("s2 lease: %v, %v", lease, nextLease)
+
+	mtc.transferLease(context.TODO(), s0Repl.RangeID, 0, 2)
+
+	lease, nextLease = s0Repl.GetLease()
+	t.Errorf("s0 lease: %v, %v", lease, nextLease)
+	lease, nextLease = s2Repl.GetLease()
+	t.Errorf("s2 lease: %v, %v", lease, nextLease)
+
+	testutils.SucceedsSoon(t, func() error {
+		splitArgs := adminSplitArgs(roachpb.Key("d"))
+		if _, pErr := client.SendWrapped(context.Background(), mtc.distSenders[0], splitArgs); pErr != nil {
+			t.Errorf("split failed: %v", pErr)
+			return pErr.GoError()
+		}
+		return nil
+	})
+	t.Errorf("split succeeded")
+}

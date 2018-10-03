@@ -4059,6 +4059,10 @@ func (r *Replica) handleRaftReadyRaftMuLocked(
 ) (handleRaftReadyStats, string, error) {
 	var stats handleRaftReadyStats
 
+	if r.store.StoreID() == roachpb.StoreID(3) && r.RangeID >= 5 {
+		return stats, "", nil
+	}
+
 	ctx := r.AnnotateCtx(context.TODO())
 	var hasReady bool
 	var rd raft.Ready
